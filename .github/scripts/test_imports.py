@@ -10,6 +10,9 @@ import os
 import importlib.util
 from pathlib import Path
 
+# Constants
+ERROR_MESSAGE_MAX_LENGTH = 100
+
 
 def test_file_import(file_path: str, base_dir: str) -> tuple[bool, str]:
     """
@@ -48,7 +51,7 @@ def test_file_import(file_path: str, base_dir: str) -> tuple[bool, str]:
         return True, f"Successfully imported {file_path}"
         
     except Exception as e:
-        return False, f"Error importing {file_path}: {str(e)[:100]}"
+        return False, f"Error importing {file_path}: {str(e)[:ERROR_MESSAGE_MAX_LENGTH]}"
 
 
 def test_utils_functions():
@@ -197,8 +200,9 @@ def main():
     print("\n" + "=" * 70)
     print("TEST RESULTS")
     print("=" * 70)
+    successful_imports = len(python_files) - len(failed_imports)
     print(f"Total files tested: {len(python_files)}")
-    print(f"Successful imports: {len(python_files) - len(failed_imports)}")
+    print(f"Successful imports: {successful_imports}")
     print(f"Failed tests: {len(failed_imports)}")
     
     if failed_imports:
