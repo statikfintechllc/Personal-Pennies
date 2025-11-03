@@ -367,6 +367,15 @@ body {
   transform: translateX(4px);
 }
 
+/* Native select for mobile bubble dropdowns */
+.bubble-native-select {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
 /* Mentors, Books, Notes, and Trades dropdowns - uniform styling with no wrapping */
 .glowing-bubble-wrapper:has(.bubble-mentors) .bubble-dropdown,
 .glowing-bubble-wrapper:has(.bubble-books) .bubble-dropdown,
