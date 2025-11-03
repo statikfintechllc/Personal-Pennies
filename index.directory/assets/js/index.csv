@@ -2,13 +2,13 @@ Filename,Class/Function/Task Name,Type,Brief Description,Line Number Range
 README.md,JavaScript Directory Documentation,documentation,Comprehensive documentation for all JavaScript modules including API reference usage and dependencies,1-300
 README-charts.md,Charts JavaScript Documentation,documentation,Specialized documentation for chart rendering and Chart.js integration,1-200
 accountManager.js,AccountManager,class,Manages starting balance deposits withdrawals and portfolio value calculations with EventBus integration,7-350
-accountManager.js,constructor,method,Initializes AccountManager with config basePath and eventBus references,8-13
+accountManager.js,constructor,method,Initializes AccountManager with config, basePath, and eventBus references,8-13
 accountManager.js,init,method,Loads account config updates display and sets up event listeners,18-28
-accountManager.js,setupEventListeners,method,Subscribes to EventBus events for trades updates and state refresh,33-46
+accountManager.js,setupEventListeners,method,Subscribes to EventBus events for trades, updates, and state refresh,33-46
 accountManager.js,loadConfig,method,Loads account configuration from JSON file with default fallback,51-89
 accountManager.js,saveConfig,method,Saves account configuration to localStorage and commits to GitHub repository,96-200
 accountManager.js,updateDisplay,method,Updates UI elements with current portfolio value and account metrics,205-250
-accountManager.js,getPortfolioValue,method,Calculates current portfolio value from starting balance deposits withdrawals and trade P&L,255-280
+accountManager.js,getPortfolioValue,method,Calculates current portfolio value from starting balance, deposits, withdrawals, and trade P&L,255-280
 accountManager.js,getTotalDeposits,method,Sums all deposit amounts,285-295
 accountManager.js,getTotalWithdrawals,method,Sums all withdrawal amounts,300-310
 accountManager.js,addDeposit,method,Adds new deposit to account configuration and saves,315-330
@@ -20,7 +20,7 @@ analytics.js,Chart Variables,variable,References to Chart.js instances for strat
 analytics.js,initAnalytics,function,Initializes analytics page loads data and sets up event listeners,39-50
 analytics.js,loadAnalyticsData,function,Loads analytics-data.json with fallback to mock data,55-80
 analytics.js,setupAnalyticsEventListeners,function,Sets up reactive event listeners for analytics updates,85-100
-analytics.js,renderMetrics,function,Renders key trading metrics (expectancy profit factor drawdown kelly criterion),105-150
+analytics.js,renderMetrics,function,Renders key trading metrics (expectancy, profit factor, drawdown, kelly criterion),105-150
 analytics.js,renderStrategyChart,function,Creates Chart.js bar chart for strategy performance breakdown,155-200
 analytics.js,renderSetupChart,function,Creates Chart.js bar chart for setup type performance,205-250
 analytics.js,renderWinrateChart,function,Creates Chart.js doughnut chart for win rate visualization,255-300
@@ -30,16 +30,16 @@ app.js,State Variables,variable,Global state for trades data and application sta
 app.js,initializeApp,function,Initializes entire application on page load,30-50
 app.js,initializeForm,function,Sets up form event listeners and validation,55-100
 app.js,validateForm,function,Validates trade submission form data,105-150
-app.js,calculatePnL,function,Calculates profit/loss for both long and short positions,155-180
+app.js,calculatePnL,function,Calculates P&L for both long and short positions,155-180
 app.js,calculateTimeInTrade,function,Calculates duration between entry and exit times,185-210
-app.js,calculateRiskReward,function,Calculates risk:reward ratio from entry stop and target prices,215-235
+app.js,calculateRiskReward,function,Calculates risk:reward ratio from entry, stop, and target prices,215-235
 app.js,loadRecentTrades,function,Loads and displays 3 most recent trades on homepage,240-280
 app.js,renderTradeCard,function,Creates HTML trade card element with styling and data,285-330
 app.js,updateSummaryStats,function,Updates homepage statistics cards with current metrics,335-380
 app.js,fetchTradeData,function,Loads trades-index.json from repository,385-410
 app.js,processTradeData,function,Parses and validates trade data,415-450
 app.js,sortTrades,function,Sorts trades by date and trade number,455-475
-app.js,filterTrades,function,Filters trades by criteria (date range status ticker),480-510
+app.js,filterTrades,function,Filters trades by criteria (date range, status, ticker),480-510
 app.js,renderEquityCurve,function,Creates Chart.js equity curve chart with cumulative P&L,515-570
 app.js,updateChartData,function,Updates chart with new trade data,575-610
 app.js,handleTradeSubmission,function,Handles trade form submission and GitHub API upload,615-700
@@ -67,9 +67,9 @@ background.js,drawMatrix,function,Draws matrix-style falling characters effect,5
 background.js,animate,function,Animation loop using requestAnimationFrame,80-90
 bundle.min.js,Bundled Dependencies,bundle,Minified bundle (~1.5MB) of PDF.js Marked.js and Highlight.js libraries for PDF and markdown rendering,N/A
 chartConfig.js,Chart Configuration Module,module,Common Chart.js configuration options for consistent styling across all charts,1-150
-chartConfig.js,getCommonChartOptions,function,Returns shared Chart.js options object with theme colors and typography,14-33
+chartConfig.js,getCommonChartOptions,function,Returns shared Chart.js options object with theme colors, and typography,14-33
 chartConfig.js,getCommonTooltipConfig,function,Returns tooltip configuration with dark theme styling,39-59
-chartConfig.js,getCommonScaleConfig,function,Returns scale configuration for x and y axes with grid and tick styling,65-95
+chartConfig.js,getCommonScaleConfig,function,Returns scale configuration for x and y axes with grid, and tick styling,65-95
 chartConfig.js,getPortfolioChartOptions,function,Returns specialized options for portfolio value charts,100-125
 chartConfig.js,getReturnChartOptions,function,Returns specialized options for return percentage charts with cyan accent,130-150
 charts.js,Charts Module,module,Loads chart data from JSON files and renders Chart.js visualizations on homepage,1-200
@@ -93,7 +93,7 @@ footer.js,Footer Module,module,Manages footer content and dynamic year display,1
 footer.js,initFooter,function,Initializes footer with current year and repository link,10-30
 footer.js,updateYear,function,Updates copyright year dynamically,35-45
 glowing-bubbles.js,Glowing Bubbles Background,module,Creates animated glowing bubbles background effect for trading journal,1-350
-glowing-bubbles.js,Configuration,variable,Bubble animation parameters (count size speed colors),10-30
+glowing-bubbles.js,Configuration,variable,Bubble animation parameters (count, size, speed, colors),10-30
 glowing-bubbles.js,Bubble Array,variable,Array storing all bubble objects,35-35
 glowing-bubbles.js,initBubbles,function,Initializes bubble animation on page load,40-60
 glowing-bubbles.js,createBubble,function,Creates single bubble object with random properties,65-95
@@ -108,7 +108,7 @@ import.js,initImport,function,Initializes import page with event listeners,30-50
 import.js,setupDropzone,function,Sets up drag-and-drop file upload area,55-90
 import.js,handleFileSelect,function,Handles file selection from input or drag-and-drop,95-125
 import.js,parseCSV,function,Parses CSV file content into trade objects,130-180
-import.js,validateTrade,function,Validates individual trade data for required fields and data types,185-235
+import.js,validateTrade,function,Validates individual trade data for required fields, and data types,185-235
 import.js,renderPreviewTable,function,Renders preview table of imported trades,240-290
 import.js,highlightErrors,function,Highlights validation errors in preview table,295-325
 import.js,processImport,function,Processes validated trades and submits to repository,330-380
@@ -124,7 +124,7 @@ modals.js,openReturnModal,function,Opens total return modal and loads chart,100-
 modals.js,openDepositModal,function,Opens deposit modal with form,145-170
 modals.js,openWithdrawalModal,function,Opens withdrawal modal with form,175-200
 modals.js,closeModal,function,Closes active modal and cleans up,205-230
-modals.js,renderTimeframeChart,function,Renders chart for selected timeframe (day week month quarter year 5year),235-285
+modals.js,renderTimeframeChart,function,Renders chart for selected timeframe (day, week, month, quarter, year, 5year),235-285
 modals.js,switchTimeframe,function,Switches between different timeframe views,290-320
 modals.js,handleDepositSubmit,function,Handles deposit form submission and updates account config,325-375
 modals.js,handleWithdrawalSubmit,function,Handles withdrawal form submission and updates account config,380-430
@@ -144,13 +144,13 @@ navbar.js,handleResize,function,Handles window resize and closes mobile menu if 
 pdf.worker.min.mjs,PDF.js Web Worker,worker,PDF.js web worker (~1MB) for background PDF parsing and rendering without blocking UI,N/A
 utils.js,Utilities Module,module,Shared utility functions used across multiple files exposed globally via window.SFTiUtils,1-193
 utils.js,getBasePath,function,Gets base path for application works with GitHub Pages and custom domains,15-23
-utils.js,formatFileSize,function,Formats file size in human-readable format (bytes KB MB),30-34
+utils.js,formatFileSize,function,Formats file size in human-readable format with appropriate unit (bytes, KB, or MB) based on size,30-34
 utils.js,getBrokerName,function,Gets broker display name from broker code,41-49
 utils.js,getPnLColors,function,Gets color scheme for P&L value (green for positive red for negative),56-62
 utils.js,onDOMReady,function,Executes callback when DOM is ready,68-74
 utils.js,formatDateForFilename,function,Formats date as MM:DD:YYYY for filenames,81-84
 utils.js,getYearWeekNumber,function,Calculates year and week number from date (ISO week format),91-104
-utils.js,loadTradesByWeek,function,Loads and groups trades by week with calculated statistics,111-156
+utils.js,loadTradesByWeek,function,Loads and groups trades by week with total P&L, win rate, and trade count statistics,111-156
 utils.js,formatCurrency,function,Formats currency value with sign (+ or -),163-166
 utils.js,calculateWinRate,function,Calculates win rate percentage from wins and total trades,173-177
 utils.js,Global Export,variable,Exposes all utilities globally via window.SFTiUtils,180-191

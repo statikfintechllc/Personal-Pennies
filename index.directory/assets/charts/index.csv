@@ -1,6 +1,6 @@
 Filename,Class/Function/Task Name,Type,Brief Description,Line Number Range
 README.md,Charts Directory Documentation,documentation,Comprehensive documentation for all chart data files and visualization guidelines,1-250
-analytics-data.json,Analytics Data Store,data,Stores trading analytics metrics including expectancy profit_factor win/loss streaks drawdown and account summary,1-22
+analytics-data.json,Analytics Data Store,data,Stores trading analytics metrics including expectancy, profit_factor, win/loss streaks, drawdown, and account summary,1-22
 equity-curve-data.json,Equity Curve Chart Data,data,Chart.js dataset for cumulative P&L equity curve visualization with terminal green styling,1-11
 performance-by-day-data.json,Performance by Day Chart Data,data,Chart.js dataset for average P&L by day of week bar chart visualization,1-8
 portfolio-value-5year.json,Portfolio Value 5-Year Chart Data,data,Chart.js dataset for portfolio value over 5-year timeframe with quarterly labels,1-22
