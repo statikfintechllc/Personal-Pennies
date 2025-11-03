@@ -59,28 +59,28 @@ markdown.css,.hljs-addition,style rule,Addition diff with green background,443-4
 markdown.css,.hljs-emphasis,style rule,Text emphasis with italic style,449-451
 markdown.css,.hljs-strong,style rule,Strong text with bold weight,453-455
 markdown.css,@media (max-width: 768px),media query,Mobile and tablet responsive optimizations,464-481
-pdf-viewer.css,.pdf-viewer-container,style rule,Main PDF viewer container with dark theme and flexbox,18-25
-pdf-viewer.css,.pdf-controls,style rule,Top control bar with navigation and zoom buttons,33-41
-pdf-viewer.css,.pdf-control-btn,style rule,Control buttons for navigation and zoom,44-55
-pdf-viewer.css,.pdf-control-btn:hover,style rule,Button hover state with themed accent,58-62
-pdf-viewer.css,.pdf-control-btn:active,style rule,Button active state with scale feedback,65-67
-pdf-viewer.css,.pdf-zoom-level,style rule,Zoom level indicator with monospace font,70-76
-pdf-viewer.css,.pdf-scroll-container,style rule,Scrollable container for PDF pages,85-92
-pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar,style rule,Custom scrollbar width,95-97
-pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-track,style rule,Scrollbar track styling,99-102
-pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-thumb,style rule,Scrollbar thumb with border,104-108
-pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-thumb:hover,style rule,Scrollbar thumb hover state,110-112
-pdf-viewer.css,.pdf-page-container,style rule,Individual PDF page wrapper with white background,121-129
-pdf-viewer.css,.pdf-page-container canvas,style rule,Canvas element for rendered PDF pages,132-135
-pdf-viewer.css,.pdf-page-container:last-child,style rule,Remove bottom margin from last page,138-140
-pdf-viewer.css,.pdf-page-label,style rule,Page number indicator overlay,143-152
-pdf-viewer.css,.pdf-loading,style rule,Loading indicator with centered alignment,161-168
-pdf-viewer.css,.pdf-loading::before,style rule,Animated spinner before loading text,171-180
-pdf-viewer.css,@keyframes pdf-spin,animation,Spinner rotation animation,183-187
-pdf-viewer.css,.pdf-error,style rule,Error display container with centered layout,196-204
-pdf-viewer.css,.pdf-error p:first-child,style rule,Error heading - large and prominent,207-211
-pdf-viewer.css,.pdf-error-details,style rule,Error details in monospace for technical info,214-225
-pdf-viewer.css,@media (prefers-color-scheme: dark),media query,System dark mode preference support,234-244
-pdf-viewer.css,@media (max-width: 768px),media query,Mobile and tablet responsive adjustments,253-282
-pdf-viewer.css,@media print,media query,Print-optimized styles for PDF pages,291-312
+pdf-viewer.css,.pdf-viewer-container,style rule,Main PDF viewer container with dark theme and flexbox,22-30
+pdf-viewer.css,.pdf-controls,style rule,Top control bar with navigation and zoom buttons,37-46
+pdf-viewer.css,.pdf-control-btn,style rule,Control buttons for navigation and zoom,49-63
+pdf-viewer.css,.pdf-control-btn:hover,style rule,Button hover state with themed accent,66-70
+pdf-viewer.css,.pdf-control-btn:active,style rule,Button active state with scale feedback,73-75
+pdf-viewer.css,.pdf-zoom-level,style rule,Zoom level indicator with monospace font,78-85
+pdf-viewer.css,.pdf-scroll-container,style rule,Scrollable container for PDF pages,92-99
+pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar,style rule,Custom scrollbar width,102-104
+pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-track,style rule,Scrollbar track styling,106-109
+pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-thumb,style rule,Scrollbar thumb with border,111-115
+pdf-viewer.css,.pdf-scroll-container::-webkit-scrollbar-thumb:hover,style rule,Scrollbar thumb hover state,117-119
+pdf-viewer.css,.pdf-page-container,style rule,Individual PDF page wrapper with white background,126-134
+pdf-viewer.css,.pdf-page-container canvas,style rule,Canvas element for rendered PDF pages,137-141
+pdf-viewer.css,.pdf-page-container:last-child,style rule,Remove bottom margin from last page,144-146
+pdf-viewer.css,.pdf-page-label,style rule,Page number indicator overlay,149-161
+pdf-viewer.css,.pdf-loading,style rule,Loading indicator with centered alignment,168-177
+pdf-viewer.css,.pdf-loading::before,style rule,Animated spinner before loading text,180-190
+pdf-viewer.css,@keyframes pdf-spin,animation,Spinner rotation animation,193-197
+pdf-viewer.css,.pdf-error,style rule,Error display container with centered layout,204-214
+pdf-viewer.css,.pdf-error p:first-child,style rule,Error heading - large and prominent,217-221
+pdf-viewer.css,.pdf-error-details,style rule,Error details in monospace for technical info,224-235
+pdf-viewer.css,@media (prefers-color-scheme: dark),media query,System dark mode preference support,242-254
+pdf-viewer.css,@media (max-width: 768px),media query,Mobile and tablet responsive adjustments,262-296
+pdf-viewer.css,@media print,media query,Print-optimized styles for PDF pages,304-327
 README.md,N/A,documentation,Comprehensive documentation for stylesheets directory,1-527
