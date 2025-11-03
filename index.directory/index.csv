@@ -124,7 +124,7 @@ assets/js/modals.js,updateReturnModalDisplay,function,"Update Return modal with 
 assets/js/modals.js,getTotalWithdrawals,function,"Calculate total withdrawals from account config",114-122
 assets/js/modals.js,switchPortfolioTimeframe,function,"Switch portfolio chart timeframe (day week month quarter year 5year)",124-138
 assets/js/modals.js,switchReturnTimeframe,function,"Switch return chart timeframe (day week month quarter year 5year)",140-154
-assets/js/modals.js,loadPortfolioChart,function,"Load and render portfolio value chart for selected timeframe",156-232
+assets/js/modals.js,loadPortfolioChart,function,"Load and render portfolio value chart for selected timeframe",156-193
 assets/js/modals.js,loadReturnChart,function,"Load and render total return percentage chart for selected timeframe",195-232
 assets/js/modals.js,getPortfolioChartOptions,function,"Get Chart.js options for portfolio value chart with custom formatting",234-257
 assets/js/modals.js,getReturnChartOptions,function,"Get Chart.js options for return percentage chart with custom formatting",259-295
