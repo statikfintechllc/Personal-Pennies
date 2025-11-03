@@ -6,7 +6,7 @@ Injects trade data into the homepage HTML
 """
 
 from datetime import datetime
-from utils import load_trades_index
+from .github.scripts.utils import load_trades_index
 
 
 def main():
