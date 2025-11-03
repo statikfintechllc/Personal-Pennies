@@ -13,7 +13,7 @@ index.html,JavaScript Dependencies,section,Loading and initialization of Chart.j
 manifest.json,PWA Manifest Configuration,configuration,Progressive Web App configuration for installable mobile experience,1-102
 manifest.json,App Metadata,config,Name, description, and display settings for the PWA,2-10
 manifest.json,Icons Array,config,App icons for different sizes (192x192 and 512x512),12-23
-manifest.json,Categories Array,config,App store categorization (finance and productivity and business),25-29
+manifest.json,Categories Array,config,App store categorization (finance, productivity, and business),25-29
 manifest.json,Features Array,config,List of key app features like account tracking and analytics,33-41
 manifest.json,Shortcuts Array,config,Quick actions for add trade and analytics and import CSV,43-84
 package.json,NPM Package Configuration,configuration,Node.js project dependencies and build scripts,1-22
