@@ -9,6 +9,8 @@ import json
 import os
 from datetime import datetime
 from collections import defaultdict
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import load_trades_index, load_account_config
 
 # Try to import matplotlib, but don't fail if it's not available
