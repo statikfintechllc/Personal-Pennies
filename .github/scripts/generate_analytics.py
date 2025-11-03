@@ -17,6 +17,8 @@ import json
 import os
 from datetime import datetime
 from typing import Dict, List, Tuple
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import load_trades_index, load_account_config
 
 
