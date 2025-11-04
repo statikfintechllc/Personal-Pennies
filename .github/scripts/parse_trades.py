@@ -124,10 +124,28 @@ def parse_trade_file(filepath):
             trade_data["trade_number"] = int(trade_data["trade_number"])
 
         # Convert date/time fields to strings for JSON serialization
-        date_fields = ["entry_date", "exit_date", "entry_time", "exit_time"]
-        for field in date_fields:
-            if field in trade_data and trade_data[field] is not None:
-                trade_data[field] = str(trade_data[field])
+        # Handle YAML sexagesimal parsing issue: "HH:MM" can be parsed as base-60 integer
+        # e.g., "18:55" becomes 18*60+55=1135
+        def format_time_field(value):
+            """Convert time value to HH:MM format string"""
+            if isinstance(value, int):
+                # Convert from sexagesimal back to HH:MM
+                hours = value // 60
+                minutes = value % 60
+                return f"{hours:02d}:{minutes:02d}"
+            return str(value)
+        
+        # Convert date fields to strings
+        if "entry_date" in trade_data and trade_data["entry_date"] is not None:
+            trade_data["entry_date"] = str(trade_data["entry_date"])
+        if "exit_date" in trade_data and trade_data["exit_date"] is not None:
+            trade_data["exit_date"] = str(trade_data["exit_date"])
+        
+        # Convert time fields with sexagesimal handling
+        if "entry_time" in trade_data and trade_data["entry_time"] is not None:
+            trade_data["entry_time"] = format_time_field(trade_data["entry_time"])
+        if "exit_time" in trade_data and trade_data["exit_time"] is not None:
+            trade_data["exit_time"] = format_time_field(trade_data["exit_time"])
 
         return trade_data
 

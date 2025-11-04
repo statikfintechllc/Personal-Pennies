@@ -723,6 +723,35 @@ class TradingJournal {
   }
   
   /**
+   * Normalize time string to HH:MM format
+   * @param {string} timeStr - Time string to normalize
+   * @returns {string} - Normalized time in HH:MM format
+   */
+  normalizeTimeString(timeStr) {
+    if (!timeStr) return timeStr;
+    
+    // If already in HH:MM format, return as-is
+    if (/^\d{2}:\d{2}$/.test(timeStr)) {
+      return timeStr;
+    }
+    
+    // Handle H:MM format (pad hour to 2 digits)
+    if (/^\d{1}:\d{2}$/.test(timeStr)) {
+      return '0' + timeStr;
+    }
+    
+    // If it's a Date object (shouldn't happen, but just in case)
+    if (timeStr instanceof Date) {
+      const hours = timeStr.getHours().toString().padStart(2, '0');
+      const minutes = timeStr.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    
+    // Return as-is if we can't normalize
+    return timeStr;
+  }
+  
+  /**
    * Get form data as object
    * @returns {Object}
    */
@@ -743,6 +772,15 @@ class TradingJournal {
         data[field] = element.value;
       }
     });
+    
+    // Normalize time fields to HH:MM format to prevent any timezone conversion issues
+    // HTML time input should return HH:MM in 24-hour format, but let's ensure it
+    if (data.entry_time) {
+      data.entry_time = this.normalizeTimeString(data.entry_time);
+    }
+    if (data.exit_time) {
+      data.exit_time = this.normalizeTimeString(data.exit_time);
+    }
     
     // Add tag data (v1.1 schema)
     const tagFields = ['strategy_tags', 'setup_tags', 'session_tags', 'market_condition_tags'];
@@ -796,9 +834,9 @@ class TradingJournal {
 trade_number: ${data.trade_number}
 ticker: ${data.ticker}
 entry_date: ${data.entry_date}
-entry_time: ${data.entry_time}
+entry_time: "${data.entry_time}"
 exit_date: ${data.exit_date}
-exit_time: ${data.exit_time}
+exit_time: "${data.exit_time}"
 entry_price: ${data.entry_price}
 exit_price: ${data.exit_price}
 position_size: ${data.position_size}

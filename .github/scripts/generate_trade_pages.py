@@ -67,6 +67,32 @@ def generate_trade_html(trade):
     if not images and screenshots:
         images = screenshots if isinstance(screenshots, list) else []
 
+    # Convert time values to string format if they are integers (from YAML sexagesimal parsing)
+    # YAML 1.1 parses HH:MM as base-60: "18:55" becomes 18*60+55=1135
+    def format_time(time_val):
+        """Convert time value to HH:MM format string"""
+        if isinstance(time_val, int):
+            # Convert from sexagesimal back to HH:MM
+            hours = time_val // 60
+            minutes = time_val % 60
+            return f"{hours:02d}:{minutes:02d}"
+        elif isinstance(time_val, str):
+            # Already a string, ensure it's in HH:MM format
+            if ':' in time_val:
+                return time_val
+            # If it's a string number like "1135", convert it
+            try:
+                num = int(time_val)
+                hours = num // 60
+                minutes = num % 60
+                return f"{hours:02d}:{minutes:02d}"
+            except ValueError:
+                return time_val
+        return str(time_val)
+    
+    entry_time = format_time(entry_time)
+    exit_time = format_time(exit_time)
+    
     # Calculate additional metrics
     time_in_trade = ""
     if entry_date and exit_date and entry_time and exit_time:
@@ -79,7 +105,8 @@ def generate_trade_html(trade):
                 time_in_trade = f"{int(duration.total_seconds() / 60)} minutes"
             else:
                 time_in_trade = f"{hours:.1f} hours"
-        except:
+        except Exception as e:
+            print(f"Warning: Could not calculate time in trade: {e}")
             time_in_trade = "Unknown"
 
     # Generate tag badges HTML

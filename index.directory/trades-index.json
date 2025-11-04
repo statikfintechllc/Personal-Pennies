@@ -2,14 +2,14 @@
   "trades": [
     {
       "file_path": "index.directory/SFTi.Tradez/week.2025.44/11:03:2025.1.md",
-      "body": "# Trade #1 - MSPR\n\n## Trade Details\n\n- **Ticker**: MSPR\n- **Direction**: LONG\n- **Entry**: $0.6359 on 2025-11-03 at 18:55\n- **Exit**: $0.6972 on 2025-11-03 at 20:34\n- **Position Size**: 101 shares\n- *...",
+      "body": "# Trade #1 - MSPR\n\n## Trade Details\n\n- **Ticker**: MSPR\n- **Direction**: LONG\n- **Entry**: $0.6359 on 2025-11-03 at 06:55\n- **Exit**: $0.6972 on 2025-11-03 at 08:34\n- **Position Size**: 101 shares\n- *...",
       "notes": "Saw this morning runner consolidating on VWAP, got in as it tested VWAP and held.\n\nI should have held longer, and only should have dumped half the position and rode the rest.",
       "trade_number": 1,
       "ticker": "MSPR",
       "entry_date": "2025-11-03",
-      "entry_time": "1135",
+      "entry_time": "06:55",
       "exit_date": "2025-11-03",
-      "exit_time": "1234",
+      "exit_time": "08:34",
       "entry_price": 0.6359,
       "exit_price": 0.6972,
       "position_size": 101.0,
@@ -55,6 +55,6 @@
     "max_drawdown": 0,
     "profit_factor": 0
   },
-  "generated_at": "2025-11-04T02:52:25.311237",
+  "generated_at": "2025-11-04T22:22:43.611014",
   "version": "1.0"
 }
