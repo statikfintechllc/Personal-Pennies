@@ -724,8 +724,14 @@ class TradingJournal {
   
   /**
    * Normalize time string to HH:MM format
+   * Handles edge cases in time input values to ensure consistent HH:MM 24-hour format
+   * 
    * @param {string} timeStr - Time string to normalize
    * @returns {string} - Normalized time in HH:MM format
+   * 
+   * @example
+   * normalizeTimeString("06:55") // "06:55" - already correct
+   * normalizeTimeString("6:55")  // "06:55" - pad hour
    */
   normalizeTimeString(timeStr) {
     if (!timeStr) return timeStr;
@@ -738,13 +744,6 @@ class TradingJournal {
     // Handle H:MM format (pad hour to 2 digits)
     if (/^\d{1}:\d{2}$/.test(timeStr)) {
       return '0' + timeStr;
-    }
-    
-    // If it's a Date object (shouldn't happen, but just in case)
-    if (timeStr instanceof Date) {
-      const hours = timeStr.getHours().toString().padStart(2, '0');
-      const minutes = timeStr.getMinutes().toString().padStart(2, '0');
-      return `${hours}:${minutes}`;
     }
     
     // Return as-is if we can't normalize
@@ -773,13 +772,22 @@ class TradingJournal {
       }
     });
     
+    // Log time values for debugging timezone issues
+    console.log('[DEBUG] Raw form values:');
+    console.log('  entry_time:', data.entry_time);
+    console.log('  exit_time:', data.exit_time);
+    console.log('  entry_date:', data.entry_date);
+    console.log('  exit_date:', data.exit_date);
+    
     // Normalize time fields to HH:MM format to prevent any timezone conversion issues
     // HTML time input should return HH:MM in 24-hour format, but let's ensure it
     if (data.entry_time) {
       data.entry_time = this.normalizeTimeString(data.entry_time);
+      console.log('[DEBUG] Normalized entry_time:', data.entry_time);
     }
     if (data.exit_time) {
       data.exit_time = this.normalizeTimeString(data.exit_time);
+      console.log('[DEBUG] Normalized exit_time:', data.exit_time);
     }
     
     // Add tag data (v1.1 schema)

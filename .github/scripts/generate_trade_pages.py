@@ -70,7 +70,19 @@ def generate_trade_html(trade):
     # Convert time values to string format if they are integers (from YAML sexagesimal parsing)
     # YAML 1.1 parses HH:MM as base-60: "18:55" becomes 18*60+55=1135
     def format_time(time_val):
-        """Convert time value to HH:MM format string"""
+        """
+        Convert time value to HH:MM format string
+        
+        Args:
+            time_val: Time value - can be int (from YAML sexagesimal parsing) or str
+        
+        Returns:
+            str: Time in HH:MM format (24-hour)
+        
+        Examples:
+            format_time(1135) -> "18:55"  # Integer from unquoted YAML
+            format_time("06:55") -> "06:55"  # String from quoted YAML
+        """
         if isinstance(time_val, int):
             # Convert from sexagesimal back to HH:MM
             hours = time_val // 60
@@ -105,7 +117,7 @@ def generate_trade_html(trade):
                 time_in_trade = f"{int(duration.total_seconds() / 60)} minutes"
             else:
                 time_in_trade = f"{hours:.1f} hours"
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             print(f"Warning: Could not calculate time in trade: {e}")
             time_in_trade = "Unknown"
 
