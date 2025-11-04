@@ -1,0 +1,18 @@
+{
+  "trades": [],
+  "statistics": {
+    "total_trades": 0,
+    "winning_trades": 0,
+    "losing_trades": 0,
+    "win_rate": 0,
+    "total_pnl": 0,
+    "avg_pnl": 0,
+    "avg_winner": 0,
+    "avg_loser": 0,
+    "largest_win": 0,
+    "largest_loss": 0,
+    "total_volume": 0
+  },
+  "generated_at": "2025-11-04T23:10:41.612806",
+  "version": "1.0"
+}
