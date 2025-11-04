@@ -161,7 +161,7 @@ def calculate_profit_factor(trades: List[Dict]) -> float:
         trades: List of trade dictionaries
 
     Returns:
-        float: Profit factor
+        float: Profit factor (returns 0 if no losses to avoid Infinity)
     """
     if not trades:
         return 0.0
@@ -179,8 +179,10 @@ def calculate_profit_factor(trades: List[Dict]) -> float:
 
     gross_loss = abs(gross_loss)
     
+    # Return 0 if no losses (avoids Infinity in JSON)
+    # This indicates perfect win rate, but profit factor is not meaningful
     if gross_loss == 0:
-        return 0.0 if gross_profit == 0 else float("inf")
+        return 0.0
 
     return round(gross_profit / gross_loss, 2)
 
@@ -311,10 +313,11 @@ def calculate_kelly_criterion(trades: List[Dict]) -> float:
 def aggregate_by_tag(trades: List[Dict], tag_field: str) -> Dict:
     """
     Aggregate statistics by a tag field (strategy, setup, etc.)
+    Handles both single-value fields (e.g., 'strategy') and array fields (e.g., 'setup_tags', 'session_tags')
 
     Args:
         trades: List of trade dictionaries
-        tag_field: Field to group by (e.g., 'strategy', 'setup')
+        tag_field: Field to group by (e.g., 'strategy', 'setup', 'session')
 
     Returns:
         Dict: {tag_value: {stats...}, ...}
@@ -323,23 +326,38 @@ def aggregate_by_tag(trades: List[Dict], tag_field: str) -> Dict:
 
     # Group trades by tag and calculate stats in single pass
     for trade in trades:
-        tag_value = trade.get(tag_field)
-        if not tag_value or tag_value == "":
-            tag_value = "Unclassified"
+        # Try the direct field first, then try the _tags version
+        tag_values = trade.get(tag_field)
+        if tag_values is None or tag_values == "":
+            # Try the _tags version (e.g., 'setup_tags', 'session_tags')
+            tag_values = trade.get(f"{tag_field}_tags", [])
+        
+        # Handle both single values and arrays
+        if not isinstance(tag_values, list):
+            tag_values = [tag_values] if tag_values else []
+        
+        # If still empty, use "Unclassified"
+        if not tag_values:
+            tag_values = ["Unclassified"]
+        
+        # Add trade to each tag category
+        for tag_value in tag_values:
+            if not tag_value or tag_value == "":
+                tag_value = "Unclassified"
+            
+            if tag_value not in aggregates:
+                aggregates[tag_value] = {
+                    "trades": [],
+                    "total_trades": 0,
+                    "winning_trades": 0,
+                    "losing_trades": 0,
+                    "win_rate": 0,
+                    "total_pnl": 0.0,
+                    "avg_pnl": 0,
+                    "expectancy": 0,
+                }
 
-        if tag_value not in aggregates:
-            aggregates[tag_value] = {
-                "trades": [],
-                "total_trades": 0,
-                "winning_trades": 0,
-                "losing_trades": 0,
-                "win_rate": 0,
-                "total_pnl": 0.0,
-                "avg_pnl": 0,
-                "expectancy": 0,
-            }
-
-        aggregates[tag_value]["trades"].append(trade)
+            aggregates[tag_value]["trades"].append(trade)
 
     # Calculate stats for each tag in optimized manner
     for tag_value, data in aggregates.items():
