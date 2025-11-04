@@ -1,6 +1,7 @@
 /**
  * Analytics Page JavaScript
  * Loads analytics data from analytics-data.json and renders advanced charts and metrics
+ * Fails gracefully if analytics-data.json is not available
  * 
  * Performance Optimizations:
  * - Reduced duplicate map operations on arrays
@@ -58,7 +59,7 @@ async function loadAnalyticsData() {
       analyticsData = await response.json();
       console.log('Loaded analytics data from file');
     } else {
-      console.error('Analytics data not found. Please run the build process to generate analytics.');
+      console.error('Analytics data not found');
       analyticsData = null;
     }
   } catch (fetchError) {

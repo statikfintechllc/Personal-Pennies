@@ -21,6 +21,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from utils import load_trades_index, load_account_config
 
+# Constants
+MAX_PROFIT_FACTOR = 999.99  # Used when profit factor would be infinity (all wins, no losses)
+
 
 def calculate_returns_metrics(trades: List[Dict], starting_balance: float, deposits: List[Dict]) -> Dict:
     """
@@ -182,7 +185,9 @@ def calculate_profit_factor(trades: List[Dict]) -> float:
     # Return 0 if no losses (avoids Infinity in JSON)
     # This indicates perfect win rate, but profit factor is not meaningful
     if gross_loss == 0:
-        return 0.0
+        # Return 0 if no profit, otherwise return MAX_PROFIT_FACTOR instead of infinity
+        # to ensure JSON serialization works properly
+        return 0.0 if gross_profit == 0 else MAX_PROFIT_FACTOR
 
     return round(gross_profit / gross_loss, 2)
 
@@ -326,38 +331,34 @@ def aggregate_by_tag(trades: List[Dict], tag_field: str) -> Dict:
 
     # Group trades by tag and calculate stats in single pass
     for trade in trades:
-        # Try the direct field first, then try the _tags version
-        tag_values = trade.get(tag_field)
-        if tag_values is None or tag_values == "":
-            # Try the _tags version (e.g., 'setup_tags', 'session_tags')
-            tag_values = trade.get(f"{tag_field}_tags", [])
+        tag_value = trade.get(tag_field)
         
-        # Handle both single values and arrays
-        if not isinstance(tag_values, list):
-            tag_values = [tag_values] if tag_values else []
+        # Handle array/list tags - convert to string or take first element
+        # Note: When tags are stored as arrays (e.g., ["Breakout", "Momentum"]),
+        # we use only the first element to avoid duplicate aggregation. This treats
+        # the primary/first tag as the main classification for statistical purposes.
+        # IMPORTANT: Trades with multiple tags will only be counted under the first tag.
+        # As a result, other tags in the list will not be included in the aggregation,
+        # which may cause those tags to appear unused or underrepresented in the results.
+        if isinstance(tag_value, list):
+            tag_value = str(tag_value[0]) if tag_value else "Unclassified"
         
-        # If still empty, use "Unclassified"
-        if not tag_values:
-            tag_values = ["Unclassified"]
-        
-        # Add trade to each tag category
-        for tag_value in tag_values:
-            if not tag_value or tag_value == "":
-                tag_value = "Unclassified"
-            
-            if tag_value not in aggregates:
-                aggregates[tag_value] = {
-                    "trades": [],
-                    "total_trades": 0,
-                    "winning_trades": 0,
-                    "losing_trades": 0,
-                    "win_rate": 0,
-                    "total_pnl": 0.0,
-                    "avg_pnl": 0,
-                    "expectancy": 0,
-                }
+        if not tag_value or tag_value == "":
+            tag_value = "Unclassified"
 
-            aggregates[tag_value]["trades"].append(trade)
+        if tag_value not in aggregates:
+            aggregates[tag_value] = {
+                "trades": [],
+                "total_trades": 0,
+                "winning_trades": 0,
+                "losing_trades": 0,
+                "win_rate": 0,
+                "total_pnl": 0.0,
+                "avg_pnl": 0,
+                "expectancy": 0,
+            }
+
+        aggregates[tag_value]["trades"].append(trade)
 
     # Calculate stats for each tag in optimized manner
     for tag_value, data in aggregates.items():
