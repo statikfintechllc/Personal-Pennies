@@ -337,6 +337,9 @@ def aggregate_by_tag(trades: List[Dict], tag_field: str) -> Dict:
         # Note: When tags are stored as arrays (e.g., ["Breakout", "Momentum"]),
         # we use only the first element to avoid duplicate aggregation. This treats
         # the primary/first tag as the main classification for statistical purposes.
+        # IMPORTANT: Trades with multiple tags will only be counted under the first tag.
+        # As a result, other tags in the list will not be included in the aggregation,
+        # which may cause those tags to appear unused or underrepresented in the results.
         if isinstance(tag_value, list):
             tag_value = str(tag_value[0]) if tag_value else "Unclassified"
         
