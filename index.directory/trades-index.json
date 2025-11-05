@@ -1,44 +1,6 @@
 {
   "trades": [
     {
-      "file_path": "index.directory/SFTi.Tradez/week.2025.44/11:03:2025.1.md",
-      "body": "# Trade #1 - MSPR\n\n## Trade Details\n\n- **Ticker**: MSPR\n- **Direction**: LONG\n- **Entry**: $0.62 on 2025-11-03 at 06:55\n- **Exit**: $0.6972 on 2025-11-03 at 08:33\n- **Position Size**: 101 shares\n- **S...",
-      "notes": "Got in to the Morning runner as it reclaimed VWAP with momentum, sold to soon, could have taken more.",
-      "trade_number": 1,
-      "ticker": "MSPR",
-      "entry_date": "2025-11-03",
-      "entry_time": "06:55",
-      "exit_date": "2025-11-03",
-      "exit_time": "08:33",
-      "entry_price": 0.62,
-      "exit_price": 0.6972,
-      "position_size": 101.0,
-      "direction": "LONG",
-      "strategy": "VWAP Hold",
-      "stop_loss": 0.5,
-      "target_price": 0.75,
-      "risk_reward_ratio": 1.08,
-      "broker": "IBKR",
-      "pnl_usd": 7.8,
-      "pnl_percent": 12.45,
-      "strategy_tags": [
-        "VWAP Hold"
-      ],
-      "setup_tags": [
-        "VWAP Reclaim"
-      ],
-      "session_tags": [
-        "Pre-Market"
-      ],
-      "market_condition_tags": [
-        "High Volatility"
-      ],
-      "screenshots": [
-        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3190.jpeg",
-        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3191.jpeg"
-      ]
-    },
-    {
       "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:04:2025.1.md",
       "body": "# Trade #1 - SCNX\n\n## Trade Details\n\n- **Ticker**: SCNX\n- **Direction**: LONG\n- **Entry**: $0.9050 on 2025-11-04 at 06:57\n- **Exit**: $0.81 on 2025-11-04 at 16:26\n- **Position Size**: 159 shares\n- **S...",
       "notes": "Should have sold was sooner, held in Hope of bigger return. It bite back.",
@@ -74,6 +36,44 @@
       "screenshots": [
         "../../assets/sfti.tradez.assets/week.2025.45/11:04:2025.1/IMG_3228.jpeg",
         "../../assets/sfti.tradez.assets/week.2025.45/11:04:2025.1/IMG_3229.jpeg"
+      ]
+    },
+    {
+      "file_path": "index.directory/SFTi.Tradez/week.2025.44/11:03:2025.1.md",
+      "body": "# Trade #1 - MSPR\n\n## Trade Details\n\n- **Ticker**: MSPR\n- **Direction**: LONG\n- **Entry**: $0.62 on 2025-11-03 at 06:55\n- **Exit**: $0.6972 on 2025-11-03 at 08:33\n- **Position Size**: 101 shares\n- **S...",
+      "notes": "Got in to the Morning runner as it reclaimed VWAP with momentum, sold to soon, could have taken more.",
+      "trade_number": 1,
+      "ticker": "MSPR",
+      "entry_date": "2025-11-03",
+      "entry_time": "06:55",
+      "exit_date": "2025-11-03",
+      "exit_time": "08:33",
+      "entry_price": 0.62,
+      "exit_price": 0.6972,
+      "position_size": 101.0,
+      "direction": "LONG",
+      "strategy": "VWAP Hold",
+      "stop_loss": 0.5,
+      "target_price": 0.75,
+      "risk_reward_ratio": 1.08,
+      "broker": "IBKR",
+      "pnl_usd": 7.8,
+      "pnl_percent": 12.45,
+      "strategy_tags": [
+        "VWAP Hold"
+      ],
+      "setup_tags": [
+        "VWAP Reclaim"
+      ],
+      "session_tags": [
+        "Pre-Market"
+      ],
+      "market_condition_tags": [
+        "High Volatility"
+      ],
+      "screenshots": [
+        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3190.jpeg",
+        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3191.jpeg"
       ]
     },
     {
@@ -127,9 +127,9 @@
     "largest_win": 7.8,
     "largest_loss": -25.08,
     "total_volume": 279,
-    "max_drawdown": -40.18,
+    "max_drawdown": -32.38,
     "profit_factor": 0.39
   },
-  "generated_at": "2025-11-05T02:28:19.264736",
+  "generated_at": "2025-11-05T21:34:45.789868",
   "version": "1.0"
 }
