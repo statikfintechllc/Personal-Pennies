@@ -1,22 +1,63 @@
 {
-  "expectancy": 0,
-  "profit_factor": 0,
-  "max_win_streak": 0,
+  "expectancy": 7.8,
+  "profit_factor": 999.99,
+  "max_win_streak": 1,
   "max_loss_streak": 0,
-  "max_drawdown": 0,
-  "kelly_criterion": 0,
-  "by_strategy": {},
-  "by_setup": {},
-  "by_session": {},
+  "max_drawdown": 0.0,
+  "max_drawdown_percent": 0.0,
+  "kelly_criterion": 0.0,
+  "by_strategy": {
+    "VWAP Hold": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 7.8,
+      "avg_pnl": 7.8,
+      "expectancy": 7.8
+    }
+  },
+  "by_setup": {
+    "Unclassified": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 7.8,
+      "avg_pnl": 7.8,
+      "expectancy": 7.8
+    }
+  },
+  "by_session": {
+    "Unclassified": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 7.8,
+      "avg_pnl": 7.8,
+      "expectancy": 7.8
+    }
+  },
   "drawdown_series": {
-    "labels": [],
-    "values": []
+    "labels": [
+      "11/03"
+    ],
+    "values": [
+      0.0
+    ]
+  },
+  "returns": {
+    "total_return_percent": 4.73,
+    "avg_return_percent": 4.7273,
+    "avg_risk_percent": 0.0,
+    "avg_position_size_percent": 37.95
   },
   "account": {
     "starting_balance": 165,
     "total_deposits": 0,
-    "total_pnl": 0,
-    "portfolio_value": 165
+    "total_pnl": 7.8,
+    "portfolio_value": 172.8
   },
-  "generated_at": "2025-11-04T23:10:43.548112"
+  "generated_at": "2025-11-05T02:00:19.892620"
 }

@@ -1,18 +1,59 @@
 {
-  "trades": [],
+  "trades": [
+    {
+      "file_path": "index.directory/SFTi.Tradez/week.2025.44/11:03:2025.1.md",
+      "body": "# Trade #1 - MSPR\n\n## Trade Details\n\n- **Ticker**: MSPR\n- **Direction**: LONG\n- **Entry**: $0.62 on 2025-11-03 at 06:55\n- **Exit**: $0.6972 on 2025-11-03 at 08:33\n- **Position Size**: 101 shares\n- **S...",
+      "notes": "Got in to the Morning runner as it reclaimed VWAP with momentum, sold to soon, could have taken more.",
+      "trade_number": 1,
+      "ticker": "MSPR",
+      "entry_date": "2025-11-03",
+      "entry_time": "06:55",
+      "exit_date": "2025-11-03",
+      "exit_time": "08:33",
+      "entry_price": 0.62,
+      "exit_price": 0.6972,
+      "position_size": 101.0,
+      "direction": "LONG",
+      "strategy": "VWAP Hold",
+      "stop_loss": 0.5,
+      "target_price": 0.75,
+      "risk_reward_ratio": 1.08,
+      "broker": "IBKR",
+      "pnl_usd": 7.8,
+      "pnl_percent": 12.45,
+      "strategy_tags": [
+        "VWAP Hold"
+      ],
+      "setup_tags": [
+        "VWAP Reclaim"
+      ],
+      "session_tags": [
+        "Pre-Market"
+      ],
+      "market_condition_tags": [
+        "High Volatility"
+      ],
+      "screenshots": [
+        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3190.jpeg",
+        "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.1/IMG_3191.jpeg"
+      ]
+    }
+  ],
   "statistics": {
-    "total_trades": 0,
-    "winning_trades": 0,
+    "total_trades": 1,
+    "winning_trades": 1,
     "losing_trades": 0,
-    "win_rate": 0,
-    "total_pnl": 0,
-    "avg_pnl": 0,
-    "avg_winner": 0,
+    "win_rate": 100.0,
+    "total_pnl": 7.8,
+    "avg_pnl": 7.8,
+    "avg_winner": 7.8,
     "avg_loser": 0,
-    "largest_win": 0,
-    "largest_loss": 0,
-    "total_volume": 0
+    "largest_win": 7.8,
+    "largest_loss": 7.8,
+    "total_volume": 101,
+    "max_drawdown": 0,
+    "profit_factor": 0
   },
-  "generated_at": "2025-11-04T23:10:41.612806",
+  "generated_at": "2025-11-05T02:00:17.353709",
   "version": "1.0"
 }
