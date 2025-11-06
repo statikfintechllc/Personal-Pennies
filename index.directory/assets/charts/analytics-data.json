@@ -17,22 +17,13 @@
       "expectancy": 7.8
     },
     "Breakout": {
-      "total_trades": 2,
+      "total_trades": 3,
       "winning_trades": 1,
-      "losing_trades": 1,
-      "win_rate": 50.0,
-      "total_pnl": -10.38,
-      "avg_pnl": -5.19,
-      "expectancy": -5.19
-    },
-    "Breakout Play": {
-      "total_trades": 1,
-      "winning_trades": 0,
-      "losing_trades": 1,
-      "win_rate": 0.0,
-      "total_pnl": -15.1,
-      "avg_pnl": -15.1,
-      "expectancy": -15.1
+      "losing_trades": 2,
+      "win_rate": 33.3,
+      "total_pnl": -25.48,
+      "avg_pnl": -8.49,
+      "expectancy": -8.49
     },
     "VWAP Bounce": {
       "total_trades": 1,
@@ -94,5 +85,5 @@
     "total_pnl": -24.58,
     "portfolio_value": 136.42000000000002
   },
-  "generated_at": "2025-11-06T00:04:02.599812"
+  "generated_at": "2025-11-06T00:16:07.897132"
 }
