@@ -640,6 +640,35 @@ def filter_and_aggregate_by_timeframe(dates, values, timeframe, interval, end_da
     return (labels, data)
 
 
+def parse_trade_datetime(trade):
+    """
+    Parse trade exit datetime from trade dictionary, combining date and time fields
+    
+    Args:
+        trade (dict): Trade dictionary with exit_date, exit_time (or entry_date, entry_time)
+    
+    Returns:
+        datetime: Parsed datetime object, or None if parsing fails
+    """
+    # Try exit date/time first
+    date_str = trade.get("exit_date", trade.get("entry_date", ""))
+    time_str = trade.get("exit_time", trade.get("entry_time", ""))
+    
+    if not date_str:
+        return None
+    
+    try:
+        # Combine date and time if both are available
+        if time_str:
+            datetime_str = f"{date_str}T{time_str}:00"
+        else:
+            datetime_str = str(date_str)
+        
+        return datetime.fromisoformat(datetime_str)
+    except (ValueError, TypeError):
+        return None
+
+
 def generate_portfolio_value_charts(trades, account_config):
     """
     Generate portfolio value charts for all timeframes with proper time range filtering
@@ -665,9 +694,10 @@ def generate_portfolio_value_charts(trades, account_config):
     total_deposits = sum(d.get("amount", 0) for d in deposits)
     total_withdrawals = sum(w.get("amount", 0) for w in withdrawals)
     
-    # Sort trades by date
+    # Sort trades by date and time
     sorted_trades = sorted(
-        trades, key=lambda t: t.get("exit_date", t.get("entry_date", ""))
+        trades, 
+        key=lambda t: parse_trade_datetime(t) or datetime.min
     )
     
     # Calculate cumulative P&L at each trade with dates
@@ -681,13 +711,10 @@ def generate_portfolio_value_charts(trades, account_config):
         pnl = trade.get("pnl_usd", 0)
         cumulative_pnl += pnl
         
-        date_str = trade.get("exit_date", trade.get("entry_date", ""))
-        try:
-            date_obj = datetime.fromisoformat(str(date_str))
+        date_obj = parse_trade_datetime(trade)
+        if date_obj:
             trade_dates.append(date_obj)
             portfolio_values.append(base_value + cumulative_pnl)
-        except (ValueError, TypeError):
-            continue
     
     # Determine end date (most recent trade or today)
     if trade_dates:
@@ -759,9 +786,10 @@ def generate_total_return_charts(trades, account_config):
     if starting_investment == 0:
         starting_investment = 1  # Avoid division by zero
     
-    # Sort trades by date
+    # Sort trades by date and time
     sorted_trades = sorted(
-        trades, key=lambda t: t.get("exit_date", t.get("entry_date", ""))
+        trades, 
+        key=lambda t: parse_trade_datetime(t) or datetime.min
     )
     
     # Calculate return percentage at each trade
@@ -775,13 +803,10 @@ def generate_total_return_charts(trades, account_config):
         
         return_pct = (cumulative_pnl / starting_investment) * 100
         
-        date_str = trade.get("exit_date", trade.get("entry_date", ""))
-        try:
-            date_obj = datetime.fromisoformat(str(date_str))
+        date_obj = parse_trade_datetime(trade)
+        if date_obj:
             trade_dates.append(date_obj)
             return_percentages.append(return_pct)
-        except (ValueError, TypeError):
-            continue
     
     # Determine end date (most recent trade or today)
     if trade_dates:
