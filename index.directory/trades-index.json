@@ -1,6 +1,44 @@
 {
   "trades": [
     {
+      "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:05:2025.1.md",
+      "body": "# Trade #1 - SMX\n\n## Trade Details\n\n- **Ticker**: SMX\n- **Direction**: LONG\n- **Entry**: $2.29 on 2025-11-05 at 05:46\n- **Exit**: $2.06 on 2025-11-05 at 06:03\n- **Position Size**: 30 shares\n- **Strate...",
+      "notes": "Got in with Tim, was skeptical on entering so soon, got bit on stop loss, to watch it run shortly after.",
+      "trade_number": 1,
+      "ticker": "SMX",
+      "entry_date": "2025-11-05",
+      "entry_time": "05:46",
+      "exit_date": "2025-11-05",
+      "exit_time": "06:03",
+      "entry_price": 2.29,
+      "exit_price": 2.06,
+      "position_size": 30.0,
+      "direction": "LONG",
+      "strategy": "VWAP Bounce",
+      "stop_loss": 2.05,
+      "target_price": 2.8,
+      "risk_reward_ratio": 2.12,
+      "broker": "IBKR",
+      "pnl_usd": -6.9,
+      "pnl_percent": -10.04,
+      "strategy_tags": [
+        "Reversal"
+      ],
+      "setup_tags": [
+        "VWAP Bounce"
+      ],
+      "session_tags": [
+        "Pre-Market"
+      ],
+      "market_condition_tags": [
+        "High Volatility"
+      ],
+      "screenshots": [
+        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.1/IMG_3238.jpeg",
+        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.1/IMG_3243.jpeg"
+      ]
+    },
+    {
       "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:04:2025.1.md",
       "body": "# Trade #1 - SCNX\n\n## Trade Details\n\n- **Ticker**: SCNX\n- **Direction**: LONG\n- **Entry**: $0.9050 on 2025-11-04 at 06:57\n- **Exit**: $0.81 on 2025-11-04 at 16:26\n- **Position Size**: 159 shares\n- **S...",
       "notes": "Should have sold was sooner, held in Hope of bigger return. It bite back.",
@@ -77,41 +115,41 @@
       ]
     },
     {
-      "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:05:2025.1.md",
-      "body": "# Trade #1 - SMX\n\n## Trade Details\n\n- **Ticker**: SMX\n- **Direction**: LONG\n- **Entry**: $2.29 on 2025-11-05 at 05:46\n- **Exit**: $2.06 on 2025-11-05 at 06:03\n- **Position Size**: 30 shares\n- **Strate...",
-      "notes": "Got in with Tim, was skeptical on entering so soon, got bit on stop loss, to watch it run shortly after.",
-      "trade_number": 1,
-      "ticker": "SMX",
+      "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:05:2025.2.md",
+      "body": "# Trade #2 - CHR\n\n## Trade Details\n\n- **Ticker**: CHR\n- **Direction**: LONG\n- **Entry**: $0.1714 on 2025-11-05 at 07:03\n- **Exit**: $0.2204 on 2025-11-05 at 07:09\n- **Position Size**: 300 shares\n- **S...",
+      "notes": "Entered on first candle after 7am, a new strategy I am trying out. Rode to first red, could have held longer, will be watching closer next time.",
+      "trade_number": 2,
+      "ticker": "CHR",
       "entry_date": "2025-11-05",
-      "entry_time": "05:46",
+      "entry_time": "07:03",
       "exit_date": "2025-11-05",
-      "exit_time": "06:03",
-      "entry_price": 2.29,
-      "exit_price": 2.06,
-      "position_size": 30.0,
+      "exit_time": "07:09",
+      "entry_price": 0.1714,
+      "exit_price": 0.2204,
+      "position_size": 300.0,
       "direction": "LONG",
-      "strategy": "VWAP Bounce",
-      "stop_loss": 2.05,
-      "target_price": 2.8,
-      "risk_reward_ratio": 2.12,
+      "strategy": "Breakout",
+      "stop_loss": 0.165,
+      "target_price": 0.25,
+      "risk_reward_ratio": 12.28,
       "broker": "IBKR",
-      "pnl_usd": -6.9,
-      "pnl_percent": -10.04,
+      "pnl_usd": 14.7,
+      "pnl_percent": 28.59,
       "strategy_tags": [
-        "Reversal"
+        "Breakout"
       ],
       "setup_tags": [
-        "VWAP Bounce"
+        "Bull Flag"
       ],
       "session_tags": [
         "Pre-Market"
       ],
       "market_condition_tags": [
-        "High Volatility"
+        "High Volume"
       ],
       "screenshots": [
-        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.1/IMG_3238.jpeg",
-        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.1/IMG_3243.jpeg"
+        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.2/IMG_3239.jpeg",
+        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.2/IMG_3241.jpeg"
       ]
     },
     {
@@ -151,44 +189,6 @@
         "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.2/IMG_3193.jpeg",
         "../../assets/sfti.tradez.assets/week.2025.44/11:03:2025.2/IMG_3192.jpeg"
       ]
-    },
-    {
-      "file_path": "index.directory/SFTi.Tradez/week.2025.45/11:05:2025.2.md",
-      "body": "# Trade #2 - CHR\n\n## Trade Details\n\n- **Ticker**: CHR\n- **Direction**: LONG\n- **Entry**: $0.1714 on 2025-11-05 at 07:03\n- **Exit**: $0.2204 on 2025-11-05 at 07:09\n- **Position Size**: 300 shares\n- **S...",
-      "notes": "Entered on first candle after 7am, a new strategy I am trying out. Rode to first red, could have held longer, will be watching closer next time.",
-      "trade_number": 2,
-      "ticker": "CHR",
-      "entry_date": "2025-11-05",
-      "entry_time": "07:03",
-      "exit_date": "2025-11-05",
-      "exit_time": "07:09",
-      "entry_price": 0.1714,
-      "exit_price": 0.2204,
-      "position_size": 300.0,
-      "direction": "LONG",
-      "strategy": "Breakout",
-      "stop_loss": 0.165,
-      "target_price": 0.25,
-      "risk_reward_ratio": 12.28,
-      "broker": "IBKR",
-      "pnl_usd": 14.7,
-      "pnl_percent": 28.59,
-      "strategy_tags": [
-        "Breakout"
-      ],
-      "setup_tags": [
-        "Bull Flag"
-      ],
-      "session_tags": [
-        "Pre-Market"
-      ],
-      "market_condition_tags": [
-        "High Volume"
-      ],
-      "screenshots": [
-        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.2/IMG_3239.jpeg",
-        "../../assets/sfti.tradez.assets/week.2025.45/11:05:2025.2/IMG_3241.jpeg"
-      ]
     }
   ],
   "statistics": {
@@ -203,9 +203,9 @@
     "largest_win": 14.7,
     "largest_loss": -25.08,
     "total_volume": 609,
-    "max_drawdown": -39.28,
+    "max_drawdown": -25.08,
     "profit_factor": 0.72
   },
-  "generated_at": "2025-11-06T03:57:58.373112",
+  "generated_at": "2025-11-06T04:46:17.397349",
   "version": "1.0"
 }
