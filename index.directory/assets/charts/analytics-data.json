@@ -36,18 +36,54 @@
     }
   },
   "by_setup": {
-    "Unclassified": {
-      "total_trades": 5,
-      "winning_trades": 2,
-      "losing_trades": 3,
-      "win_rate": 40.0,
-      "total_pnl": -24.58,
-      "avg_pnl": -4.92,
-      "expectancy": -4.92
+    "VWAP Reclaim": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 7.8,
+      "avg_pnl": 7.8,
+      "expectancy": 7.8
+    },
+    "Dip n Rip": {
+      "total_trades": 1,
+      "winning_trades": 0,
+      "losing_trades": 1,
+      "win_rate": 0.0,
+      "total_pnl": -25.08,
+      "avg_pnl": -25.08,
+      "expectancy": -25.08
+    },
+    "7 O'clock Spike": {
+      "total_trades": 1,
+      "winning_trades": 0,
+      "losing_trades": 1,
+      "win_rate": 0.0,
+      "total_pnl": -15.1,
+      "avg_pnl": -15.1,
+      "expectancy": -15.1
+    },
+    "VWAP Bounce": {
+      "total_trades": 1,
+      "winning_trades": 0,
+      "losing_trades": 1,
+      "win_rate": 0.0,
+      "total_pnl": -6.9,
+      "avg_pnl": -6.9,
+      "expectancy": -6.9
+    },
+    "Bull Flag": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 14.7,
+      "avg_pnl": 14.7,
+      "expectancy": 14.7
     }
   },
   "by_session": {
-    "Unclassified": {
+    "Pre-Market": {
       "total_trades": 5,
       "winning_trades": 2,
       "losing_trades": 3,
@@ -85,5 +121,5 @@
     "total_pnl": -24.58,
     "portfolio_value": 136.42000000000002
   },
-  "generated_at": "2025-11-06T00:16:07.897132"
+  "generated_at": "2025-11-06T00:48:13.607858"
 }
