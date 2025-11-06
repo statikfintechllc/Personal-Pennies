@@ -152,6 +152,22 @@ function switchReturnTimeframe(timeframe) {
 }
 
 /**
+ * Helper function to log chart data consistently
+ * @param {string} chartType - Type of chart (e.g., 'Portfolio Chart', 'Total Return Chart')
+ * @param {string} timeframe - Timeframe of the data
+ * @param {Object} data - Chart data object
+ */
+function logChartData(chartType, timeframe, data) {
+  const dataset = data.datasets[0];
+  console.log(`[${chartType}] ${timeframe} data:`, {
+    labels: data.labels,
+    dataPoints: dataset.data.length,
+    firstValue: dataset.data[0],
+    lastValue: dataset.data[dataset.data.length - 1]
+  });
+}
+
+/**
  * Load Portfolio Chart
  */
 async function loadPortfolioChart(timeframe) {
@@ -177,12 +193,7 @@ async function loadPortfolioChart(timeframe) {
     }
     
     const data = await response.json();
-    console.log(`[Portfolio Chart] ${timeframe} data:`, {
-      labels: data.labels,
-      dataPoints: data.datasets[0].data.length,
-      firstValue: data.datasets[0].data[0],
-      lastValue: data.datasets[0].data[data.datasets[0].data.length - 1]
-    });
+    logChartData('Portfolio Chart', timeframe, data);
     
     // Create chart
     portfolioChart = new Chart(ctx, {
@@ -223,12 +234,7 @@ async function loadReturnChart(timeframe) {
     }
     
     const data = await response.json();
-    console.log(`[Total Return Chart] ${timeframe} data:`, {
-      labels: data.labels,
-      dataPoints: data.datasets[0].data.length,
-      firstValue: data.datasets[0].data[0],
-      lastValue: data.datasets[0].data[data.datasets[0].data.length - 1]
-    });
+    logChartData('Total Return Chart', timeframe, data);
     
     // Create chart
     returnChart = new Chart(ctx, {

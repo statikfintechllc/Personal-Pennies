@@ -7,7 +7,7 @@ and creates a static chart image using matplotlib (if available)
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -475,7 +475,8 @@ def format_date_label(date, timeframe, interval=None):
     
     # Default formatting based on timeframe
     if timeframe == "day":
-        return date.strftime("%H:%M") if (date.hour != 0 or date.minute != 0) else date.strftime("%m/%d %H:%M")
+        # For day timeframe, show time in HH:MM format, or date if time is midnight
+        return date.strftime("%H:%M") if (date.hour != 0 or date.minute != 0) else date.strftime("%m/%d")
     elif timeframe == "week":
         return date.strftime("%a %m/%d")
     elif timeframe == "month":
@@ -501,7 +502,6 @@ def get_timeframe_range(end_date, timeframe):
     Returns:
         datetime: The start date for the timeframe
     """
-    from datetime import timedelta
     
     if timeframe == "day":
         # Last 24 hours
@@ -587,7 +587,32 @@ def filter_and_aggregate_by_timeframe(dates, values, timeframe, interval, end_da
     
     # Determine aggregation bucket size based on interval
     def get_bucket_key(date, interval):
-        """Get the bucket key for a date based on interval"""
+        """
+        Returns a bucket key (datetime object) for the given date, based on the specified interval.
+        
+        Args:
+            date (datetime): The datetime object to bucket.
+            interval (str): The interval type. Supported values:
+                - "30min": Buckets by 30-minute intervals. Rounds down to the nearest 30 minutes.
+                - "daily": Buckets by day. Sets time to midnight.
+                - "weekly": Buckets by week. Sets to the Monday of the week at midnight.
+                - "monthly": Buckets by month. Sets to the first day of the month at midnight.
+                - "quarterly": Buckets by quarter. Sets to the first day of the quarter at midnight.
+                - "yearly": Buckets by year. Sets to January 1st at midnight.
+                - Any other value: Defaults to daily bucketing (midnight).
+        
+        Returns:
+            datetime: The bucket key representing the start of the interval containing the input date.
+        
+        Bucketing logic:
+            - "30min": Rounds down to the nearest 30-minute mark (minute = 0 or 30, seconds and microseconds set to 0).
+            - "daily": Sets hour, minute, second, and microsecond to 0.
+            - "weekly": Sets to the Monday of the week (weekday 0), hour, minute, second, and microsecond to 0.
+            - "monthly": Sets day to 1, hour, minute, second, and microsecond to 0.
+            - "quarterly": Sets month to the first month of the quarter (1, 4, 7, 10), day to 1, hour, minute, second, and microsecond to 0.
+            - "yearly": Sets month to 1, day to 1, hour, minute, second, and microsecond to 0.
+            - Default: Sets hour, minute, second, and microsecond to 0 (same as "daily").
+        """
         if interval == "30min":
             # Round down to nearest 30 minutes
             return date.replace(minute=(date.minute // 30) * 30, second=0, microsecond=0)
@@ -625,7 +650,7 @@ def filter_and_aggregate_by_timeframe(dates, values, timeframe, interval, end_da
     
     # Add starting point if needed
     first_bucket = sorted_buckets[0] if sorted_buckets else end_date
-    if first_bucket > start_date:
+    if sorted_buckets and first_bucket > start_date:
         # Add a point at the start with base value
         labels.append(format_date_label(start_date, timeframe, interval))
         data.append(base_value)
@@ -660,11 +685,17 @@ def parse_trade_datetime(trade):
     try:
         # Combine date and time if both are available
         if time_str:
-            # Check if time already has seconds, otherwise append :00
-            if time_str.count(':') == 1:
+            # Validate and handle time string format
+            colon_count = time_str.count(':')
+            if colon_count == 1:
+                # HH:MM format - append seconds
                 datetime_str = f"{date_str}T{time_str}:00"
-            else:
+            elif colon_count == 2:
+                # HH:MM:SS format - use as is
                 datetime_str = f"{date_str}T{time_str}"
+            else:
+                # Invalid format - treat as date only
+                datetime_str = str(date_str)
         else:
             datetime_str = str(date_str)
         
@@ -704,7 +735,7 @@ def generate_portfolio_value_charts(trades, account_config):
         if parse_trade_datetime(trade):
             sorted_trades.append(trade)
     
-    sorted_trades.sort(key=lambda t: parse_trade_datetime(t))
+    sorted_trades.sort(key=parse_trade_datetime)
     
     # Calculate cumulative P&L at each trade with dates
     trade_dates = []
@@ -798,7 +829,7 @@ def generate_total_return_charts(trades, account_config):
         if parse_trade_datetime(trade):
             sorted_trades.append(trade)
     
-    sorted_trades.sort(key=lambda t: parse_trade_datetime(t))
+    sorted_trades.sort(key=parse_trade_datetime)
     
     # Calculate return percentage at each trade
     trade_dates = []
