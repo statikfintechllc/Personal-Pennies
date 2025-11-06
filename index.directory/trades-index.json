@@ -52,7 +52,7 @@
       "exit_price": 0.81,
       "position_size": 159.0,
       "direction": "LONG",
-      "strategy": "Breakout Play",
+      "strategy": "Breakout",
       "stop_loss": 0.8,
       "target_price": 1.3,
       "risk_reward_ratio": 3.76,
