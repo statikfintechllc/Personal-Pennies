@@ -2,7 +2,8 @@
   "labels": [
     "Monday",
     "Tuesday",
-    "Wednesday"
+    "Wednesday",
+    "Thursday"
   ],
   "datasets": [
     {
@@ -10,17 +11,20 @@
       "data": [
         -8.64,
         -15.1,
-        3.9
+        3.9,
+        -5.84
       ],
       "backgroundColor": [
         "#ff4757",
         "#ff4757",
-        "#00ff88"
+        "#00ff88",
+        "#ff4757"
       ],
       "borderColor": [
         "#ff4757",
         "#ff4757",
-        "#00ff88"
+        "#00ff88",
+        "#ff4757"
       ],
       "borderWidth": 2
     }

@@ -1,18 +1,14 @@
 {
   "labels": [
-    "07:09",
-    "16:00",
-    "06:00",
-    "07:00"
+    "08:04",
+    "08:00"
   ],
   "datasets": [
     {
       "label": "Total Return %",
       "data": [
         0,
-        -20.36,
-        -24.7,
-        -15.46
+        -19.13
       ],
       "borderColor": "#00d4ff",
       "backgroundColor": "rgba(0, 212, 255, 0.1)",

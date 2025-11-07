@@ -1,6 +1,6 @@
 {
   "labels": [
-    "W31 08/07",
+    "W31 08/08",
     "W44 11/03"
   ],
   "datasets": [
@@ -8,7 +8,7 @@
       "label": "Total Return %",
       "data": [
         0,
-        -15.46
+        -19.13
       ],
       "borderColor": "#00d4ff",
       "backgroundColor": "rgba(0, 212, 255, 0.1)",

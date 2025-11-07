@@ -2,25 +2,25 @@
 
 ## Overview
 
-This week's trading session included **3 trades** with a total P&L of **$-7.30**.
+This week's trading session included **4 trades** with a total P&L of **$-13.14**.
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
-| Total Trades | 3 |
-| Total P&L | $-7.30 |
-| Win Rate | 33.3% |
+| Total Trades | 4 |
+| Total P&L | $-13.14 |
+| Win Rate | 25.0% |
 | Wins | 1 |
-| Losses | 2 |
+| Losses | 3 |
 | Breakeven | 0 |
 | Average Win | $14.70 |
-| Average Loss | $-11.00 |
+| Average Loss | $-9.28 |
 | Largest Win | $14.70 |
 | Largest Loss | $-15.10 |
-| Profit Factor | 0.67 |
+| Profit Factor | 0.53 |
 | Gross Profit | $14.70 |
-| Gross Loss | $22.00 |
+| Gross Loss | $27.84 |
 
 ## Trade List
 
@@ -52,6 +52,15 @@ This week's trading session included **3 trades** with a total P&L of **$-7.30**
 - **Strategy**: Breakout
 - **Setup**: Bull Flag
 
+### 4. PSTV - 2025-11-06
+
+- **Direction**: LONG
+- **Entry**: $0.62
+- **Exit**: $0.56
+- **P&L**: $-5.84
+- **Strategy**: Breakout
+- **Setup**: 7 O'clock Spike
+
 
 ## Weekly Reflection
 
@@ -59,4 +68,4 @@ _Add your weekly reflection, lessons learned, and improvements for next week..._
 
 ---
 
-*Generated on 2025-11-06 04:46:19*
+*Generated on 2025-11-07 01:29:46*

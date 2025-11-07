@@ -1,11 +1,11 @@
 {
-  "expectancy": -4.92,
-  "profit_factor": 0.48,
+  "expectancy": -5.07,
+  "profit_factor": 0.43,
   "max_win_streak": 1,
   "max_loss_streak": 3,
   "max_drawdown": -47.08,
   "max_drawdown_percent": -29.61,
-  "kelly_criterion": -43.7,
+  "kelly_criterion": -45.1,
   "by_strategy": {
     "VWAP Hold": {
       "total_trades": 1,
@@ -17,13 +17,13 @@
       "expectancy": 7.8
     },
     "Breakout": {
-      "total_trades": 3,
+      "total_trades": 4,
       "winning_trades": 1,
-      "losing_trades": 2,
-      "win_rate": 33.3,
-      "total_pnl": -25.48,
-      "avg_pnl": -8.49,
-      "expectancy": -8.49
+      "losing_trades": 3,
+      "win_rate": 25.0,
+      "total_pnl": -31.32,
+      "avg_pnl": -7.83,
+      "expectancy": -7.83
     },
     "VWAP Bounce": {
       "total_trades": 1,
@@ -55,13 +55,13 @@
       "expectancy": -25.08
     },
     "7 O'clock Spike": {
-      "total_trades": 1,
+      "total_trades": 2,
       "winning_trades": 0,
-      "losing_trades": 1,
+      "losing_trades": 2,
       "win_rate": 0.0,
-      "total_pnl": -15.1,
-      "avg_pnl": -15.1,
-      "expectancy": -15.1
+      "total_pnl": -20.94,
+      "avg_pnl": -10.47,
+      "expectancy": -10.47
     },
     "VWAP Bounce": {
       "total_trades": 1,
@@ -84,13 +84,13 @@
   },
   "by_session": {
     "Pre-Market": {
-      "total_trades": 5,
+      "total_trades": 6,
       "winning_trades": 2,
-      "losing_trades": 3,
-      "win_rate": 40.0,
-      "total_pnl": -24.58,
-      "avg_pnl": -4.92,
-      "expectancy": -4.92
+      "losing_trades": 4,
+      "win_rate": 33.3,
+      "total_pnl": -30.42,
+      "avg_pnl": -5.07,
+      "expectancy": -5.07
     }
   },
   "drawdown_series": {
@@ -99,27 +99,29 @@
       "11/03",
       "11/04",
       "11/05",
-      "11/05"
+      "11/05",
+      "11/06"
     ],
     "values": [
       0.0,
       -25.08,
       -40.18,
       -47.08,
-      -32.38
+      -32.38,
+      -38.22
     ]
   },
   "returns": {
-    "total_return_percent": -15.46,
-    "avg_return_percent": -3.0918,
-    "avg_risk_percent": 9.87,
-    "avg_position_size_percent": 56.97
+    "total_return_percent": -19.13,
+    "avg_return_percent": -3.1887,
+    "avg_risk_percent": 8.321,
+    "avg_position_size_percent": 55.15
   },
   "account": {
     "starting_balance": 165,
     "total_deposits": 0,
-    "total_pnl": -24.58,
-    "portfolio_value": 134.42000000000002
+    "total_pnl": -30.42,
+    "portfolio_value": 128.57999999999998
   },
-  "generated_at": "2025-11-06T04:46:19.429089"
+  "generated_at": "2025-11-07T01:29:46.588753"
 }

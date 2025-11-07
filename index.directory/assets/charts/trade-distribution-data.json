@@ -4,7 +4,8 @@
     "Trade #2",
     "Trade #1",
     "Trade #1",
-    "Trade #2"
+    "Trade #2",
+    "Trade #1"
   ],
   "datasets": [
     {
@@ -14,21 +15,24 @@
         -25.08,
         -15.1,
         -6.9,
-        14.7
+        14.7,
+        -5.84
       ],
       "backgroundColor": [
         "#00ff88",
         "#ff4757",
         "#ff4757",
         "#ff4757",
-        "#00ff88"
+        "#00ff88",
+        "#ff4757"
       ],
       "borderColor": [
         "#00ff88",
         "#ff4757",
         "#ff4757",
         "#ff4757",
-        "#00ff88"
+        "#00ff88",
+        "#ff4757"
       ],
       "borderWidth": 2
     }
