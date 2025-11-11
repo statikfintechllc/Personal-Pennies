@@ -1,0 +1,31 @@
+{
+  "labels": [
+    "Breakout",
+    "VWAP Hold",
+    "VWAP Bounce"
+  ],
+  "datasets": [
+    {
+      "label": "Wins",
+      "data": [
+        1,
+        2,
+        0
+      ],
+      "backgroundColor": "#00ff88",
+      "borderColor": "#00ff88",
+      "borderWidth": 2
+    },
+    {
+      "label": "Losses",
+      "data": [
+        4,
+        0,
+        1
+      ],
+      "backgroundColor": "#ff4757",
+      "borderColor": "#ff4757",
+      "borderWidth": 2
+    }
+  ]
+}

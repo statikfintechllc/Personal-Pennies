@@ -26,6 +26,16 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     print("Note: matplotlib not available, skipping static chart generation")
 
+# Standard trading session order for time of day performance
+TRADING_SESSION_ORDER = [
+    "Pre-Market",
+    "Morning",
+    "Midday",
+    "Afternoon",
+    "After-Hours",
+    "Extended Hours"
+]
+
 
 def generate_equity_curve_data(trades):
     """
@@ -273,9 +283,9 @@ def generate_trade_distribution_chart(
     print(f"Distribution chart saved to {output_path}")
 
 
-def generate_trade_distribution_data(trades):
+def generate_win_loss_ratio_by_strategy_data(trades):
     """
-    Generate trade distribution data (wins vs losses) in Chart.js format
+    Generate win/loss ratio by strategy data in Chart.js format
 
     Args:
         trades (list): List of trade dictionaries
@@ -286,35 +296,59 @@ def generate_trade_distribution_data(trades):
     if not trades:
         return {
             "labels": [],
-            "datasets": [{"label": "P&L", "data": [], "backgroundColor": []}],
+            "datasets": [
+                {"label": "Wins", "data": [], "backgroundColor": "#00ff88"},
+                {"label": "Losses", "data": [], "backgroundColor": "#ff4757"}
+            ],
         }
 
-    # Sort trades by exit date
-    sorted_trades = sorted(
-        trades, key=lambda t: t.get("exit_date", t.get("entry_date", ""))
+    # Aggregate by strategy
+    strategy_stats = {}
+
+    for trade in trades:
+        strategy = trade.get("strategy", "Unclassified")
+        pnl = trade.get("pnl_usd", 0)
+
+        if strategy not in strategy_stats:
+            strategy_stats[strategy] = {"wins": 0, "losses": 0}
+
+        if pnl > 0:
+            strategy_stats[strategy]["wins"] += 1
+        elif pnl < 0:
+            strategy_stats[strategy]["losses"] += 1
+
+    # Sort by total trades (descending)
+    sorted_strategies = sorted(
+        strategy_stats.items(), 
+        key=lambda x: x[1]["wins"] + x[1]["losses"], 
+        reverse=True
     )
 
-    # Get trade numbers and P&L values
+    # Prepare data
     labels = []
-    pnls = []
-    colors = []
+    wins = []
+    losses = []
 
-    for i, trade in enumerate(sorted_trades, 1):
-        pnl = trade.get("pnl_usd", 0)
-        trade_num = trade.get("trade_number", i)
-
-        labels.append(f"Trade #{trade_num}")
-        pnls.append(round(pnl, 2))
-        colors.append("#00ff88" if pnl >= 0 else "#ff4757")
+    for strategy, stats in sorted_strategies:
+        labels.append(strategy)
+        wins.append(stats["wins"])
+        losses.append(stats["losses"])
 
     return {
         "labels": labels,
         "datasets": [
             {
-                "label": "P&L ($)",
-                "data": pnls,
-                "backgroundColor": colors,
-                "borderColor": colors,
+                "label": "Wins",
+                "data": wins,
+                "backgroundColor": "#00ff88",
+                "borderColor": "#00ff88",
+                "borderWidth": 2,
+            },
+            {
+                "label": "Losses",
+                "data": losses,
+                "backgroundColor": "#ff4757",
+                "borderColor": "#ff4757",
                 "borderWidth": 2,
             }
         ],
@@ -439,6 +473,77 @@ def generate_ticker_performance_data(trades):
             {
                 "label": "Total P&L ($)",
                 "data": total_pnls,
+                "backgroundColor": colors,
+                "borderColor": colors,
+                "borderWidth": 2,
+            }
+        ],
+    }
+
+
+def generate_time_of_day_performance_data(trades):
+    """
+    Generate time of day performance data using session_tags in Chart.js format
+
+    Args:
+        trades (list): List of trade dictionaries
+
+    Returns:
+        dict: Chart.js compatible data structure
+    """
+    if not trades:
+        return {
+            "labels": [],
+            "datasets": [{"label": "Average P&L", "data": [], "backgroundColor": []}],
+        }
+
+    # Aggregate by session tag
+    session_stats = {}
+
+    for trade in trades:
+        # session_tags is an array, take the first one
+        session_tags = trade.get("session_tags", [])
+        
+        if isinstance(session_tags, list) and len(session_tags) > 0:
+            session = session_tags[0]
+        else:
+            session = "Unclassified"
+
+        pnl = trade.get("pnl_usd", 0)
+
+        if session not in session_stats:
+            session_stats[session] = {"total_pnl": 0, "count": 0}
+
+        session_stats[session]["total_pnl"] += pnl
+        session_stats[session]["count"] += 1
+
+    # Sort by standard trading session order (module-level constant)
+    existing_sessions = [s for s in TRADING_SESSION_ORDER if s in session_stats]
+    
+    # Add any other sessions not in the standard order
+    other_sessions = sorted([s for s in session_stats.keys() if s not in TRADING_SESSION_ORDER])
+    all_sessions = existing_sessions + other_sessions
+
+    # Prepare data
+    labels = []
+    avg_pnls = []
+    colors = []
+
+    for session in all_sessions:
+        stats = session_stats[session]
+        if stats["count"] == 0:
+            continue  # Skip sessions with zero trades
+        labels.append(session)
+        avg_pnl = stats["total_pnl"] / stats["count"]
+        avg_pnls.append(round(avg_pnl, 2))
+        colors.append("#00ff88" if avg_pnl >= 0 else "#ff4757")
+
+    return {
+        "labels": labels,
+        "datasets": [
+            {
+                "label": "Average P&L ($)",
+                "data": avg_pnls,
                 "backgroundColor": colors,
                 "borderColor": colors,
                 "borderWidth": 2,
@@ -1110,15 +1215,15 @@ def main():
         json.dump(equity_data, f, indent=2)
     print("  ✓ Equity curve data saved")
 
-    # 2. Trade Distribution
-    distribution_data = generate_trade_distribution_data(trades)
+    # 2. Win/Loss Ratio by Strategy
+    win_loss_ratio_data = generate_win_loss_ratio_by_strategy_data(trades)
     with open(
-        "index.directory/assets/charts/trade-distribution-data.json",
+        "index.directory/assets/charts/win-loss-ratio-by-strategy-data.json",
         "w",
         encoding="utf-8",
     ) as f:
-        json.dump(distribution_data, f, indent=2)
-    print("  ✓ Trade distribution data saved")
+        json.dump(win_loss_ratio_data, f, indent=2)
+    print("  ✓ Win/Loss ratio by strategy data saved")
 
     # 3. Performance by Day
     day_data = generate_performance_by_day_data(trades)
@@ -1140,11 +1245,21 @@ def main():
         json.dump(ticker_data, f, indent=2)
     print("  ✓ Ticker performance data saved")
     
-    # 5. Portfolio Value Charts (all timeframes)
+    # 5. Time of Day Performance
+    time_of_day_data = generate_time_of_day_performance_data(trades)
+    with open(
+        "index.directory/assets/charts/time-of-day-performance-data.json",
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(time_of_day_data, f, indent=2)
+    print("  ✓ Time of day performance data saved")
+    
+    # 6. Portfolio Value Charts (all timeframes)
     print("\nGenerating Portfolio Value charts...")
     generate_portfolio_value_charts(trades, account_config)
     
-    # 6. Total Return Charts (all timeframes)
+    # 7. Total Return Charts (all timeframes)
     print("\nGenerating Total Return charts...")
     generate_total_return_charts(trades, account_config)
 
