@@ -134,7 +134,7 @@
           </button>
           <ul id="chart-selector-menu" class="chart-selector-menu" role="menu">
             <li><a href="#" class="chart-option" data-value="equity-curve">Equity Curve</a></li>
-            <li><a href="#" class="chart-option" data-value="trade-distribution">Trade Distribution</a></li>
+            <li><a href="#" class="chart-option" data-value="win-loss-ratio-by-strategy">Win/Loss Ratio by Strategy</a></li>
             <li><a href="#" class="chart-option" data-value="performance-by-day">Performance By Day</a></li>
             <li><a href="#" class="chart-option" data-value="ticker-performance">Ticker Performance</a></li>
           </ul>
@@ -142,7 +142,7 @@
         <!-- Mobile native select (hidden on desktop) -->
         <select id="chart-selector-mobile" class="chart-selector-select">
           <option value="equity-curve">Equity Curve</option>
-          <option value="trade-distribution">Trade Distribution</option>
+          <option value="win-loss-ratio-by-strategy">Win/Loss Ratio by Strategy</option>
           <option value="performance-by-day">Performance By Day</option>
           <option value="ticker-performance">Ticker Performance</option>
         </select>
@@ -159,13 +159,13 @@
           </div>
         </div>
         
-        <!-- Trade Distribution Chart -->
-        <div id="trade-distribution-container" class="chart-container" style="display: none;">
+        <!-- Win/Loss Ratio by Strategy Chart -->
+        <div id="win-loss-ratio-by-strategy-container" class="chart-container" style="display: none;">
           <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
-            Trade distribution shows your win/loss breakdown
+            Win/Loss ratio by strategy shows your performance breakdown by trading strategy
           </p>
           <div style="position: relative; height: 400px; width: 100%;">
-            <canvas id="trade-distribution-chart"></canvas>
+            <canvas id="win-loss-ratio-by-strategy-chart"></canvas>
           </div>
         </div>
         

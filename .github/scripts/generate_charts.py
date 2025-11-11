@@ -273,9 +273,9 @@ def generate_trade_distribution_chart(
     print(f"Distribution chart saved to {output_path}")
 
 
-def generate_trade_distribution_data(trades):
+def generate_win_loss_ratio_by_strategy_data(trades):
     """
-    Generate trade distribution data (wins vs losses) in Chart.js format
+    Generate win/loss ratio by strategy data in Chart.js format
 
     Args:
         trades (list): List of trade dictionaries
@@ -286,35 +286,59 @@ def generate_trade_distribution_data(trades):
     if not trades:
         return {
             "labels": [],
-            "datasets": [{"label": "P&L", "data": [], "backgroundColor": []}],
+            "datasets": [
+                {"label": "Wins", "data": [], "backgroundColor": "#00ff88"},
+                {"label": "Losses", "data": [], "backgroundColor": "#ff4757"}
+            ],
         }
 
-    # Sort trades by exit date
-    sorted_trades = sorted(
-        trades, key=lambda t: t.get("exit_date", t.get("entry_date", ""))
+    # Aggregate by strategy
+    strategy_stats = {}
+
+    for trade in trades:
+        strategy = trade.get("strategy", "Unclassified")
+        pnl = trade.get("pnl_usd", 0)
+
+        if strategy not in strategy_stats:
+            strategy_stats[strategy] = {"wins": 0, "losses": 0}
+
+        if pnl > 0:
+            strategy_stats[strategy]["wins"] += 1
+        elif pnl < 0:
+            strategy_stats[strategy]["losses"] += 1
+
+    # Sort by total trades (descending)
+    sorted_strategies = sorted(
+        strategy_stats.items(), 
+        key=lambda x: x[1]["wins"] + x[1]["losses"], 
+        reverse=True
     )
 
-    # Get trade numbers and P&L values
+    # Prepare data
     labels = []
-    pnls = []
-    colors = []
+    wins = []
+    losses = []
 
-    for i, trade in enumerate(sorted_trades, 1):
-        pnl = trade.get("pnl_usd", 0)
-        trade_num = trade.get("trade_number", i)
-
-        labels.append(f"Trade #{trade_num}")
-        pnls.append(round(pnl, 2))
-        colors.append("#00ff88" if pnl >= 0 else "#ff4757")
+    for strategy, stats in sorted_strategies:
+        labels.append(strategy)
+        wins.append(stats["wins"])
+        losses.append(stats["losses"])
 
     return {
         "labels": labels,
         "datasets": [
             {
-                "label": "P&L ($)",
-                "data": pnls,
-                "backgroundColor": colors,
-                "borderColor": colors,
+                "label": "Wins",
+                "data": wins,
+                "backgroundColor": "#00ff88",
+                "borderColor": "#00ff88",
+                "borderWidth": 2,
+            },
+            {
+                "label": "Losses",
+                "data": losses,
+                "backgroundColor": "#ff4757",
+                "borderColor": "#ff4757",
                 "borderWidth": 2,
             }
         ],
@@ -1110,15 +1134,15 @@ def main():
         json.dump(equity_data, f, indent=2)
     print("  ✓ Equity curve data saved")
 
-    # 2. Trade Distribution
-    distribution_data = generate_trade_distribution_data(trades)
+    # 2. Win/Loss Ratio by Strategy
+    win_loss_ratio_data = generate_win_loss_ratio_by_strategy_data(trades)
     with open(
-        "index.directory/assets/charts/trade-distribution-data.json",
+        "index.directory/assets/charts/win-loss-ratio-by-strategy-data.json",
         "w",
         encoding="utf-8",
     ) as f:
-        json.dump(distribution_data, f, indent=2)
-    print("  ✓ Trade distribution data saved")
+        json.dump(win_loss_ratio_data, f, indent=2)
+    print("  ✓ Win/Loss ratio by strategy data saved")
 
     # 3. Performance by Day
     day_data = generate_performance_by_day_data(trades)

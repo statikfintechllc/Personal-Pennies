@@ -8,7 +8,7 @@ const basePath = SFTiUtils.getBasePath();
 
 // Chart instances
 let equityCurveChart = null;
-let tradeDistributionChart = null;
+let winLossRatioByStrategyChart = null;
 let performanceByDayChart = null;
 let tickerPerformanceChart = null;
 
@@ -41,28 +41,63 @@ async function loadEquityCurveChart() {
 }
 
 /**
- * Load and render trade distribution chart
+ * Load and render win/loss ratio by strategy chart
  */
-async function loadTradeDistributionChart() {
-  const ctx = document.getElementById('trade-distribution-chart');
+async function loadWinLossRatioByStrategyChart() {
+  const ctx = document.getElementById('win-loss-ratio-by-strategy-chart');
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/trade-distribution-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/win-loss-ratio-by-strategy-data.json`);
     const data = await response.json();
     
-    if (tradeDistributionChart) {
-      tradeDistributionChart.destroy();
+    if (winLossRatioByStrategyChart) {
+      winLossRatioByStrategyChart.destroy();
     }
 
-    tradeDistributionChart = new Chart(ctx, {
+    winLossRatioByStrategyChart = new Chart(ctx, {
       type: 'bar',
       data: data,
-      options: SFTiChartConfig.getBarChartOptions()
+      options: {
+        ...SFTiChartConfig.getBarChartOptions(),
+        plugins: {
+          ...SFTiChartConfig.getBarChartOptions().plugins,
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e4e4e7',
+              font: {
+                family: 'Inter',
+                size: 12
+              },
+              usePointStyle: true,
+              padding: 15
+            }
+          }
+        },
+        scales: {
+          ...SFTiChartConfig.getBarChartOptions().scales,
+          x: {
+            ...SFTiChartConfig.getBarChartOptions().scales.x,
+            stacked: true
+          },
+          y: {
+            ...SFTiChartConfig.getBarChartOptions().scales.y,
+            stacked: true,
+            ticks: {
+              ...SFTiChartConfig.getBarChartOptions().scales.y.ticks,
+              callback: function(value) {
+                return value; // Just show the count
+              }
+            }
+          }
+        }
+      }
     });
   } catch (error) {
-    console.log('Trade distribution data not yet available:', error);
-    SFTiChartConfig.renderEmptyChart(ctx, 'No trade distribution data available yet. Add trades to see your distribution.');
+    console.log('Win/loss ratio by strategy data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No win/loss ratio data available yet. Add trades to see your strategy performance.');
   }
 }
 
@@ -157,8 +192,8 @@ function switchChart(chartType) {
     case 'equity-curve':
       if (!equityCurveChart) loadEquityCurveChart();
       break;
-    case 'trade-distribution':
-      if (!tradeDistributionChart) loadTradeDistributionChart();
+    case 'win-loss-ratio-by-strategy':
+      if (!winLossRatioByStrategyChart) loadWinLossRatioByStrategyChart();
       break;
     case 'performance-by-day':
       if (!performanceByDayChart) loadPerformanceByDayChart();
