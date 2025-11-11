@@ -9,7 +9,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from collections import defaultdict
-from globals_utils import setup_imports, ensure_directory, save_json_file, parse_date
+from globals_utils import setup_imports, ensure_directory, save_json_file
 
 # Setup imports
 setup_imports(__file__)

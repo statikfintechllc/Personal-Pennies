@@ -5,7 +5,6 @@ Shared functions used across multiple scripts to avoid code duplication.
 """
 
 import json
-from datetime import datetime
 from collections import defaultdict
 
 

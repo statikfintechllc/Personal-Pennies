@@ -136,6 +136,8 @@ def format_currency(amount: float, symbol: str = "$", decimals: int = 2) -> str:
     """
     Format a number as currency with proper sign handling.
     
+    NOTE: Reserved for future use. Not currently used in any scripts.
+    
     Args:
         amount: Amount to format
         symbol: Currency symbol (default: "$")
@@ -157,6 +159,8 @@ def format_currency(amount: float, symbol: str = "$", decimals: int = 2) -> str:
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
     Safely divide two numbers, returning default if denominator is zero.
+    
+    NOTE: Reserved for future use. Not currently used in any scripts.
     
     Args:
         numerator: Numerator value
@@ -233,6 +237,8 @@ def calculate_time_in_trade(entry_date: str, entry_time: str,
 def validate_required_fields(data: Dict, required_fields: list) -> Tuple[bool, list]:
     """
     Validate that a dictionary contains all required fields.
+    
+    NOTE: Reserved for future use. Not currently used in any scripts.
     
     Args:
         data: Dictionary to validate
