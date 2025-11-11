@@ -90,14 +90,14 @@
           <div class="stat-value positive" id="stat-win-rate">0%</div>
         </div>
         
-        <!-- Trade P&L Card -->
-        <div class="stat-card">
+        <!-- Trade P&L Card - Clickable to open Monthly Returns Heatmap modal -->
+        <div class="stat-card clickable" onclick="openTradePnLModal()" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0, 255, 136, 0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">
           <div class="stat-label">Trade P&L</div>
           <div class="stat-value" id="stat-total-pnl">$0.00</div>
         </div>
         
-        <!-- Average P&L Card -->
-        <div class="stat-card">
+        <!-- Average P&L Card - Clickable to open Avg Win/Loss modal -->
+        <div class="stat-card clickable" onclick="openAvgPnLModal()" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0, 255, 136, 0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">
           <div class="stat-label">Avg P&L</div>
           <div class="stat-value" id="stat-avg-pnl">$0.00</div>
         </div>
@@ -418,6 +418,109 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+  
+  <!-- ======================================================================
+       Trade P&L Modal - Monthly Returns Heatmap
+       ====================================================================== -->
+  <div id="trade-pnl-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 900px; width: 95%;">
+      <div class="modal-header">
+        <h3 style="margin: 0; color: var(--accent-green); display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Monthly Returns Heatmap
+        </h3>
+        <button onclick="closeTradePnLModal()" class="modal-close" title="Close">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+        Calendar view of monthly returns - a hedge fund standard performance metric showing returns by month and year.
+      </p>
+      
+      <!-- Heatmap Container -->
+      <div id="monthly-returns-heatmap" style="overflow-x: auto;">
+        <!-- Heatmap will be dynamically generated here -->
+      </div>
+      
+      <!-- Summary Stats -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px;">
+        <div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Best Month</div>
+          <div style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--accent-green);" id="best-month">+0%</div>
+        </div>
+        <div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Worst Month</div>
+          <div style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--accent-red);" id="worst-month">-0%</div>
+        </div>
+        <div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Avg Monthly Return</div>
+          <div style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--accent-yellow);" id="avg-monthly-return">0%</div>
+        </div>
+        <div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Positive Months</div>
+          <div style="font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; color: var(--accent-blue);" id="positive-months">0/0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ======================================================================
+       Average P&L Modal - Avg Win $ / Avg Loss $
+       ====================================================================== -->
+  <div id="avg-pnl-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 600px; width: 95%;">
+      <div class="modal-header">
+        <h3 style="margin: 0; color: var(--accent-yellow); display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Average Win vs Loss
+        </h3>
+        <button onclick="closeAvgPnLModal()" class="modal-close" title="Close">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+        Compare your average winning trades to average losing trades to understand your risk-reward profile.
+      </p>
+      
+      <!-- Win/Loss Comparison -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div style="padding: 1.5rem; background: rgba(0, 255, 136, 0.1); border: 2px solid var(--accent-green); border-radius: 8px; text-align: center;">
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Average Win</div>
+          <div style="font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent-green);" id="modal-avg-win">$0.00</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            <span id="modal-win-count">0</span> winning trades
+          </div>
+        </div>
+        
+        <div style="padding: 1.5rem; background: rgba(255, 71, 87, 0.1); border: 2px solid var(--accent-red); border-radius: 8px; text-align: center;">
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Average Loss</div>
+          <div style="font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--accent-red);" id="modal-avg-loss">$0.00</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            <span id="modal-loss-count">0</span> losing trades
+          </div>
+        </div>
+      </div>
+      
+      <!-- Win/Loss Ratio -->
+      <div style="padding: 1.5rem; background: var(--bg-tertiary); border-radius: 8px; text-align: center;">
+        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Win/Loss Ratio</div>
+        <div style="font-family: var(--font-mono); font-size: 2.5rem; font-weight: 700; color: var(--accent-yellow);" id="modal-win-loss-ratio">0.00</div>
+        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+          Average win is <span id="modal-win-loss-ratio-text">0x</span> the size of average loss
+        </div>
+      </div>
     </div>
   </div>
   
