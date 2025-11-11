@@ -32,6 +32,11 @@ let strategyChart = null;
 let setupChart = null;
 let winrateChart = null;
 let drawdownChart = null;
+let equityCurveChart = null;
+let winLossRatioByStrategyChart = null;
+let performanceByDayChart = null;
+let tickerPerformanceChart = null;
+let timeOfDayChart = null;
 
 /**
  * Initialize analytics page
@@ -75,6 +80,13 @@ async function loadAnalyticsData() {
     renderWinRateChart(analyticsData);
     renderDrawdownChart(analyticsData);
     renderStrategyTable(analyticsData);
+    
+    // Load index.html charts
+    loadEquityCurveChart();
+    loadWinLossRatioByStrategyChart();
+    loadPerformanceByDayChart();
+    loadTickerPerformanceChart();
+    loadTimeOfDayChart();
   }
 }
 
@@ -350,6 +362,189 @@ function renderStrategyTable(data) {
   }).join('');
   
   strategyTableBody.innerHTML = rows;
+}
+
+// ======================================================================
+// Charts from index.html
+// ======================================================================
+
+/**
+ * Load and render equity curve chart
+ */
+async function loadEquityCurveChart() {
+  const ctx = document.getElementById('equity-curve-chart');
+  if (!ctx) return;
+
+  try {
+    const response = await fetch('assets/charts/equity-curve-data.json');
+    const data = await response.json();
+    
+    if (equityCurveChart) {
+      equityCurveChart.destroy();
+    }
+
+    equityCurveChart = new Chart(ctx, {
+      type: 'line',
+      data: data,
+      options: SFTiChartConfig.getCommonChartOptions()
+    });
+  } catch (error) {
+    console.log('Equity curve data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No equity curve data available yet. Add trades to see your equity curve.');
+  }
+}
+
+/**
+ * Load and render win/loss ratio by strategy chart
+ */
+async function loadWinLossRatioByStrategyChart() {
+  const ctx = document.getElementById('win-loss-ratio-by-strategy-chart');
+  if (!ctx) return;
+
+  try {
+    const response = await fetch('assets/charts/win-loss-ratio-by-strategy-data.json');
+    const data = await response.json();
+    
+    if (winLossRatioByStrategyChart) {
+      winLossRatioByStrategyChart.destroy();
+    }
+
+    winLossRatioByStrategyChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: {
+        ...SFTiChartConfig.getBarChartOptions(),
+        plugins: {
+          ...SFTiChartConfig.getBarChartOptions().plugins,
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e4e4e7',
+              font: {
+                family: 'Inter',
+                size: 12
+              },
+              usePointStyle: true,
+              padding: 15
+            }
+          }
+        },
+        scales: {
+          ...SFTiChartConfig.getBarChartOptions().scales,
+          x: {
+            ...SFTiChartConfig.getBarChartOptions().scales.x,
+            stacked: true
+          },
+          y: {
+            ...SFTiChartConfig.getBarChartOptions().scales.y,
+            stacked: true,
+            ticks: {
+              ...SFTiChartConfig.getBarChartOptions().scales.y.ticks,
+              callback: function(value) {
+                return value; // Just show the count
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.log('Win/loss ratio by strategy data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No win/loss ratio data available yet. Add trades to see your strategy performance.');
+  }
+}
+
+/**
+ * Load and render performance by day chart
+ */
+async function loadPerformanceByDayChart() {
+  const ctx = document.getElementById('performance-by-day-chart');
+  if (!ctx) return;
+
+  try {
+    const response = await fetch('assets/charts/performance-by-day-data.json');
+    const data = await response.json();
+    
+    if (performanceByDayChart) {
+      performanceByDayChart.destroy();
+    }
+
+    performanceByDayChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: SFTiChartConfig.getBarChartOptions()
+    });
+  } catch (error) {
+    console.log('Performance by day data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No performance by day data available yet. Add trades to see daily performance.');
+  }
+}
+
+/**
+ * Load and render ticker performance chart
+ */
+async function loadTickerPerformanceChart() {
+  const ctx = document.getElementById('ticker-performance-chart');
+  if (!ctx) return;
+
+  try {
+    const response = await fetch('assets/charts/ticker-performance-data.json');
+    const data = await response.json();
+    
+    if (tickerPerformanceChart) {
+      tickerPerformanceChart.destroy();
+    }
+
+    const options = SFTiChartConfig.getBarChartOptions();
+    
+    // Override scales for horizontal bar chart
+    options.scales.y.ticks.callback = function(value, index, values) {
+      return this.getLabelForValue(value);
+    };
+    
+    options.scales.x.ticks.callback = function(value) {
+      return '$' + value.toFixed(0);
+    };
+    
+    tickerPerformanceChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: {
+        ...options,
+        indexAxis: 'y'
+      }
+    });
+  } catch (error) {
+    console.log('Ticker performance data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No ticker performance data available yet. Add trades to see performance by ticker.');
+  }
+}
+
+/**
+ * Load and render time of day performance chart
+ */
+async function loadTimeOfDayChart() {
+  const ctx = document.getElementById('time-of-day-chart');
+  if (!ctx) return;
+
+  try {
+    const response = await fetch('assets/charts/time-of-day-performance-data.json');
+    const data = await response.json();
+    
+    if (timeOfDayChart) {
+      timeOfDayChart.destroy();
+    }
+
+    timeOfDayChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: SFTiChartConfig.getBarChartOptions()
+    });
+  } catch (error) {
+    console.log('Time of day performance data not yet available:', error);
+    SFTiChartConfig.renderEmptyChart(ctx, 'No time of day performance data available yet. Add trades with session tags to see performance by time of day.');
+  }
 }
 
 // Initialize on DOM ready

@@ -471,6 +471,78 @@ def generate_ticker_performance_data(trades):
     }
 
 
+def generate_time_of_day_performance_data(trades):
+    """
+    Generate time of day performance data using session_tags in Chart.js format
+
+    Args:
+        trades (list): List of trade dictionaries
+
+    Returns:
+        dict: Chart.js compatible data structure
+    """
+    if not trades:
+        return {
+            "labels": [],
+            "datasets": [{"label": "Average P&L", "data": [], "backgroundColor": []}],
+        }
+
+    # Aggregate by session tag
+    session_stats = {}
+
+    for trade in trades:
+        # session_tags is an array, take the first one
+        session_tags = trade.get("session_tags", [])
+        
+        if isinstance(session_tags, list) and len(session_tags) > 0:
+            session = session_tags[0]
+        else:
+            session = "Unclassified"
+
+        pnl = trade.get("pnl_usd", 0)
+
+        if session not in session_stats:
+            session_stats[session] = {"total_pnl": 0, "count": 0}
+
+        session_stats[session]["total_pnl"] += pnl
+        session_stats[session]["count"] += 1
+
+    # Sort by standard trading session order
+    session_order = ["Pre-Market", "Morning", "Midday", "Afternoon", "After-Hours", "Extended Hours"]
+    
+    # Get sessions that exist in data, maintaining order
+    existing_sessions = [s for s in session_order if s in session_stats]
+    
+    # Add any other sessions not in the standard order
+    other_sessions = sorted([s for s in session_stats.keys() if s not in session_order])
+    all_sessions = existing_sessions + other_sessions
+
+    # Prepare data
+    labels = []
+    avg_pnls = []
+    colors = []
+
+    for session in all_sessions:
+        stats = session_stats[session]
+        labels.append(session)
+        avg_pnl = stats["total_pnl"] / stats["count"] if stats["count"] > 0 else 0
+        avg_pnls.append(round(avg_pnl, 2))
+        colors.append("#00ff88" if avg_pnl >= 0 else "#ff4757")
+
+    return {
+        "labels": labels,
+        "datasets": [
+            {
+                "label": "Average P&L ($)",
+                "data": avg_pnls,
+                "backgroundColor": colors,
+                "borderColor": colors,
+                "borderWidth": 2,
+            }
+        ],
+    }
+
+
 def format_date_label(date, timeframe, interval=None):
     """
     Format a date object into a label string based on the timeframe and interval
@@ -1164,11 +1236,21 @@ def main():
         json.dump(ticker_data, f, indent=2)
     print("  ✓ Ticker performance data saved")
     
-    # 5. Portfolio Value Charts (all timeframes)
+    # 5. Time of Day Performance
+    time_of_day_data = generate_time_of_day_performance_data(trades)
+    with open(
+        "index.directory/assets/charts/time-of-day-performance-data.json",
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(time_of_day_data, f, indent=2)
+    print("  ✓ Time of day performance data saved")
+    
+    # 6. Portfolio Value Charts (all timeframes)
     print("\nGenerating Portfolio Value charts...")
     generate_portfolio_value_charts(trades, account_config)
     
-    # 6. Total Return Charts (all timeframes)
+    # 7. Total Return Charts (all timeframes)
     print("\nGenerating Total Return charts...")
     generate_total_return_charts(trades, account_config)
 

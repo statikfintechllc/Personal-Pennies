@@ -1,0 +1,24 @@
+{
+  "labels": [
+    "Pre-Market",
+    "Morning"
+  ],
+  "datasets": [
+    {
+      "label": "Average P&L ($)",
+      "data": [
+        -5.73,
+        12.47
+      ],
+      "backgroundColor": [
+        "#ff4757",
+        "#00ff88"
+      ],
+      "borderColor": [
+        "#ff4757",
+        "#00ff88"
+      ],
+      "borderWidth": 2
+    }
+  ]
+}
