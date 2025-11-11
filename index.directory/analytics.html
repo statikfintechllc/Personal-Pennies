@@ -102,6 +102,42 @@
         </div>
       </div>
       
+      <!-- Advanced Analytics Section -->
+      <div class="glass-stat" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;"Advanced Risk Metrics</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Sharpe Ratio</div>
+            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-blue);" id="metric-sharpe-ratio">0.00</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Risk-adjusted returns</div>
+          </div>
+          
+          <div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Avg R-Multiple</div>
+            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);" id="metric-avg-r-multiple">0.00R</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Returns in risk units</div>
+          </div>
+          
+          <div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Median R-Multiple</div>
+            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);" id="metric-median-r-multiple">0.00R</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Typical risk outcome</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- R-Multiple Distribution Chart -->
+      <div class="glass-chart" style="margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">R-Multiple Distribution</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+          Distribution of returns in risk units - shows how many times your initial risk you made or lost per trade
+        </p>
+        <div style="position: relative; height: 400px; width: 100%;">
+          <canvas id="r-multiple-chart"></canvas>
+        </div>
+      </div>
+
       <!-- Performance by Strategy -->
       <div class="glass-chart" style="margin-bottom: 1.5rem;">
         <h3 style="margin-bottom: 1rem;">Performance by Strategy</h3>
@@ -209,73 +245,6 @@
         </p>
         <div style="position: relative; height: 400px; width: 100%;">
           <canvas id="equity-curve-chart"></canvas>
-        </div>
-      </div>
-      
-      <!-- Advanced Analytics Section -->
-      <div style="background: var(--bg-tertiary); border: 2px solid var(--accent-blue); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
-          Advanced Risk Metrics
-        </h3>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          <div>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Sharpe Ratio</div>
-            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-blue);" id="metric-sharpe-ratio">0.00</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Risk-adjusted returns</div>
-          </div>
-          
-          <div>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Avg R-Multiple</div>
-            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);" id="metric-avg-r-multiple">0.00R</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Returns in risk units</div>
-          </div>
-          
-          <div>
-            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Median R-Multiple</div>
-            <div style="font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--accent-yellow);" id="metric-median-r-multiple">0.00R</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Typical risk outcome</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- R-Multiple Distribution Chart -->
-      <div class="glass-chart" style="margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem;">R-Multiple Distribution</h3>
-        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
-          Distribution of returns in risk units - shows how many times your initial risk you made or lost per trade
-        </p>
-        <div style="position: relative; height: 400px; width: 100%;">
-          <canvas id="r-multiple-chart"></canvas>
-        </div>
-      </div>
-      
-      <!-- MAE/MFE Analysis Placeholder -->
-      <div style="background: var(--bg-tertiary); border: 2px solid var(--accent-yellow); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem; color: var(--accent-yellow); display: flex; align-items: center; gap: 0.5rem;">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          MAE/MFE Analysis
-        </h3>
-        
-        <div style="color: var(--text-secondary);">
-          <p style="margin-bottom: 0.75rem;">
-            <strong>Mean Adverse Excursion (MAE)</strong> and <strong>Mean Favorable Excursion (MFE)</strong> analysis requires intraday price data collection.
-          </p>
-          <p style="margin-bottom: 0.75rem;">
-            To enable this professional metric, add the following fields to your trade entries:
-          </p>
-          <ul style="margin: 0 0 0.75rem 1.5rem; padding: 0;">
-            <li><code style="background: var(--bg-primary); padding: 0.2rem 0.4rem; border-radius: 4px;">intraday_high</code> - Highest price reached during the trade</li>
-            <li><code style="background: var(--bg-primary); padding: 0.2rem 0.4rem; border-radius: 4px;">intraday_low</code> - Lowest price reached during the trade</li>
-          </ul>
-          <p style="margin-bottom: 0;">
-            This analysis helps identify if you're exiting trades too early or holding losers too long by comparing unrealized vs. realized P&L.
-          </p>
         </div>
       </div>
       
@@ -400,7 +369,33 @@
           <canvas id="total-return-5year-chart"></canvas>
         </div>
       </div>
-      
+
+      <!-- MAE/MFE Analysis Placeholder -->
+      <div style="background: var(--bg-tertiary); border: 2px solid var(--accent-yellow); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 1rem; color: var(--accent-yellow); display: flex; align-items: center; gap: 0.5rem;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 24px; height: 24px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          MAE/MFE Analysis
+        </h3>
+        
+        <div style="color: var(--text-secondary);">
+          <p style="margin-bottom: 0.75rem;">
+            <strong>Mean Adverse Excursion (MAE)</strong> and <strong>Mean Favorable Excursion (MFE)</strong> analysis requires intraday price data collection.
+          </p>
+          <p style="margin-bottom: 0.75rem;">
+            To enable this professional metric, add the following fields to your trade entries:
+          </p>
+          <ul style="margin: 0 0 0.75rem 1.5rem; padding: 0;">
+            <li><code style="background: var(--bg-primary); padding: 0.2rem 0.4rem; border-radius: 4px;">intraday_high</code> - Highest price reached during the trade</li>
+            <li><code style="background: var(--bg-primary); padding: 0.2rem 0.4rem; border-radius: 4px;">intraday_low</code> - Lowest price reached during the trade</li>
+          </ul>
+          <p style="margin-bottom: 0;">
+            This analysis helps identify if you're exiting trades too early or holding losers too long by comparing unrealized vs. realized P&L.
+          </p>
+        </div>
+      </div>
+
       <!-- Implementation Status -->
       <div style="background: var(--bg-tertiary); border: 2px solid var(--accent-green); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
         <h3 style="margin-bottom: 1rem; color: var(--accent-green); display: flex; align-items: center; gap: 0.5rem;">
