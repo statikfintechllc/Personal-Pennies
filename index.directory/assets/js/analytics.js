@@ -652,7 +652,7 @@ async function loadPortfolioValueDayChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-day-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-day.json`);
     const data = await response.json();
     
     if (portfolioValueDayChart) portfolioValueDayChart.destroy();
@@ -674,7 +674,7 @@ async function loadPortfolioValueWeekChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-week-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-week.json`);
     const data = await response.json();
     
     if (portfolioValueWeekChart) portfolioValueWeekChart.destroy();
@@ -696,7 +696,7 @@ async function loadPortfolioValueMonthChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-month-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-month.json`);
     const data = await response.json();
     
     if (portfolioValueMonthChart) portfolioValueMonthChart.destroy();
@@ -718,7 +718,7 @@ async function loadPortfolioValueQuarterChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-quarter-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-quarter.json`);
     const data = await response.json();
     
     if (portfolioValueQuarterChart) portfolioValueQuarterChart.destroy();
@@ -740,7 +740,7 @@ async function loadPortfolioValueYearChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-year-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-year.json`);
     const data = await response.json();
     
     if (portfolioValueYearChart) portfolioValueYearChart.destroy();
@@ -762,7 +762,7 @@ async function loadPortfolioValue5YearChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-5year-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/portfolio-value-5year.json`);
     const data = await response.json();
     
     if (portfolioValue5YearChart) portfolioValue5YearChart.destroy();
@@ -788,7 +788,7 @@ async function loadTotalReturnDayChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-day-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-day.json`);
     const data = await response.json();
     
     if (totalReturnDayChart) totalReturnDayChart.destroy();
@@ -810,7 +810,7 @@ async function loadTotalReturnWeekChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-week-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-week.json`);
     const data = await response.json();
     
     if (totalReturnWeekChart) totalReturnWeekChart.destroy();
@@ -832,7 +832,7 @@ async function loadTotalReturnMonthChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-month-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-month.json`);
     const data = await response.json();
     
     if (totalReturnMonthChart) totalReturnMonthChart.destroy();
@@ -854,7 +854,7 @@ async function loadTotalReturnQuarterChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-quarter-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-quarter.json`);
     const data = await response.json();
     
     if (totalReturnQuarterChart) totalReturnQuarterChart.destroy();
@@ -876,7 +876,7 @@ async function loadTotalReturnYearChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-year-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-year.json`);
     const data = await response.json();
     
     if (totalReturnYearChart) totalReturnYearChart.destroy();
@@ -898,7 +898,7 @@ async function loadTotalReturn5YearChart() {
   
   try {
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-5year-data.json`);
+    const response = await fetch(`${basePath}/index.directory/assets/charts/total-return-5year.json`);
     const data = await response.json();
     
     if (totalReturn5YearChart) totalReturn5YearChart.destroy();
