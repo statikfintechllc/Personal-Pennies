@@ -126,6 +126,29 @@
           </div>
         </div>
       </div>
+
+      <!-- Strategy Table -->
+      <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Strategy Breakdown</h3>
+        
+        <div style="overflow-x: auto;">
+          <table id="strategy-table" style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.875rem;">
+            <thead>
+              <tr style="background-color: var(--bg-tertiary); border-bottom: 2px solid var(--border-color);">
+                <th style="text-align: left; padding: 0.75rem; color: var(--text-secondary);">Strategy</th>
+                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Trades</th>
+                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Win Rate</th>
+                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Avg P&L</th>
+                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Total P&L</th>
+                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Expectancy</th>
+              </tr>
+            </thead>
+            <tbody id="strategy-table-body">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
       
       <!-- R-Multiple Distribution Chart -->
       <div class="glass-chart" style="margin-bottom: 1.5rem;">
@@ -211,29 +234,6 @@
         </p>
         <div style="position: relative; height: 400px; width: 100%;">
           <canvas id="time-of-day-chart"></canvas>
-        </div>
-      </div>
-      
-      <!-- Strategy Table -->
-      <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem;">Strategy Breakdown</h3>
-        
-        <div style="overflow-x: auto;">
-          <table id="strategy-table" style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.875rem;">
-            <thead>
-              <tr style="background-color: var(--bg-tertiary); border-bottom: 2px solid var(--border-color);">
-                <th style="text-align: left; padding: 0.75rem; color: var(--text-secondary);">Strategy</th>
-                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Trades</th>
-                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Win Rate</th>
-                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Avg P&L</th>
-                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Total P&L</th>
-                <th style="text-align: right; padding: 0.75rem; color: var(--text-secondary);">Expectancy</th>
-              </tr>
-            </thead>
-            <tbody id="strategy-table-body">
-              <!-- Populated by JavaScript -->
-            </tbody>
-          </table>
         </div>
       </div>
 
