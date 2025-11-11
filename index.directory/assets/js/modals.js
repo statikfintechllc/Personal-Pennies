@@ -973,7 +973,7 @@ async function loadAvgWinLossData() {
     
     // Update modal displays
     document.getElementById('modal-avg-win').textContent = `$${avgWin.toFixed(2)}`;
-    document.getElementById('modal-avg-loss').textContent = `-$${avgLoss.toFixed(2)}`;
+    document.getElementById('modal-avg-loss').textContent = `$${avgLoss.toFixed(2)}`;
     document.getElementById('modal-win-count').textContent = winCount;
     document.getElementById('modal-loss-count').textContent = lossCount;
     document.getElementById('modal-win-loss-ratio').textContent = winLossRatio.toFixed(2);
