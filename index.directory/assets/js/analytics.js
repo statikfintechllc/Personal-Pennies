@@ -37,6 +37,7 @@ let winLossRatioByStrategyChart = null;
 let performanceByDayChart = null;
 let tickerPerformanceChart = null;
 let timeOfDayChart = null;
+let rMultipleChart = null;
 
 /**
  * Initialize analytics page
@@ -197,6 +198,27 @@ function updateMetrics(data) {
   
   if (metricLossStreak) {
     metricLossStreak.textContent = data.max_loss_streak || '0';
+  }
+  
+  // Advanced metrics
+  const sharpeRatioEl = document.getElementById('metric-sharpe-ratio');
+  if (sharpeRatioEl) {
+    sharpeRatioEl.textContent = (data.sharpe_ratio || 0).toFixed(2);
+  }
+  
+  const avgRMultipleEl = document.getElementById('metric-avg-r-multiple');
+  if (avgRMultipleEl && data.r_multiple_distribution) {
+    avgRMultipleEl.textContent = `${(data.r_multiple_distribution.avg_r_multiple || 0).toFixed(2)}R`;
+  }
+  
+  const medianRMultipleEl = document.getElementById('metric-median-r-multiple');
+  if (medianRMultipleEl && data.r_multiple_distribution) {
+    medianRMultipleEl.textContent = `${(data.r_multiple_distribution.median_r_multiple || 0).toFixed(2)}R`;
+  }
+  
+  // Render R-Multiple chart
+  if (data.r_multiple_distribution) {
+    renderRMultipleChart(data.r_multiple_distribution);
   }
 }
 
@@ -545,6 +567,46 @@ async function loadTimeOfDayChart() {
     console.log('Time of day performance data not yet available:', error);
     SFTiChartConfig.renderEmptyChart(ctx, 'No time of day performance data available yet. Add trades with session tags to see performance by time of day.');
   }
+}
+
+/**
+ * Render R-Multiple Distribution chart
+ */
+function renderRMultipleChart(rMultipleData) {
+  const ctx = document.getElementById('r-multiple-chart');
+  if (!ctx || !rMultipleData) return;
+  
+  if (rMultipleChart) {
+    rMultipleChart.destroy();
+  }
+  
+  // Prepare colors based on R-multiple ranges
+  const colors = rMultipleData.labels.map(label => {
+    if (label.includes('<') || label.includes('-2R to -1R') || label.includes('-1R to 0R')) {
+      return '#ff4757';
+    } else if (label.includes('0R to 1R')) {
+      return '#ffa502';
+    } else {
+      return '#00ff88';
+    }
+  });
+  
+  const chartData = {
+    labels: rMultipleData.labels,
+    datasets: [{
+      label: 'Number of Trades',
+      data: rMultipleData.data,
+      backgroundColor: colors,
+      borderColor: colors,
+      borderWidth: 2
+    }]
+  };
+  
+  rMultipleChart = new Chart(ctx, {
+    type: 'bar',
+    data: chartData,
+    options: SFTiChartConfig.getBarChartOptions()
+  });
 }
 
 // Initialize on DOM ready
