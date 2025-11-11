@@ -134,17 +134,29 @@
           </button>
           <ul id="chart-selector-menu" class="chart-selector-menu" role="menu">
             <li><a href="#" class="chart-option" data-value="equity-curve">Equity Curve</a></li>
-            <li><a href="#" class="chart-option" data-value="win-loss-ratio-by-strategy">Win/Loss Ratio by Strategy</a></li>
+            <li><a href="#" class="chart-option" data-value="win-loss-ratio-by-strategy">Win/Loss Ratio</a></li>
             <li><a href="#" class="chart-option" data-value="performance-by-day">Performance By Day</a></li>
             <li><a href="#" class="chart-option" data-value="ticker-performance">Ticker Performance</a></li>
+            <li><a href="#" class="chart-option" data-value="time-of-day">Time of Day</a></li>
+            <li><a href="#" class="chart-option" data-value="strategy">By Strategy</a></li>
+            <li><a href="#" class="chart-option" data-value="setup">By Setup</a></li>
+            <li><a href="#" class="chart-option" data-value="winrate">Win Rate</a></li>
+            <li><a href="#" class="chart-option" data-value="drawdown">Drawdown</a></li>
+            <li><a href="#" class="chart-option" data-value="r-multiple">R-Multiple</a></li>
           </ul>
         </div>
         <!-- Mobile native select (hidden on desktop) -->
         <select id="chart-selector-mobile" class="chart-selector-select">
           <option value="equity-curve">Equity Curve</option>
-          <option value="win-loss-ratio-by-strategy">Win/Loss Ratio by Strategy</option>
+          <option value="win-loss-ratio-by-strategy">Win/Loss Ratio</option>
           <option value="performance-by-day">Performance By Day</option>
           <option value="ticker-performance">Ticker Performance</option>
+          <option value="time-of-day">Time of Day</option>
+          <option value="strategy">By Strategy</option>
+          <option value="setup">By Setup</option>
+          <option value="winrate">Win Rate</option>
+          <option value="drawdown">Drawdown</option>
+          <option value="r-multiple">R-Multiple</option>
         </select>
       </div>
       
@@ -186,6 +198,66 @@
           </p>
           <div style="position: relative; height: 400px; width: 100%;">
             <canvas id="ticker-performance-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Time of Day Chart -->
+        <div id="time-of-day-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            Performance by trading session
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="time-of-day-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Strategy Chart -->
+        <div id="strategy-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            Performance by strategy
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="strategy-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Setup Chart -->
+        <div id="setup-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            Performance by setup
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="setup-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Win Rate Chart -->
+        <div id="winrate-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            Win rate analysis
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="winrate-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Drawdown Chart -->
+        <div id="drawdown-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            Drawdown over time
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="drawdown-chart"></canvas>
+          </div>
+        </div>
+        
+        <!-- R-Multiple Chart -->
+        <div id="r-multiple-container" class="chart-container" style="display: none;">
+          <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1rem;">
+            R-Multiple distribution
+          </p>
+          <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="r-multiple-chart"></canvas>
           </div>
         </div>
       </div>
