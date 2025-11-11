@@ -720,6 +720,17 @@ document.addEventListener('DOMContentLoaded', () => {
       closeAvgPnLModal();
     }
   });
+  
+  // Add click event listeners for clickable stat cards
+  const tradePnLCard = document.getElementById('trade-pnl-card');
+  if (tradePnLCard) {
+    tradePnLCard.addEventListener('click', openTradePnLModal);
+  }
+  
+  const avgPnLCard = document.getElementById('avg-pnl-card');
+  if (avgPnLCard) {
+    avgPnLCard.addEventListener('click', openAvgPnLModal);
+  }
 });
 
 // ======================================================================

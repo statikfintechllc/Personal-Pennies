@@ -91,13 +91,13 @@
         </div>
         
         <!-- Trade P&L Card - Clickable to open Monthly Returns Heatmap modal -->
-        <div class="stat-card clickable" onclick="openTradePnLModal()" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0, 255, 136, 0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">
+        <div class="stat-card clickable-card" id="trade-pnl-card">
           <div class="stat-label">Trade P&L</div>
           <div class="stat-value" id="stat-total-pnl">$0.00</div>
         </div>
         
         <!-- Average P&L Card - Clickable to open Avg Win/Loss modal -->
-        <div class="stat-card clickable" onclick="openAvgPnLModal()" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(0, 255, 136, 0.2)';" onmouseout="this.style.transform=''; this.style.boxShadow='';">
+        <div class="stat-card clickable-card" id="avg-pnl-card">
           <div class="stat-label">Avg P&L</div>
           <div class="stat-value" id="stat-avg-pnl">$0.00</div>
         </div>

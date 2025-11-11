@@ -438,7 +438,11 @@ def calculate_r_multiple_distribution(trades: List[Dict]) -> Dict:
     # Calculate statistics
     avg_r = sum(r_multiples) / len(r_multiples)
     sorted_r = sorted(r_multiples)
-    median_r = sorted_r[len(sorted_r) // 2]
+    median_r = (
+        sorted_r[len(sorted_r) // 2]
+        if len(sorted_r) % 2 == 1
+        else (sorted_r[len(sorted_r) // 2 - 1] + sorted_r[len(sorted_r) // 2]) / 2
+    )
     
     return {
         "labels": list(buckets.keys()),

@@ -26,6 +26,16 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     print("Note: matplotlib not available, skipping static chart generation")
 
+# Standard trading session order for time of day performance
+TRADING_SESSION_ORDER = [
+    "Pre-Market",
+    "Morning",
+    "Midday",
+    "Afternoon",
+    "After-Hours",
+    "Extended Hours"
+]
+
 
 def generate_equity_curve_data(trades):
     """
@@ -507,14 +517,11 @@ def generate_time_of_day_performance_data(trades):
         session_stats[session]["total_pnl"] += pnl
         session_stats[session]["count"] += 1
 
-    # Sort by standard trading session order
-    session_order = ["Pre-Market", "Morning", "Midday", "Afternoon", "After-Hours", "Extended Hours"]
-    
-    # Get sessions that exist in data, maintaining order
-    existing_sessions = [s for s in session_order if s in session_stats]
+    # Sort by standard trading session order (module-level constant)
+    existing_sessions = [s for s in TRADING_SESSION_ORDER if s in session_stats]
     
     # Add any other sessions not in the standard order
-    other_sessions = sorted([s for s in session_stats.keys() if s not in session_order])
+    other_sessions = sorted([s for s in session_stats.keys() if s not in TRADING_SESSION_ORDER])
     all_sessions = existing_sessions + other_sessions
 
     # Prepare data
@@ -524,8 +531,10 @@ def generate_time_of_day_performance_data(trades):
 
     for session in all_sessions:
         stats = session_stats[session]
+        if stats["count"] == 0:
+            continue  # Skip sessions with zero trades
         labels.append(session)
-        avg_pnl = stats["total_pnl"] / stats["count"] if stats["count"] > 0 else 0
+        avg_pnl = stats["total_pnl"] / stats["count"]
         avg_pnls.append(round(avg_pnl, 2))
         colors.append("#00ff88" if avg_pnl >= 0 else "#ff4757")
 

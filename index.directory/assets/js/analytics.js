@@ -398,7 +398,8 @@ async function loadEquityCurveChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch('assets/charts/equity-curve-data.json');
+    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    const response = await fetch(`${basePath}/index.directory/assets/charts/equity-curve-data.json`);
     const data = await response.json();
     
     if (equityCurveChart) {
@@ -424,7 +425,8 @@ async function loadWinLossRatioByStrategyChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch('assets/charts/win-loss-ratio-by-strategy-data.json');
+    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    const response = await fetch(`${basePath}/index.directory/assets/charts/win-loss-ratio-by-strategy-data.json`);
     const data = await response.json();
     
     if (winLossRatioByStrategyChart) {
@@ -485,7 +487,8 @@ async function loadPerformanceByDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch('assets/charts/performance-by-day-data.json');
+    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    const response = await fetch(`${basePath}/index.directory/assets/charts/performance-by-day-data.json`);
     const data = await response.json();
     
     if (performanceByDayChart) {
@@ -511,7 +514,8 @@ async function loadTickerPerformanceChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch('assets/charts/ticker-performance-data.json');
+    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    const response = await fetch(`${basePath}/index.directory/assets/charts/ticker-performance-data.json`);
     const data = await response.json();
     
     if (tickerPerformanceChart) {
@@ -551,7 +555,8 @@ async function loadTimeOfDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch('assets/charts/time-of-day-performance-data.json');
+    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    const response = await fetch(`${basePath}/index.directory/assets/charts/time-of-day-performance-data.json`);
     const data = await response.json();
     
     if (timeOfDayChart) {
