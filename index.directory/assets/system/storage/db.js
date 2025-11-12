@@ -8,7 +8,8 @@
  * Key Pattern: Mirrors file structure (e.g., "week.2025.45/11:05:2025.1.md")
  */
 
-import localforage from 'localforage';
+// LocalForage is loaded globally via CDN in loader.js
+const localforage = window.localforage;
 
 // Database configuration
 const DB_NAME = 'PersonalPennies';

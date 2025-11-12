@@ -9,8 +9,15 @@
  * Output: Saved to IndexedDB analytics store
  */
 
-import { loadTradesIndex, loadAccountConfig, sortTradesByDate } from './utils.js';
-import { saveAnalytics } from '../storage/db.js';
+// Get functions from global scope (loaded by loader.js)
+function getDependencies() {
+  return {
+    loadTradesIndex: window.PersonalPenniesUtils?.loadTradesIndex,
+    loadAccountConfig: window.PersonalPenniesUtils?.loadAccountConfig,
+    sortTradesByDate: window.PersonalPenniesUtils?.sortTradesByDate,
+    saveAnalytics: window.PersonalPenniesDB?.saveAnalytics
+  };
+}
 
 // Constants
 const MAX_PROFIT_FACTOR = 999.99; // Used when profit factor would be infinity (all wins, no losses)
@@ -544,6 +551,13 @@ function aggregateByTag(trades, tagField) {
  */
 export async function generateAnalytics() {
   console.log('[GenerateAnalytics] Starting analytics generation...');
+
+  const { loadTradesIndex, loadAccountConfig, sortTradesByDate, saveAnalytics } = getDependencies();
+  
+  if (!loadTradesIndex || !loadAccountConfig || !sortTradesByDate || !saveAnalytics) {
+    console.error('[GenerateAnalytics] Dependencies not loaded');
+    throw new Error('Required dependencies not loaded');
+  }
 
   // Load account config
   const accountConfig = await loadAccountConfig();

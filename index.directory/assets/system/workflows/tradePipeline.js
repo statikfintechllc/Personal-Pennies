@@ -15,8 +15,13 @@
  * 7. Emit completion event
  */
 
-import { parseTrades } from '../scripts/parseTrades.js';
-import { generateAnalytics } from '../scripts/generateAnalytics.js';
+// Get functions from global scope (loaded by loader.js)
+function getDependencies() {
+  return {
+    parseTrades: window.PersonalPenniesParseTrades?.parseTrades,
+    generateAnalytics: window.PersonalPenniesAnalytics?.generateAnalytics
+  };
+}
 
 /**
  * Pipeline status
@@ -50,6 +55,17 @@ export async function runTradePipeline(options = {}) {
     status: 'success',
     error: null
   };
+  
+  const { parseTrades, generateAnalytics } = getDependencies();
+  
+  if (!parseTrades || !generateAnalytics) {
+    const error = new Error('Pipeline dependencies not loaded');
+    console.error('[Pipeline]', error);
+    results.status = 'error';
+    results.error = error.message;
+    pipelineState.running = false;
+    return results;
+  }
 
   try {
     // Step 1: Parse trades

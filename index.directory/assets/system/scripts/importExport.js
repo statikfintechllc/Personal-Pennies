@@ -3,13 +3,26 @@
  * Handles backup and restoration of all IndexedDB data
  */
 
-import { exportAllData, importAllData, clearAllStores } from '../storage/db.js';
+// Get functions from global scope (loaded by loader.js)
+function getDependencies() {
+  return {
+    exportAllData: window.PersonalPenniesDB?.exportAllData,
+    importAllData: window.PersonalPenniesDB?.importAllData,
+    clearAllStores: window.PersonalPenniesDB?.clearAllStores,
+    getAllTrades: window.PersonalPenniesDB?.getAllTrades
+  };
+}
 
 /**
  * Export all data as JSON file (download)
  */
 export async function exportToFile() {
   console.log('[ImportExport] Exporting data...');
+  
+  const { exportAllData } = getDependencies();
+  if (!exportAllData) {
+    return { status: 'error', message: 'Export function not loaded' };
+  }
   
   try {
     const data = await exportAllData();
@@ -41,6 +54,11 @@ export async function exportToFile() {
  */
 export async function importFromFile(file, clearFirst = false) {
   console.log('[ImportExport] Importing data...');
+  
+  const { importAllData, clearAllStores } = getDependencies();
+  if (!importAllData || !clearAllStores) {
+    return { status: 'error', message: 'Import functions not loaded' };
+  }
   
   try {
     // Read file
@@ -83,8 +101,12 @@ export async function importFromFile(file, clearFirst = false) {
 export async function exportTradesToCSV() {
   console.log('[ImportExport] Exporting trades to CSV...');
   
+  const { getAllTrades } = getDependencies();
+  if (!getAllTrades) {
+    return { status: 'error', message: 'getAllTrades function not loaded' };
+  }
+  
   try {
-    const { getAllTrades } = await import('../storage/db.js');
     const trades = await getAllTrades();
     
     if (trades.length === 0) {

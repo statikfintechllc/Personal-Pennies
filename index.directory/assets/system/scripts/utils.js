@@ -5,8 +5,6 @@
  * This is a direct JavaScript port of .github/scripts/utils.py
  */
 
-import { getIndex, getConfig } from '../storage/db.js';
-
 /**
  * Load the trades index from IndexedDB
  * 
@@ -14,6 +12,12 @@ import { getIndex, getConfig } from '../storage/db.js';
  */
 export async function loadTradesIndex() {
   try {
+    const { getIndex } = window.PersonalPenniesDB || {};
+    if (!getIndex) {
+      console.error('[Utils] PersonalPenniesDB not loaded');
+      return null;
+    }
+    
     const index = await getIndex('trades-index');
     if (!index) {
       console.warn('trades-index not found in IndexedDB. Run parseTrades first.');
@@ -35,26 +39,31 @@ export async function loadTradesIndex() {
  */
 export async function loadAccountConfig() {
   try {
+    const { getConfig } = window.PersonalPenniesDB || {};
+    if (!getConfig) {
+      console.error('[Utils] PersonalPenniesDB not loaded');
+      return getDefaultConfig();
+    }
+    
     const config = await getConfig('account-config');
     if (!config) {
       console.warn('account-config not found in IndexedDB, using defaults');
-      return {
-        starting_balance: 0,
-        deposits: [],
-        withdrawals: [],
-        version: '1.0'
-      };
+      return getDefaultConfig();
     }
     return config;
   } catch (error) {
     console.error('Error loading account config:', error);
-    return {
-      starting_balance: 0,
-      deposits: [],
-      withdrawals: [],
-      version: '1.0'
-    };
+    return getDefaultConfig();
   }
+}
+
+function getDefaultConfig() {
+  return {
+    starting_balance: 0,
+    deposits: [],
+    withdrawals: [],
+    version: '1.0'
+  };
 }
 
 /**

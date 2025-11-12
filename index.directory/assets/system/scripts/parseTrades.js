@@ -5,8 +5,15 @@
  * This is a direct JavaScript port of .github/scripts/parse_trades.py
  */
 
-import { getAllTrades, saveIndex } from '../storage/db.js';
-import { sortTradesByDate, calculatePeriodStats } from './utils.js';
+// Get functions from global scope (loaded by loader.js)
+function getDependencies() {
+  return {
+    getAllTrades: window.PersonalPenniesDB?.getAllTrades,
+    saveIndex: window.PersonalPenniesDB?.saveIndex,
+    sortTradesByDate: window.PersonalPenniesUtils?.sortTradesByDate,
+    calculatePeriodStats: window.PersonalPenniesUtils?.calculatePeriodStats
+  };
+}
 
 /**
  * Parse frontmatter from markdown content
@@ -185,6 +192,13 @@ function calculateStatistics(trades) {
  */
 export async function parseTrades() {
   console.log('[ParseTrades] Starting trade parsing...');
+  
+  const { getAllTrades, saveIndex, sortTradesByDate } = getDependencies();
+  
+  if (!getAllTrades || !saveIndex || !sortTradesByDate) {
+    console.error('[ParseTrades] Dependencies not loaded');
+    throw new Error('Required dependencies not loaded');
+  }
   
   try {
     // Get all trades from IndexedDB
