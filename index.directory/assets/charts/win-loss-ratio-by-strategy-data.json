@@ -2,7 +2,8 @@
   "labels": [
     "Breakout",
     "VWAP Hold",
-    "VWAP Bounce"
+    "VWAP Bounce",
+    "Continuation"
   ],
   "datasets": [
     {
@@ -10,7 +11,8 @@
       "data": [
         2,
         2,
-        0
+        0,
+        1
       ],
       "backgroundColor": "#00ff88",
       "borderColor": "#00ff88",
@@ -21,7 +23,8 @@
       "data": [
         4,
         0,
-        1
+        1,
+        0
       ],
       "backgroundColor": "#ff4757",
       "borderColor": "#ff4757",

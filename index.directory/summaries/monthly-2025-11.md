@@ -4,15 +4,15 @@
 
 ## Statistics
 
-- **Total Trades**: 9
-- **Winning Trades**: 4
+- **Total Trades**: 10
+- **Winning Trades**: 5
 - **Losing Trades**: 5
-- **Win Rate**: 44.44%
-- **Total P&L**: $-19.38
-- **Average P&L per Trade**: $-2.15
+- **Win Rate**: 50.0%
+- **Total P&L**: $-16.18
+- **Average P&L per Trade**: $-1.62
 - **Best Trade**: CHR (+$14.70)
 - **Worst Trade**: PHIO ($-25.08)
-- **Total Volume Traded**: 985.0 shares
+- **Total Volume Traded**: 1,007.0 shares
 
 ## Performance Analysis
 
@@ -30,9 +30,10 @@ _To be filled in manually during review_
 
 ## Strategy Breakdown
 
-- **Breakout**: 6 trades, $-32.75 P&L
-- **VWAP Bounce**: 1 trades, $-6.90 P&L
 - **VWAP Hold**: 2 trades, $20.27 P&L
+- **VWAP Bounce**: 1 trades, $-6.90 P&L
+- **Breakout**: 6 trades, $-32.75 P&L
+- **Continuation**: 1 trades, $3.20 P&L
 
 ## Next Period Goals
 
@@ -42,4 +43,4 @@ _To be filled in manually during review_
 
 ---
 
-**Generated**: 2025-11-12 17:04:42
+**Generated**: 2025-11-12 17:11:31
