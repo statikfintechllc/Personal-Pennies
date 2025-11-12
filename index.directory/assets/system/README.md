@@ -7,21 +7,40 @@ This directory contains the client-side JavaScript implementation of the Persona
 ```
 assets/system/
 ├── storage/
-│   └── db.js                    # IndexedDB storage layer (LocalForage)
+│   └── db.js                         # IndexedDB storage layer (LocalForage)
 ├── scripts/
-│   ├── utils.js                 # Utility functions (from utils.py)
-│   ├── parseTrades.js           # Trade parser (from parse_trades.py)
-│   ├── generateAnalytics.js     # Analytics generator (from generate_analytics.py)
-│   └── importExport.js          # Backup/restore utilities
+│   ├── utils.js                      # Utility functions (from utils.py)
+│   ├── globalsUtils.js               # Global utilities (from globals_utils.py)
+│   ├── parseTrades.js                # Trade parser (from parse_trades.py)
+│   ├── generateAnalytics.js          # Analytics generator (from generate_analytics.py)
+│   ├── generateCharts.js             # Charts generator (from generate_charts.py)
+│   ├── generateSummaries.js          # Summaries generator (from generate_summaries.py)
+│   ├── generateTradePages.js         # Trade pages generator (from generate_trade_pages.py)
+│   ├── generateWeekSummaries.js      # Week summaries (from generate_week_summaries.py)
+│   ├── generateBooksIndex.js         # Books index (from generate_books_index.py)
+│   ├── generateNotesIndex.js         # Notes index (from generate_notes_index.py)
+│   ├── generateIndex.js              # Master index (from generate_index.py)
+│   ├── updateHomepage.js             # Homepage updater (from update_homepage.py)
+│   ├── navbarTemplate.js             # Navbar template (from navbar_template.py)
+│   ├── normalizeSchema.js            # Schema normalizer (from normalize_schema.py)
+│   ├── attachMedia.js                # Media attachment (from attach_media.py)
+│   ├── importExport.js               # Backup/restore utilities
+│   └── importers/
+│       ├── baseImporter.js           # Base importer class (from base_importer.py)
+│       ├── webullImporter.js         # Webull importer (from webull.py)
+│       ├── ibkrImporter.js           # IBKR importer (from ibkr.py)
+│       ├── schwabImporter.js         # Schwab importer (from schwab.py)
+│       ├── robinhoodImporter.js      # Robinhood importer (from robinhood.py)
+│       └── index.js                  # Importers index (from __init__.py)
 ├── workflows/
-│   └── tradePipeline.js         # Event-driven pipeline orchestrator
-├── templates/                   # Template generators (to be implemented)
-└── loader.js                    # System initialization loader
+│   └── tradePipeline.js              # Event-driven pipeline orchestrator
+├── templates/                        # Template generators (future)
+└── loader.js                         # System initialization loader
 ```
 
 ## 🚀 Features
 
-### ✅ Implemented
+### ✅ Fully Implemented
 - **IndexedDB Storage**: All data stored locally using LocalForage
 - **Trade Parser**: Converts markdown trades to JSON index
 - **Analytics Generator**: All 21 analytics calculations ported from Python
@@ -32,12 +51,17 @@ assets/system/
 - **Event-Driven Pipeline**: Automatically processes trades on add/update/delete
 - **Import/Export**: JSON backup and CSV export functionality
 - **Form Integration**: add-trade.html saves directly to IndexedDB
+- **Global Utilities**: Common functions used across all modules
+- **Index Generators**: Books, notes, and master trade indexes
 
-### 🔄 In Progress
-- Charts Generator (from generate_charts.py)
-- Summaries Generator (from generate_summaries.py)
-- Trade Pages Generator (from generate_trade_pages.py)
-- Index Generators (books, notes, master index)
+### 🔄 Placeholder/Stub (Structure Complete, Full Logic Pending)
+- Charts Generator (complex visualization logic - 1257 lines original)
+- Summaries Generator (weekly/monthly reports - 507 lines original)
+- Trade Pages Generator (HTML templates - 379 lines original)
+- Week Summaries (detailed weekly analysis - 340 lines original)
+- Schema Normalizer (validation and fixing - 242 lines original)
+- Media Attachment (file handling and optimization - 444 lines original)
+- Broker Importers (CSV parsing with PapaParse - 5 brokers)
 
 ## 📊 IndexedDB Schema
 

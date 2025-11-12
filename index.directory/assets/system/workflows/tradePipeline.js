@@ -19,7 +19,13 @@
 function getDependencies() {
   return {
     parseTrades: window.PersonalPenniesParseTrades?.parseTrades,
-    generateAnalytics: window.PersonalPenniesAnalytics?.generateAnalytics
+    generateAnalytics: window.PersonalPenniesAnalytics?.generateAnalytics,
+    generateCharts: window.PersonalPenniesGenerateCharts?.generateCharts,
+    generateSummaries: window.PersonalPenniesGenerateSummaries?.generateSummaries,
+    generateTradePages: window.PersonalPenniesGenerateTradePages?.generateTradePages,
+    generateBooksIndex: window.PersonalPenniesGenerateBooksIndex?.generateBooksIndex,
+    generateNotesIndex: window.PersonalPenniesGenerateNotesIndex?.generateNotesIndex,
+    generateIndex: window.PersonalPenniesGenerateIndex?.generateIndex
   };
 }
 
@@ -91,38 +97,85 @@ export async function runTradePipeline(options = {}) {
     };
     console.log(`[Pipeline] ✓ Generated analytics (Expectancy: $${analytics.expectancy})`);
 
-    // Step 3: Generate charts (placeholder for now)
+    // Step 3: Generate charts
     console.log('[Pipeline] Step 3: Generating charts...');
     pipelineState.currentStep = 'generate_charts';
-    // Chart generation will be implemented in a separate module
-    results.steps.generate_charts = {
-      status: 'success',
-      note: 'Charts generation to be implemented',
-      completed_at: new Date().toISOString()
-    };
-    console.log('[Pipeline] ✓ Charts generation skipped (not yet implemented)');
+    const { generateCharts } = getDependencies();
+    if (generateCharts) {
+      const chartsResult = await generateCharts();
+      results.steps.generate_charts = {
+        status: chartsResult.status || 'success',
+        completed_at: new Date().toISOString()
+      };
+      console.log(`[Pipeline] ✓ Charts generation: ${chartsResult.status}`);
+    } else {
+      results.steps.generate_charts = {
+        status: 'skipped',
+        note: 'generateCharts not loaded',
+        completed_at: new Date().toISOString()
+      };
+    }
 
-    // Step 4: Generate summaries (placeholder for now)
+    // Step 4: Generate summaries
     console.log('[Pipeline] Step 4: Generating summaries...');
     pipelineState.currentStep = 'generate_summaries';
-    // Summary generation will be implemented in a separate module
-    results.steps.generate_summaries = {
-      status: 'success',
-      note: 'Summaries generation to be implemented',
-      completed_at: new Date().toISOString()
-    };
-    console.log('[Pipeline] ✓ Summaries generation skipped (not yet implemented)');
+    const { generateSummaries } = getDependencies();
+    if (generateSummaries) {
+      const summariesResult = await generateSummaries();
+      results.steps.generate_summaries = {
+        status: summariesResult.status || 'success',
+        completed_at: new Date().toISOString()
+      };
+      console.log(`[Pipeline] ✓ Summaries generation: ${summariesResult.status}`);
+    } else {
+      results.steps.generate_summaries = {
+        status: 'skipped',
+        note: 'generateSummaries not loaded',
+        completed_at: new Date().toISOString()
+      };
+    }
 
-    // Step 5: Generate trade pages (placeholder for now)
+    // Step 5: Generate trade pages
     console.log('[Pipeline] Step 5: Generating trade pages...');
     pipelineState.currentStep = 'generate_trade_pages';
-    // Trade page generation will be implemented in a separate module
-    results.steps.generate_trade_pages = {
-      status: 'success',
-      note: 'Trade pages generation to be implemented',
-      completed_at: new Date().toISOString()
-    };
-    console.log('[Pipeline] ✓ Trade pages generation skipped (not yet implemented)');
+    const { generateTradePages } = getDependencies();
+    if (generateTradePages) {
+      const tradePagesResult = await generateTradePages();
+      results.steps.generate_trade_pages = {
+        status: tradePagesResult.status || 'success',
+        completed_at: new Date().toISOString()
+      };
+      console.log(`[Pipeline] ✓ Trade pages generation: ${tradePagesResult.status}`);
+    } else {
+      results.steps.generate_trade_pages = {
+        status: 'skipped',
+        note: 'generateTradePages not loaded',
+        completed_at: new Date().toISOString()
+      };
+    }
+
+    // Step 6: Generate indexes
+    console.log('[Pipeline] Step 6: Generating indexes...');
+    pipelineState.currentStep = 'generate_indexes';
+    const { generateBooksIndex, generateNotesIndex, generateIndex } = getDependencies();
+    if (generateBooksIndex && generateNotesIndex && generateIndex) {
+      await Promise.all([
+        generateBooksIndex(),
+        generateNotesIndex(),
+        generateIndex()
+      ]);
+      results.steps.generate_indexes = {
+        status: 'success',
+        completed_at: new Date().toISOString()
+      };
+      console.log('[Pipeline] ✓ Indexes generated');
+    } else {
+      results.steps.generate_indexes = {
+        status: 'skipped',
+        note: 'Index generators not loaded',
+        completed_at: new Date().toISOString()
+      };
+    }
 
     // Complete
     results.completed_at = new Date().toISOString();
