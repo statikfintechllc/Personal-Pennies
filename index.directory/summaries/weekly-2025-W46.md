@@ -4,15 +4,15 @@
 
 ## Statistics
 
-- **Total Trades**: 1
-- **Winning Trades**: 1
+- **Total Trades**: 2
+- **Winning Trades**: 2
 - **Losing Trades**: 0
 - **Win Rate**: 100.0%
-- **Total P&L**: $12.47
-- **Average P&L per Trade**: $12.47
+- **Total P&L**: $20.76
+- **Average P&L per Trade**: $10.38
 - **Best Trade**: BNAI (+$12.47)
-- **Worst Trade**: BNAI ($12.47)
-- **Total Volume Traded**: 120.0 shares
+- **Worst Trade**: LPTX ($8.29)
+- **Total Volume Traded**: 180.0 shares
 
 ## Performance Analysis
 
@@ -31,6 +31,7 @@ _To be filled in manually during review_
 ## Strategy Breakdown
 
 - **VWAP Hold**: 1 trades, $12.47 P&L
+- **Breakout**: 1 trades, $8.29 P&L
 
 ## Next Period Goals
 
@@ -40,4 +41,4 @@ _To be filled in manually during review_
 
 ---
 
-**Generated**: 2025-11-11 15:37:50
+**Generated**: 2025-11-12 17:04:42
