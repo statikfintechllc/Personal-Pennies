@@ -148,9 +148,15 @@
       if (display) {
         input.addEventListener('input', (e) => {
           const tags = e.target.value.split(',').map(t => t.trim()).filter(t => t);
-          display.innerHTML = tags.map(tag => 
-            `<span class="tag">${tag}</span>`
-          ).join('');
+          // Clear existing tags
+          display.innerHTML = '';
+          // Create tag elements safely
+          tags.forEach(tag => {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'tag';
+            tagSpan.textContent = tag; // Use textContent to prevent XSS
+            display.appendChild(tagSpan);
+          });
         });
       }
     });
