@@ -79,8 +79,21 @@ function closeTotalReturnModal() {
  * Update Portfolio Modal Display Values
  */
 async function updatePortfolioModalDisplay() {
+  // Wait for accountManager to be ready
+  let retries = 0;
+  while (!window.accountManager && retries < 20) {
+    console.log('[Modal] Waiting for AccountManager to initialize...');
+    await new Promise(resolve => setTimeout(resolve, 100));
+    retries++;
+  }
+  
   if (!window.accountManager) {
-    console.error('[Modal] AccountManager not initialized');
+    console.error('[Modal] AccountManager not initialized after waiting');
+    // Show error in modal
+    const balanceDisplay = document.getElementById('modal-balance-display');
+    const withdrawalsDisplay = document.getElementById('total-withdrawals');
+    if (balanceDisplay) balanceDisplay.textContent = 'Error: System not ready';
+    if (withdrawalsDisplay) withdrawalsDisplay.textContent = 'Error: System not ready';
     return;
   }
   
@@ -88,8 +101,13 @@ async function updatePortfolioModalDisplay() {
   await window.accountManager.loadConfig();
   
   if (!window.accountManager.config) {
-    console.error('[Modal] Config not loaded');
-    return;
+    console.error('[Modal] Config not loaded from IndexedDB');
+    // Try one more time to load
+    await window.accountManager.init();
+    if (!window.accountManager.config) {
+      console.error('[Modal] Config still not loaded after reinit');
+      return;
+    }
   }
   
   const balanceDisplay = document.getElementById('modal-balance-display');
@@ -98,6 +116,7 @@ async function updatePortfolioModalDisplay() {
   const balance = parseFloat(window.accountManager.config.starting_balance) || 0;
   const withdrawals = getTotalWithdrawals();
   
+  console.log('[Modal] Config loaded:', window.accountManager.config);
   console.log('[Modal] Displaying - Balance:', balance, 'Withdrawals:', withdrawals);
   
   if (balanceDisplay) {
