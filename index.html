@@ -639,5 +639,23 @@
       selector: '.glightbox'
     });
   </script>
+  
+  <!-- Pre-load AccountManager config synchronously on page load -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('[Init] Pre-loading AccountManager config...');
+      
+      if (window.accountManager) {
+        try {
+          await window.accountManager.init();
+          console.log('[Init] ✓ Config loaded and cached - UI ready for interactions');
+        } catch (error) {
+          console.error('[Init] ✗ Failed to load config:', error);
+        }
+      } else {
+        console.error('[Init] ✗ AccountManager not found');
+      }
+    });
+  </script>
 </body>
 </html>

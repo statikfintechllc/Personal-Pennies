@@ -79,25 +79,13 @@ function closeTotalReturnModal() {
  * Update Portfolio Modal Display Values
  */
 async function updatePortfolioModalDisplay() {
-  // Wait for accountManager to be ready (with isReady flag)
-  let retries = 0;
-  while ((!window.accountManager || !window.accountManager.isReady) && retries < 50) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    retries++;
-  }
-  
-  if (!window.accountManager || !window.accountManager.isReady) {
-    console.error('[Modal] AccountManager not ready after 5 seconds');
-    // Show error in modal
+  // Config should already be loaded and cached from page init
+  if (!window.accountManager || !window.accountManager.config) {
+    console.error('[Modal] Config not loaded - this should not happen');
     const balanceDisplay = document.getElementById('modal-balance-display');
     const withdrawalsDisplay = document.getElementById('total-withdrawals');
-    if (balanceDisplay) balanceDisplay.textContent = 'Error: System not ready';
-    if (withdrawalsDisplay) withdrawalsDisplay.textContent = 'Error: System not ready';
-    return;
-  }
-  
-  if (!window.accountManager.config) {
-    console.error('[Modal] Config is null even though isReady=true');
+    if (balanceDisplay) balanceDisplay.textContent = 'Error: Config not loaded';
+    if (withdrawalsDisplay) withdrawalsDisplay.textContent = 'Error: Config not loaded';
     return;
   }
   
@@ -107,8 +95,7 @@ async function updatePortfolioModalDisplay() {
   const balance = parseFloat(window.accountManager.config.starting_balance) || 0;
   const withdrawals = getTotalWithdrawals();
   
-  console.log('[Modal] Config loaded:', window.accountManager.config);
-  console.log('[Modal] Displaying - Balance:', balance, 'Withdrawals:', withdrawals);
+  console.log('[Modal] Instant display - Balance:', balance, 'Withdrawals:', withdrawals);
   
   if (balanceDisplay) {
     balanceDisplay.textContent = `$${window.accountManager.formatCurrency(balance)}`;
