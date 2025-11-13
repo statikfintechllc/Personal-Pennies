@@ -152,6 +152,18 @@
     if (!container) return;
 
   try {
+    // Load from IndexedDB instead of JSON file
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAllNotes) {
+      const notes = await window.PersonalPenniesDB.getAllNotes();
+      
+      if (notes && notes.length > 0) {
+        container.innerHTML = notes.map((note, index) => createNoteCard(note, index)).join('');
+        console.log(`Loaded ${notes.length} notes from IndexedDB`);
+        return;
+      }
+    }
+    
+    // Fallback to JSON file if IndexedDB is empty
     const response = await fetch('./notes-index.json');
     if (!response.ok) throw new Error('Notes index not found');
     const data = await response.json();
@@ -163,6 +175,7 @@
     }
 
       container.innerHTML = notes.map((note, index) => createNoteCard(note, index)).join('');
+      console.log(`Loaded ${notes.length} notes from file (fallback)`);
     } catch (error) {
       console.warn('Could not load notes:', error);
       container.innerHTML = '<div class="alert alert-warning"><p>Notes are being indexed. Please check back soon.</p></div>';
