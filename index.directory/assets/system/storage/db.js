@@ -299,6 +299,18 @@ export async function getMedia(key) {
 }
 
 /**
+ * Get all media references
+ */
+export async function getAllMedia() {
+  const store = getStore(STORES.MEDIA);
+  const allMedia = [];
+  await store.iterate((value, key) => {
+    allMedia.push({ key, ...value });
+  });
+  return allMedia;
+}
+
+/**
  * Export all data as JSON (for backup)
  */
 export async function exportAllData() {
@@ -408,6 +420,7 @@ if (typeof window !== 'undefined') {
     // Media operations
     saveMedia,
     getMedia,
+    getAllMedia,
     // Utility operations
     exportAllData,
     importAllData,
