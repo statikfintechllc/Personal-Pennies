@@ -645,32 +645,22 @@
   
   <!-- Pre-load AccountManager config synchronously on page load -->
   <script>
+    // AccountManager initialization is handled in accountManager.js
+    // This script just logs the initialization status
     document.addEventListener('DOMContentLoaded', async function() {
-      console.log('[Init] Pre-loading AccountManager config...');
+      console.log('[Init] Page loaded, waiting for AccountManager...');
       
-      // Wait for IndexedDB system to be ready
+      // Wait for accountManager to be initialized
       let retries = 0;
-      while (!window.PersonalPenniesDB && retries < 50) {
-        console.log('[Init] Waiting for IndexedDB system...');
+      while ((!window.accountManager || !window.accountManager.initialized) && retries < 100) {
         await new Promise(resolve => setTimeout(resolve, 100));
         retries++;
       }
       
-      if (!window.PersonalPenniesDB) {
-        console.warn('[Init] ⚠ IndexedDB system not loaded, using fallback');
+      if (window.accountManager && window.accountManager.initialized) {
+        console.log('[Init] ✓ AccountManager ready - Portfolio value should be displayed');
       } else {
-        console.log('[Init] ✓ IndexedDB system ready');
-      }
-      
-      if (window.accountManager) {
-        try {
-          await window.accountManager.init();
-          console.log('[Init] ✓ Config loaded and cached - UI ready for interactions');
-        } catch (error) {
-          console.error('[Init] ✗ Failed to load config:', error);
-        }
-      } else {
-        console.error('[Init] ✗ AccountManager not found');
+        console.error('[Init] ✗ AccountManager failed to initialize');
       }
     });
   </script>
