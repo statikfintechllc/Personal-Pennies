@@ -194,19 +194,6 @@ class AccountManager {
       }
     }
   }
-      );
-      
-    } catch (error) {
-      console.error('Error saving config:', error);
-      // Show error just like trade submission does
-      this.showNotification(
-        'Failed to Save',
-        `Failed to commit changes: ${error.message}`,
-        'error',
-        5000
-      );
-    }
-  }
   
   /**
    * Commit account-config.json to repository via GitHub API
