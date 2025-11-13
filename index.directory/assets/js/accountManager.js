@@ -9,6 +9,9 @@ class AccountManager {
     this.config = null;
     this.basePath = SFTiUtils.getBasePath();
     this.initialized = false;
+    this.isReady = false;
+    this.isInitializing = false;
+    this.initPromise = null;
     this.eventBus = window.SFTiEventBus;
   }
 
@@ -16,14 +19,33 @@ class AccountManager {
    * Initialize account manager
    */
   async init() {
-    await this.loadConfig();
-    this.updateDisplay();
-    this.setupEventListeners();
-    this.initialized = true;
+    if (this.isReady) return this.initPromise;
+    if (this.isInitializing) return this.initPromise;
     
-    // Emit initial account loaded event
-    if (this.eventBus) {
-      this.eventBus.emit('account:config-loaded', this.config);
+    this.isInitializing = true;
+    this.initPromise = this._doInit();
+    return this.initPromise;
+  }
+  
+  async _doInit() {
+    try {
+      await this.loadConfig();
+      this.updateDisplay();
+      this.setupEventListeners();
+      this.initialized = true;
+      this.isReady = true;
+      
+      console.log('[AccountManager] Initialized - isReady=true');
+      
+      // Emit initial account loaded event
+      if (this.eventBus) {
+        this.eventBus.emit('account:config-loaded', this.config);
+      }
+    } catch (error) {
+      console.error('[AccountManager] Init failed:', error);
+      this.isReady = false;
+    } finally {
+      this.isInitializing = false;
     }
   }
   
