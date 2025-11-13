@@ -389,6 +389,9 @@ export async function generateTradePages() {
       
       generatedPages.push(pageData);
       
+      // Save individual page to trades store (for Service Worker to serve)
+      await window.PersonalPenniesDB.saveTrade(`page-trade-${String(tradeNumber).padStart(3, '0')}-${ticker}`, pageData);
+      
       console.log(`[GenerateTradePages] Generated: trade-${String(tradeNumber).padStart(3, '0')}-${ticker}.html`);
     }
     
