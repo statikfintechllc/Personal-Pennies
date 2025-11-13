@@ -201,6 +201,19 @@
       if (!container) return;
       
       try {
+        // Load from IndexedDB instead of JSON file
+        if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAllBooks) {
+          const books = await window.PersonalPenniesDB.getAllBooks();
+          
+          if (books && books.length > 0) {
+            // Display books from IndexedDB
+            container.innerHTML = books.map((book, index) => createBookCard(book, index)).join('');
+            console.log(`Loaded ${books.length} books from IndexedDB`);
+            return;
+          }
+        }
+        
+        // Fallback to JSON file if IndexedDB is empty
         const response = await fetch('./books-index.json');
         if (!response.ok) {
           throw new Error('Books index not found');
@@ -214,8 +227,9 @@
           return;
         }
         
-        // Display books
+        // Display books from file (fallback)
         container.innerHTML = books.map((book, index) => createBookCard(book, index)).join('');
+        console.log(`Loaded ${books.length} books from file (fallback)`);
         
       } catch (error) {
         console.warn('Could not load books:', error);

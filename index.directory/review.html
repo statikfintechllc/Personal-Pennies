@@ -1152,13 +1152,14 @@
       });
     }
     
-    // Load existing summary if available
+    // Load existing summary if available from IndexedDB
     async function loadExistingSummary(weekKey) {
       try {
-        const response = await fetch(`./summaries/weekly-${weekKey}.md`);
-        if (response.ok) {
-          const content = await response.text();
-          
+        // Load from IndexedDB summaries store
+        const summaryKey = `weekly-${weekKey}`;
+        const content = await window.PersonalPenniesDB.getSummary(summaryKey);
+        
+        if (content) {
           // Parse existing content
           const whatWentWellMatch = content.match(/### What Went Well\s*\n\s*\n([^#]*)/);
           const needsImprovementMatch = content.match(/### What Needs Improvement\s*\n\s*\n([^#]*)/);
@@ -1230,6 +1231,9 @@
     // Initialize
     loadWeeks();
   </script>
+  
+  <!-- Service Worker for Virtual Filesystem -->
+  <script src="assets/js/registerServiceWorker.js"></script>
   
   <!-- Application scripts -->
   <script src="assets/js/navbar.js"></script>

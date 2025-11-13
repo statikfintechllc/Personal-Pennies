@@ -556,96 +556,27 @@
       }
     });
     
-    // Load and display summaries
+    // Load and display summaries from IndexedDB
     async function loadSummaries() {
       try {
-        // Fetch the list of summary files
-        const response = await fetch('./summaries/');
-        if (!response.ok) {
-          console.log('Cannot list summaries directory, using fallback method');
-          await loadSummariesFallback();
+        // Get all summaries from IndexedDB
+        const allSummaries = await window.PersonalPenniesDB.getAllSummaries();
+        
+        if (!allSummaries || allSummaries.length === 0) {
+          console.log('No summaries found in IndexedDB');
           return;
         }
         
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a'))
-          .map(a => a.getAttribute('href'))
-          .filter(href => href && href.endsWith('.md'));
+        // Extract filenames from keys (e.g., "weekly-2025-W45" → "weekly-2025-W45.md")
+        const summaryFiles = allSummaries.map(summary => {
+          const key = summary.key || summary.id;
+          return key.endsWith('.md') ? key : `${key}.md`;
+        });
         
-        if (links.length === 0) {
-          await loadSummariesFallback();
-          return;
-        }
-        
-        populateDropdowns(links);
+        populateDropdowns(summaryFiles);
       } catch (error) {
-        console.error('Error loading summaries:', error);
-        await loadSummariesFallback();
+        console.error('Error loading summaries from IndexedDB:', error);
       }
-    }
-    
-    // Fallback method: scan for known summaries
-    async function loadSummariesFallback() {
-      const summaryFiles = [];
-      const currentYear = new Date().getFullYear();
-      const currentWeek = Math.ceil((new Date() - new Date(new Date().getFullYear(), 0, 1)) / 604800000);
-      const currentMonth = new Date().getMonth() + 1;
-      
-      // Try to find all weekly summaries (check current year and previous year only)
-      for (let year = currentYear - 1; year <= currentYear; year++) {
-        const maxWeek = year === currentYear ? currentWeek + 2 : 53;
-        for (let week = 1; week <= maxWeek; week++) {
-          const weekStr = week.toString().padStart(2, '0');
-          const filename = `weekly-${year}-W${weekStr}.md`;
-          try {
-            const response = await fetch(`./summaries/${filename}`, { method: 'HEAD' });
-            if (response.ok) {
-              summaryFiles.push(filename);
-            }
-          } catch (e) {
-            // File doesn't exist, continue
-          }
-        }
-      }
-      
-      // Try to find all monthly summaries (check current year and previous year only)
-      for (let year = currentYear - 1; year <= currentYear; year++) {
-        const maxMonth = year === currentYear ? currentMonth : 12;
-        for (let month = 1; month <= maxMonth; month++) {
-          const monthStr = month.toString().padStart(2, '0');
-          const filename = `monthly-${year}-${monthStr}.md`;
-          try {
-            const response = await fetch(`./summaries/${filename}`, { method: 'HEAD' });
-            if (response.ok) {
-              summaryFiles.push(filename);
-            }
-          } catch (e) {
-            // File doesn't exist, continue
-          }
-        }
-      }
-      
-      // Try to find all yearly summaries (check current year and previous 2 years)
-      for (let year = currentYear - 2; year <= currentYear; year++) {
-        const filename = `yearly-${year}.md`;
-        try {
-          const response = await fetch(`./summaries/${filename}`, { method: 'HEAD' });
-          if (response.ok) {
-            summaryFiles.push(filename);
-          }
-        } catch (e) {
-          // File doesn't exist, continue
-        }
-      }
-      
-      if (summaryFiles.length === 0) {
-        console.log('No summaries found');
-        return;
-      }
-      
-      populateDropdowns(summaryFiles);
     }
     
     // Populate dropdowns with summary files
@@ -761,15 +692,16 @@
       }
     }
     
-    // Show summary modal
+    // Show summary modal - read from IndexedDB
     async function showSummaryModal(filename) {
       try {
-        const response = await fetch(`./summaries/${filename}`);
-        if (!response.ok) {
-          throw new Error('Failed to load summary');
-        }
+        // Remove .md extension to get IndexedDB key
+        const summaryKey = filename.replace('.md', '');
+        const content = await window.PersonalPenniesDB.getSummary(summaryKey);
         
-        const content = await response.text();
+        if (!content) {
+          throw new Error('Summary not found in IndexedDB');
+        }
         
         // Extract title from filename
         let title = filename.replace('.md', '').replace(/-/g, ' ');
@@ -818,6 +750,9 @@
   <!-- Load shared utilities first -->
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/chartConfig.js"></script>
+  
+  <!-- Service Worker for Virtual Filesystem -->
+  <script src="assets/js/registerServiceWorker.js"></script>
   
   <!-- Application scripts -->
   <script src="assets/js/navbar.js"></script>

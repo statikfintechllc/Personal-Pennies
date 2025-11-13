@@ -719,7 +719,11 @@ class TradingJournal {
       );
       
       // Show success message
-      alert(`Trade #${tradeNum} submitted successfully!\nFile: ${tradePath}`);
+      if (window.showToast) {
+        window.showToast(`Trade #${tradeNum} submitted successfully!`, 'success', 3000);
+      } else {
+        alert(`Trade #${tradeNum} submitted successfully!\nFile: ${tradePath}`);
+      }
       
       // Reset form
       event.target.reset();
@@ -728,7 +732,11 @@ class TradingJournal {
       
     } catch (error) {
       console.error('Submission error:', error);
-      alert(`Failed to submit trade: ${error.message}`);
+      if (window.showToast) {
+        window.showToast(`Failed to submit trade: ${error.message}`, 'error', 5000);
+      } else {
+        alert(`Failed to submit trade: ${error.message}`);
+      }
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;

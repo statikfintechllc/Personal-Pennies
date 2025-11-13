@@ -228,6 +228,54 @@
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/chartConfig.js"></script>
     
+    <!-- Load system for IndexedDB access -->
+    <script type="module">
+      import '/assets/system/loader.js';
+      
+      // Wait for system to load
+      window.addEventListener('system:ready', async () => {
+        try {
+          // Get all trades from IndexedDB
+          const trades = await window.PersonalPenniesDB.getAllTrades();
+          
+          if (trades && trades.length > 0) {
+            // Clear static content
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            
+            // Populate table dynamically from IndexedDB
+            trades.forEach(trade => {
+              const pnl = parseFloat(trade.pnl_usd) || 0;
+              const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+              const pnlSign = pnl >= 0 ? '+' : '';
+              
+              const row = document.createElement('tr');
+              row.style.cursor = 'pointer';
+              row.onclick = () => window.location.href = `trades/trade-${String(trade.trade_number).padStart(3, '0')}-${trade.ticker}.html`;
+              
+              row.innerHTML = `
+                <td>#${trade.trade_number}</td>
+                <td><strong>${trade.ticker || 'N/A'}</strong></td>
+                <td>${trade.direction || 'LONG'}</td>
+                <td>$${(trade.entry_price || 0).toFixed(4)}</td>
+                <td>$${(trade.exit_price || 0).toFixed(4)}</td>
+                <td>${trade.position_size || 0}</td>
+                <td class="${pnlClass}">${pnlSign}$${Math.abs(pnl).toFixed(2)}</td>
+                <td>${trade.entry_date || 'N/A'}</td>
+                <td>${trade.strategy || 'N/A'}</td>
+              `;
+              
+              tbody.appendChild(row);
+            });
+            
+            console.log(`Loaded ${trades.length} trades from IndexedDB`);
+          }
+        } catch (error) {
+          console.error('Error loading trades from IndexedDB:', error);
+        }
+      });
+    </script>
+    
     <!-- Application scripts -->
     <script src="assets/js/navbar.js"></script>
     <script src="assets/js/footer.js"></script>

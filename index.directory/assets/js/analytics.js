@@ -68,20 +68,30 @@ async function initAnalytics() {
 }
 
 /**
- * Load analytics data
+ * Load analytics data from IndexedDB
  */
 async function loadAnalyticsData() {
   try {
+    // First, try to load from IndexedDB
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
+      analyticsData = await window.PersonalPenniesDB.getAnalytics('all-analytics');
+      if (analyticsData) {
+        console.log('Loaded analytics data from IndexedDB');
+        return;
+      }
+    }
+    
+    // Fallback to file if IndexedDB doesn't have data
     const response = await fetch('assets/charts/analytics-data.json');
     if (response.ok) {
       analyticsData = await response.json();
-      console.log('Loaded analytics data from file');
+      console.log('Loaded analytics data from file (fallback)');
     } else {
-      console.error('Analytics data not found');
+      console.error('Analytics data not found in IndexedDB or file');
       analyticsData = null;
     }
   } catch (fetchError) {
-    console.error('Error fetching analytics data:', fetchError);
+    console.error('Error loading analytics data:', fetchError);
     analyticsData = null;
   }
   

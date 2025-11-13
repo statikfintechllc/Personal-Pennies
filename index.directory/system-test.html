@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Test - Personal-Pennies</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #00ff88;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+    
+    h2 {
+      color: #00ff88;
+      margin: 2rem 0 1rem 0;
+      font-size: 1.5rem;
+    }
+    
+    .status {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .status.success {
+      border-color: #00ff88;
+    }
+    
+    .status.error {
+      border-color: #ff4757;
+    }
+    
+    .status.pending {
+      border-color: #ffa502;
+    }
+    
+    button {
+      background: #00ff88;
+      color: #0a0a0a;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.5rem 0.5rem 0.5rem 0;
+      font-size: 1rem;
+    }
+    
+    button:hover {
+      background: #00dd77;
+    }
+    
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+    
+    pre {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    
+    .log {
+      background: #0d0d0d;
+      border: 1px solid #222;
+      border-radius: 4px;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.8rem;
+    }
+    
+    .log-entry {
+      margin-bottom: 0.25rem;
+      padding: 0.25rem;
+    }
+    
+    .log-entry.info {
+      color: #61dafb;
+    }
+    
+    .log-entry.success {
+      color: #00ff88;
+    }
+    
+    .log-entry.error {
+      color: #ff4757;
+    }
+    
+    .log-entry.warn {
+      color: #ffa502;
+    }
+    
+    .metric {
+      display: inline-block;
+      margin-right: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+      color: #888;
+      font-size: 0.875rem;
+    }
+    
+    .metric-value {
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Personal-Pennies System Test</h1>
+    <p style="margin-bottom: 2rem; color: #888;">
+      Test the client-side trading journal system. This page validates IndexedDB storage, 
+      analytics calculations, and pipeline execution.
+    </p>
+
+    <!-- System Status -->
+    <div id="system-status" class="status pending">
+      <h3>System Status</h3>
+      <p id="status-text">Loading...</p>
+    </div>
+
+    <!-- Test Actions -->
+    <h2>Test Actions</h2>
+    <div style="margin-bottom: 2rem;">
+      <button onclick="testAddSampleTrade()">Add Sample Trade</button>
+      <button onclick="testRunPipeline()">Run Pipeline</button>
+      <button onclick="testViewAnalytics()">View Analytics</button>
+      <button onclick="testExportData()">Export Data</button>
+      <button onclick="testClearData()">Clear All Data</button>
+    </div>
+
+    <!-- Results -->
+    <h2>Test Results</h2>
+    <div id="results-container">
+      <div class="status">
+        <p>No tests run yet. Click a button above to run tests.</p>
+      </div>
+    </div>
+
+    <!-- Logs -->
+    <h2>Console Logs</h2>
+    <div id="log-container" class="log">
+      <div class="log-entry info">[System] Test page loaded</div>
+    </div>
+  </div>
+
+  <!-- Load System -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/eventBus.js"></script>
+  <script type="module" src="assets/system/loader.js"></script>
+
+  <!-- Test Script -->
+  <script>
+    // Capture console logs
+    const logContainer = document.getElementById('log-container');
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+
+    function addLog(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      addLog(args.join(' '), 'info');
+    };
+
+    console.error = function(...args) {
+      originalError.apply(console, args);
+      addLog(args.join(' '), 'error');
+    };
+
+    console.warn = function(...args) {
+      originalWarn.apply(console, args);
+      addLog(args.join(' '), 'warn');
+    };
+
+    // Check system status
+    function checkSystemStatus() {
+      const statusEl = document.getElementById('system-status');
+      const textEl = document.getElementById('status-text');
+
+      if (window.PersonalPenniesSystem && window.PersonalPenniesSystem.ready) {
+        statusEl.className = 'status success';
+        textEl.innerHTML = `
+          <strong>✓ System Ready</strong><br>
+          Version: ${window.PersonalPenniesSystem.version}<br>
+          LocalForage: ${window.localforage ? '✓' : '✗'}<br>
+          EventBus: ${window.SFTiEventBus ? '✓' : '✗'}
+        `;
+        console.log('System check: All components loaded');
+      } else {
+        statusEl.className = 'status pending';
+        textEl.textContent = 'Waiting for system to load...';
+        setTimeout(checkSystemStatus, 500);
+      }
+    }
+
+    // Wait for system to load
+    setTimeout(checkSystemStatus, 100);
+
+    // Test: Add Sample Trade
+    async function testAddSampleTrade() {
+      const results = document.getElementById('results-container');
+      results.innerHTML = '<div class="status pending"><p>Adding sample trade...</p></div>';
+
+      try {
+        const sampleTrade = {
+          trade_number: Math.floor(Math.random() * 1000),
+          ticker: 'TEST',
+          entry_date: '2025-11-12',
+          entry_time: '09:30',
+          exit_date: '2025-11-12',
+          exit_time: '15:00',
+          entry_price: 10.00,
+          exit_price: 11.00,
+          position_size: 100,
+          direction: 'LONG',
+          strategy: 'Test Trade',
+          stop_loss: 9.50,
+          target_price: 12.00,
+          risk_reward_ratio: 4.0,
+          broker: 'Test',
+          pnl_usd: 100.00,
+          pnl_percent: 10.00,
+          strategy_tags: ['Breakout'],
+          setup_tags: ['Test'],
+          session_tags: ['Morning'],
+          market_condition_tags: ['Testing'],
+          notes: 'This is a test trade'
+        };
+
+        const weekKey = window.PersonalPenniesUtils.getYearWeekNumber(new Date(sampleTrade.entry_date));
+        const tradeKey = await window.PersonalPenniesDB.saveTrade(weekKey, sampleTrade);
+
+        console.log('Sample trade added:', tradeKey);
+
+        // Emit event
+        window.SFTiEventBus.emit('trade:added', { key: tradeKey, data: sampleTrade });
+
+        results.innerHTML = `
+          <div class="status success">
+            <h3>✓ Sample Trade Added</h3>
+            <p><strong>Trade Key:</strong> ${tradeKey}</p>
+            <p><strong>Ticker:</strong> ${sampleTrade.ticker}</p>
+            <p><strong>P&L:</strong> $${sampleTrade.pnl_usd} (${sampleTrade.pnl_percent}%)</p>
+            <p><em>Pipeline should run automatically...</em></p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error adding trade:', error);
+        results.innerHTML = `
+          <div class="status error">
+            <h3>✗ Error Adding Trade</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Test: Run Pipeline
+    async function testRunPipeline() {
+      const results = document.getElementById('results-container');
+      results.innerHTML = '<div class="status pending"><p>Running pipeline...</p></div>';
+
+      try {
+        const result = await window.PersonalPenniesPipeline.runTradePipeline();
+
+        console.log('Pipeline result:', result);
+
+        results.innerHTML = `
+          <div class="status success">
+            <h3>✓ Pipeline Completed</h3>
+            <p><strong>Status:</strong> ${result.status}</p>
+            <p><strong>Duration:</strong> ${result.duration_ms}ms</p>
+            <p><strong>Steps:</strong> ${Object.keys(result.steps).length}</p>
+            <pre>${JSON.stringify(result.steps, null, 2)}</pre>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Pipeline error:', error);
+        results.innerHTML = `
+          <div class="status error">
+            <h3>✗ Pipeline Error</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Test: View Analytics
+    async function testViewAnalytics() {
+      const results = document.getElementById('results-container');
+      results.innerHTML = '<div class="status pending"><p>Loading analytics...</p></div>';
+
+      try {
+        const analytics = await window.PersonalPenniesDB.getAnalytics();
+
+        if (!analytics) {
+          results.innerHTML = `
+            <div class="status error">
+              <h3>No Analytics Found</h3>
+              <p>Run the pipeline first to generate analytics.</p>
+            </div>
+          `;
+          return;
+        }
+
+        console.log('Analytics:', analytics);
+
+        results.innerHTML = `
+          <div class="status success">
+            <h3>✓ Analytics Data</h3>
+            <div style="margin: 1rem 0;">
+              <div class="metric">
+                <div class="metric-label">Expectancy</div>
+                <div class="metric-value" style="color: ${analytics.expectancy >= 0 ? '#00ff88' : '#ff4757'}">
+                  $${analytics.expectancy}
+                </div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Profit Factor</div>
+                <div class="metric-value">${analytics.profit_factor}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Max Win Streak</div>
+                <div class="metric-value">${analytics.max_win_streak}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Max Loss Streak</div>
+                <div class="metric-value">${analytics.max_loss_streak}</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Kelly Criterion</div>
+                <div class="metric-value">${analytics.kelly_criterion}%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Sharpe Ratio</div>
+                <div class="metric-value">${analytics.sharpe_ratio}</div>
+              </div>
+            </div>
+            <details>
+              <summary style="cursor: pointer; color: #00ff88; margin-top: 1rem;">View Full Analytics JSON</summary>
+              <pre>${JSON.stringify(analytics, null, 2)}</pre>
+            </details>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+        results.innerHTML = `
+          <div class="status error">
+            <h3>✗ Error Loading Analytics</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Test: Export Data
+    async function testExportData() {
+      const results = document.getElementById('results-container');
+      results.innerHTML = '<div class="status pending"><p>Exporting data...</p></div>';
+
+      try {
+        const result = await window.PersonalPenniesImportExport.exportToFile();
+
+        console.log('Export result:', result);
+
+        results.innerHTML = `
+          <div class="status success">
+            <h3>✓ Data Exported</h3>
+            <p>${result.message}</p>
+            <p><em>Check your downloads folder for the backup JSON file.</em></p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Export error:', error);
+        results.innerHTML = `
+          <div class="status error">
+            <h3>✗ Export Error</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Test: Clear Data
+    async function testClearData() {
+      if (!confirm('Are you sure you want to clear ALL data? This cannot be undone!')) {
+        return;
+      }
+
+      const results = document.getElementById('results-container');
+      results.innerHTML = '<div class="status pending"><p>Clearing data...</p></div>';
+
+      try {
+        await window.PersonalPenniesDB.clearAllStores();
+
+        console.log('All data cleared');
+
+        results.innerHTML = `
+          <div class="status success">
+            <h3>✓ Data Cleared</h3>
+            <p>All IndexedDB stores have been cleared.</p>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Clear error:', error);
+        results.innerHTML = `
+          <div class="status error">
+            <h3>✗ Clear Error</h3>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

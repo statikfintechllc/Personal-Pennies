@@ -18,11 +18,15 @@
   "license": "ISC",
   "dependencies": {
     "@types/marked": "^6.0.0",
+    "date-fns": "^4.1.0",
     "esbuild": "^0.25.12",
     "highlight.js": "^11.11.1",
-    "marked": "^16.4.1",
+    "localforage": "^1.10.0",
+    "lodash": "^4.17.21",
+    "marked": "^16.4.2",
     "marked-gfm-heading-id": "^4.1.2",
     "marked-highlight": "^2.2.2",
+    "papaparse": "^5.5.3",
     "pdfjs-dist": "^5.4.394"
   }
 }

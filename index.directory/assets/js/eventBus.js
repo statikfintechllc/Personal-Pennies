@@ -170,18 +170,33 @@ class StateManager {
    */
   async loadAccountConfig() {
     try {
+      // Try IndexedDB first
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
+        const config = await window.PersonalPenniesDB.getConfig('account-config');
+        if (config) {
+          this.updateAccount(config);
+          return;
+        }
+      }
+      
+      // Fallback to file (migration path)
       const basePath = SFTiUtils.getBasePath();
       const response = await fetch(`${basePath}/index.directory/account-config.json`);
       
       if (response.ok) {
         const config = await response.json();
         this.updateAccount(config);
+        
+        // Migrate to IndexedDB
+        if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+          await window.PersonalPenniesDB.saveConfig('account-config', config);
+        }
       }
     } catch (error) {
       console.warn('[StateManager] Could not load account config:', error);
     }
     
-    // Try loading from localStorage
+    // Try loading from localStorage as last resort
     try {
       const stored = localStorage.getItem('sfti-account-config');
       if (stored) {

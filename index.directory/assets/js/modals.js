@@ -14,14 +14,14 @@ let returnChart = null;
 /**
  * Open Portfolio Value Modal
  */
-function openPortfolioModal() {
+async function openPortfolioModal() {
   const modal = document.getElementById('portfolio-modal');
   if (!modal) return;
   
   modal.style.display = 'flex';
   
-  // Update display values
-  updatePortfolioModalDisplay();
+  // Update display values - wait for config to load
+  await updatePortfolioModalDisplay();
   
   // Load chart
   loadPortfolioChart(portfolioTimeframe);
@@ -78,19 +78,30 @@ function closeTotalReturnModal() {
 /**
  * Update Portfolio Modal Display Values
  */
-function updatePortfolioModalDisplay() {
-  if (!window.accountManager || !window.accountManager.config) return;
+async function updatePortfolioModalDisplay() {
+  // Config should already be loaded and cached from page init
+  if (!window.accountManager || !window.accountManager.config) {
+    console.error('[Modal] Config not loaded - this should not happen');
+    const balanceDisplay = document.getElementById('modal-balance-display');
+    const withdrawalsDisplay = document.getElementById('total-withdrawals');
+    if (balanceDisplay) balanceDisplay.textContent = 'Error: Config not loaded';
+    if (withdrawalsDisplay) withdrawalsDisplay.textContent = 'Error: Config not loaded';
+    return;
+  }
   
   const balanceDisplay = document.getElementById('modal-balance-display');
   const withdrawalsDisplay = document.getElementById('total-withdrawals');
   
+  const balance = parseFloat(window.accountManager.config.starting_balance) || 0;
+  const withdrawals = getTotalWithdrawals();
+  
+  console.log('[Modal] Instant display - Balance:', balance, 'Withdrawals:', withdrawals);
+  
   if (balanceDisplay) {
-    const balance = window.accountManager.config.starting_balance || 0;
     balanceDisplay.textContent = `$${window.accountManager.formatCurrency(balance)}`;
   }
   
   if (withdrawalsDisplay) {
-    const withdrawals = getTotalWithdrawals();
     withdrawalsDisplay.textContent = `$${window.accountManager.formatCurrency(withdrawals)}`;
   }
 }
@@ -479,7 +490,11 @@ function saveModalBalance() {
   
   const newValue = parseFloat(input.value);
   if (isNaN(newValue) || newValue < 0) {
-    alert('Please enter a valid positive number');
+    if (window.showToast) {
+      window.showToast('Please enter a valid positive number', 'error', 4000);
+    } else {
+      alert('Please enter a valid positive number');
+    }
     input.focus();
     return;
   }
@@ -629,7 +644,11 @@ function addDeposit(event) {
   const note = document.getElementById('deposit-note').value;
   
   if (!amount || !date || !window.accountManager) {
-    alert('Please fill in all required fields');
+    if (window.showToast) {
+      window.showToast('Please fill in all required fields', 'error', 4000);
+    } else {
+      alert('Please fill in all required fields');
+    }
     return;
   }
   
@@ -902,18 +921,34 @@ async function generateMonthlyReturnsHeatmap() {
 }
 
 /**
- * Helper to load account config
+ * Helper to load account config from IndexedDB
  */
 async function loadAccountConfig() {
   try {
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
+      const config = await window.PersonalPenniesDB.getConfig('account-config');
+      if (config) {
+        return config;
+      }
+    }
+    
+    // Fallback to file (migration path)
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const response = await fetch(`${basePath}/index.directory/account-config.json`);
     
-    if (!response.ok) {
-      return { starting_balance: 1000 };
+    if (response.ok) {
+      const config = await response.json();
+      
+      // Migrate to IndexedDB
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+        await window.PersonalPenniesDB.saveConfig('account-config', config);
+      }
+      
+      return config;
     }
     
-    return await response.json();
+    return { starting_balance: 1000 };
   } catch (error) {
     console.warn('Could not load account config:', error);
     return { starting_balance: 1000 };

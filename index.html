@@ -607,6 +607,9 @@
   <!-- Chart.js - Required dependency for all charting functionality -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   
+  <!-- Toast Notifications - Modern user feedback system -->
+  <script src="index.directory/assets/js/toastNotifications.js"></script>
+  
   <!-- Core Utilities - Shared helper functions and event system -->
   <script src="index.directory/assets/js/utils.js"></script>
   <script src="index.directory/assets/js/eventBus.js"></script>
@@ -634,6 +637,24 @@
     // Initialize GLightbox for image viewing
     const lightbox = GLightbox({
       selector: '.glightbox'
+    });
+  </script>
+  
+  <!-- Pre-load AccountManager config synchronously on page load -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log('[Init] Pre-loading AccountManager config...');
+      
+      if (window.accountManager) {
+        try {
+          await window.accountManager.init();
+          console.log('[Init] ✓ Config loaded and cached - UI ready for interactions');
+        } catch (error) {
+          console.error('[Init] ✗ Failed to load config:', error);
+        }
+      } else {
+        console.error('[Init] ✗ AccountManager not found');
+      }
     });
   </script>
 </body>
