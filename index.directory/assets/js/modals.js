@@ -14,14 +14,14 @@ let returnChart = null;
 /**
  * Open Portfolio Value Modal
  */
-function openPortfolioModal() {
+async function openPortfolioModal() {
   const modal = document.getElementById('portfolio-modal');
   if (!modal) return;
   
   modal.style.display = 'flex';
   
-  // Update display values
-  updatePortfolioModalDisplay();
+  // Update display values - wait for config to load
+  await updatePortfolioModalDisplay();
   
   // Load chart
   loadPortfolioChart(portfolioTimeframe);
@@ -78,19 +78,33 @@ function closeTotalReturnModal() {
 /**
  * Update Portfolio Modal Display Values
  */
-function updatePortfolioModalDisplay() {
-  if (!window.accountManager || !window.accountManager.config) return;
+async function updatePortfolioModalDisplay() {
+  if (!window.accountManager) {
+    console.error('[Modal] AccountManager not initialized');
+    return;
+  }
+  
+  // Load config from IndexedDB before displaying
+  await window.accountManager.loadConfig();
+  
+  if (!window.accountManager.config) {
+    console.error('[Modal] Config not loaded');
+    return;
+  }
   
   const balanceDisplay = document.getElementById('modal-balance-display');
   const withdrawalsDisplay = document.getElementById('total-withdrawals');
   
+  const balance = parseFloat(window.accountManager.config.starting_balance) || 0;
+  const withdrawals = getTotalWithdrawals();
+  
+  console.log('[Modal] Displaying - Balance:', balance, 'Withdrawals:', withdrawals);
+  
   if (balanceDisplay) {
-    const balance = window.accountManager.config.starting_balance || 0;
     balanceDisplay.textContent = `$${window.accountManager.formatCurrency(balance)}`;
   }
   
   if (withdrawalsDisplay) {
-    const withdrawals = getTotalWithdrawals();
     withdrawalsDisplay.textContent = `$${window.accountManager.formatCurrency(withdrawals)}`;
   }
 }
