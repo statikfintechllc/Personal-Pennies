@@ -479,7 +479,11 @@ function saveModalBalance() {
   
   const newValue = parseFloat(input.value);
   if (isNaN(newValue) || newValue < 0) {
-    alert('Please enter a valid positive number');
+    if (window.showToast) {
+      window.showToast('Please enter a valid positive number', 'error', 4000);
+    } else {
+      alert('Please enter a valid positive number');
+    }
     input.focus();
     return;
   }
@@ -629,7 +633,11 @@ function addDeposit(event) {
   const note = document.getElementById('deposit-note').value;
   
   if (!amount || !date || !window.accountManager) {
-    alert('Please fill in all required fields');
+    if (window.showToast) {
+      window.showToast('Please fill in all required fields', 'error', 4000);
+    } else {
+      alert('Please fill in all required fields');
+    }
     return;
   }
   
