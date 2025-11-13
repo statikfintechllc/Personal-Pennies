@@ -902,18 +902,34 @@ async function generateMonthlyReturnsHeatmap() {
 }
 
 /**
- * Helper to load account config
+ * Helper to load account config from IndexedDB
  */
 async function loadAccountConfig() {
   try {
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
+      const config = await window.PersonalPenniesDB.getConfig('account-config');
+      if (config) {
+        return config;
+      }
+    }
+    
+    // Fallback to file (migration path)
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const response = await fetch(`${basePath}/index.directory/account-config.json`);
     
-    if (!response.ok) {
-      return { starting_balance: 1000 };
+    if (response.ok) {
+      const config = await response.json();
+      
+      // Migrate to IndexedDB
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+        await window.PersonalPenniesDB.saveConfig('account-config', config);
+      }
+      
+      return config;
     }
     
-    return await response.json();
+    return { starting_balance: 1000 };
   } catch (error) {
     console.warn('Could not load account config:', error);
     return { starting_balance: 1000 };

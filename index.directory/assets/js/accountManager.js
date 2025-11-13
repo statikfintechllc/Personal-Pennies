@@ -46,36 +46,79 @@ class AccountManager {
   }
 
   /**
-   * Load account configuration from JSON file
+   * Load account configuration from IndexedDB
    */
   async loadConfig() {
     try {
-      const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
-      if (response.ok) {
-        this.config = await response.json();
-        // Ensure withdrawals array exists
-        if (!this.config.withdrawals) {
-          this.config.withdrawals = [];
+      // Load from IndexedDB first
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
+        const config = await window.PersonalPenniesDB.getConfig('account-config');
+        if (config) {
+          this.config = config;
+          console.log('[AccountManager] Loaded config from IndexedDB:', this.config);
+          
+          // Ensure withdrawals array exists
+          if (!this.config.withdrawals) {
+            this.config.withdrawals = [];
+          }
+          
+          // Ensure account_opening_date field exists
+          if (this.config.account_opening_date === undefined) {
+            this.config.account_opening_date = null;
+          }
+          
+          return;
         }
-      } else {
-        // Create default config
-        this.config = {
-          starting_balance: 1000.00,
-          deposits: [],
-          withdrawals: [],
-          account_opening_date: null,
-          notes: "Starting balance is your initial capital. Add deposits separately to track internal investments.",
-          version: "1.0",
-          last_updated: new Date().toISOString()
-        };
       }
       
-      // Ensure account_opening_date field exists (for backward compatibility)
-      if (this.config.account_opening_date === undefined) {
-        this.config.account_opening_date = null;
+      // Fallback: try to load from file (migration path)
+      console.log('[AccountManager] No config in IndexedDB, trying file...');
+      try {
+        const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
+        if (response.ok) {
+          this.config = await response.json();
+          console.log('[AccountManager] Loaded config from file, migrating to IndexedDB...');
+          
+          // Migrate to IndexedDB
+          if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+            await window.PersonalPenniesDB.saveConfig('account-config', this.config);
+            console.log('[AccountManager] Migrated config to IndexedDB');
+          }
+          
+          // Ensure arrays exist
+          if (!this.config.withdrawals) this.config.withdrawals = [];
+          if (!this.config.deposits) this.config.deposits = [];
+          if (this.config.account_opening_date === undefined) {
+            this.config.account_opening_date = null;
+          }
+          
+          return;
+        }
+      } catch (fetchError) {
+        console.warn('[AccountManager] Could not load config from file:', fetchError);
       }
+      
+      // Create default config
+      console.log('[AccountManager] Creating default config...');
+      this.config = {
+        starting_balance: 1000.00,
+        deposits: [],
+        withdrawals: [],
+        account_opening_date: null,
+        notes: "Starting balance is your initial capital. Add deposits separately to track internal investments.",
+        version: "1.0",
+        last_updated: new Date().toISOString()
+      };
+      
+      // Save default to IndexedDB
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+        await window.PersonalPenniesDB.saveConfig('account-config', this.config);
+        console.log('[AccountManager] Saved default config to IndexedDB');
+      }
+      
     } catch (error) {
-      console.warn('Could not load account config, using defaults:', error);
+      console.error('[AccountManager] Error loading config:', error);
+      // Use default config on error
       this.config = {
         starting_balance: 1000.00,
         deposits: [],
@@ -89,27 +132,46 @@ class AccountManager {
   }
 
   /**
-   * Save account configuration
-   * Saves to localStorage and commits to repository via GitHub API
-   * Uses exact same pattern as trade submission in app.js
+   * Save account configuration to IndexedDB
+   * No longer commits to repository - browser-only storage
    */
   async saveConfig(isDeposit = false) {
     try {
       this.config.last_updated = new Date().toISOString();
       
-      // Save to localStorage for immediate UI updates
+      // Save to IndexedDB
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
+        await window.PersonalPenniesDB.saveConfig('account-config', this.config);
+        console.log('[AccountManager] Config saved to IndexedDB');
+      }
+      
+      // Also save to localStorage for backward compatibility
       localStorage.setItem('sfti-account-config', JSON.stringify(this.config));
-      console.log('Account config saved to localStorage');
+      console.log('[AccountManager] Config saved to localStorage');
       
-      // Commit to repository (throws error if fails - just like trade submission)
-      await this.commitConfigToRepo(isDeposit);
+      // Emit event for reactive updates
+      if (this.eventBus) {
+        this.eventBus.emit('account:config-updated', this.config);
+      }
       
-      // If we reach here, commit was successful
-      this.showNotification(
-        'Changes Saved!',
-        'Account config committed. Changes will appear in 1-5 minutes.',
-        'success',
-        5000
+      // Show success notification
+      if (window.showToast) {
+        if (isDeposit) {
+          window.showToast('Deposit/Withdrawal recorded successfully!', 'success');
+        } else {
+          window.showToast(`Starting balance updated to $${this.config.starting_balance}`, 'success');
+        }
+      }
+      
+      this.updateDisplay();
+      
+    } catch (error) {
+      console.error('[AccountManager] Error saving config:', error);
+      if (window.showToast) {
+        window.showToast(`Error saving config: ${error.message}`, 'error');
+      }
+    }
+  }
       );
       
     } catch (error) {

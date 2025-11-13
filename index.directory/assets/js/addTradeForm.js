@@ -202,7 +202,11 @@
 
     // Check if system is ready
     if (!window.PersonalPenniesSystem || !window.PersonalPenniesSystem.ready) {
-      alert('System not ready. Please wait and try again.');
+      if (window.showToast) {
+        window.showToast('System not ready. Please wait and try again.', 'warning');
+      } else {
+        alert('System not ready. Please wait and try again.');
+      }
       console.error('[AddTrade] PersonalPenniesSystem not ready');
       return;
     }
@@ -232,8 +236,12 @@
         window.SFTiEventBus.emit('trade:added', { key: tradeKey, data: formData });
       }
 
-      // Show success message
-      alert('Trade added successfully! Processing pipeline...');
+      // Show success message with trade number
+      if (window.showToast) {
+        window.showToast(`Trade #${formData.trade_number} added successfully! Processing pipeline...`, 'success');
+      } else {
+        alert('Trade added successfully! Processing pipeline...');
+      }
 
       // Reset form
       document.getElementById('trade-form').reset();
@@ -244,7 +252,11 @@
 
     } catch (error) {
       console.error('[AddTrade] Error saving trade:', error);
-      alert('Error saving trade: ' + error.message);
+      if (window.showToast) {
+        window.showToast(`Error saving trade: ${error.message}`, 'error', 5000);
+      } else {
+        alert('Error saving trade: ' + error.message);
+      }
     }
   }
 
@@ -331,38 +343,46 @@
    * Validate form data
    */
   function validateFormData(data) {
+    const showError = (msg) => {
+      if (window.showToast) {
+        window.showToast(msg, 'error', 4000);
+      } else {
+        alert(msg);
+      }
+    };
+
     if (!data.trade_number || data.trade_number < 1) {
-      alert('Please enter a valid trade number');
+      showError('Please enter a valid trade number');
       return false;
     }
 
     if (!data.ticker) {
-      alert('Please enter a ticker symbol');
+      showError('Please enter a ticker symbol');
       return false;
     }
 
     if (!data.entry_date || !data.exit_date) {
-      alert('Please enter entry and exit dates');
+      showError('Please enter entry and exit dates');
       return false;
     }
 
     if (!data.entry_time || !data.exit_time) {
-      alert('Please enter entry and exit times');
+      showError('Please enter entry and exit times');
       return false;
     }
 
     if (data.entry_price <= 0 || data.exit_price <= 0) {
-      alert('Please enter valid entry and exit prices');
+      showError('Please enter valid entry and exit prices');
       return false;
     }
 
     if (data.position_size <= 0) {
-      alert('Please enter a valid position size');
+      showError('Please enter a valid position size');
       return false;
     }
 
     if (!data.direction) {
-      alert('Please select a trade direction (LONG or SHORT)');
+      showError('Please select a trade direction (LONG or SHORT)');
       return false;
     }
 
