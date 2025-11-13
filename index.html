@@ -622,6 +622,9 @@
   <script src="index.directory/assets/js/auth.js"></script>
   <script src="index.directory/assets/js/glowing-bubbles.js"></script>
   
+  <!-- IndexedDB Storage System - Must load before accountManager -->
+  <script src="index.directory/assets/system/loader.js" type="module"></script>
+  
   <!-- Application Logic - Account management, modals, and main app -->
   <script src="index.directory/assets/js/accountManager.js"></script>
   <script src="index.directory/assets/js/modals.js"></script>
@@ -644,6 +647,20 @@
   <script>
     document.addEventListener('DOMContentLoaded', async function() {
       console.log('[Init] Pre-loading AccountManager config...');
+      
+      // Wait for IndexedDB system to be ready
+      let retries = 0;
+      while (!window.PersonalPenniesDB && retries < 50) {
+        console.log('[Init] Waiting for IndexedDB system...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
+      
+      if (!window.PersonalPenniesDB) {
+        console.warn('[Init] ⚠ IndexedDB system not loaded, using fallback');
+      } else {
+        console.log('[Init] ✓ IndexedDB system ready');
+      }
       
       if (window.accountManager) {
         try {

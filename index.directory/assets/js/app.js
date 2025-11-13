@@ -76,6 +76,12 @@ class TradingJournal {
   setupEventListeners() {
     if (!this.eventBus) return;
     
+    // Listen for account config loaded (initial load)
+    this.eventBus.on('account:config-loaded', () => {
+      console.log('[TradingJournal] Account config loaded, refreshing stats');
+      this.refreshStats();
+    });
+    
     // Listen for account balance changes
     this.eventBus.on('account:balance-updated', () => {
       console.log('[TradingJournal] Account balance updated, refreshing stats');
