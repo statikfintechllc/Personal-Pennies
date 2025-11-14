@@ -925,24 +925,24 @@ async function generateMonthlyReturnsHeatmap() {
  */
 async function loadAccountConfig() {
   try {
-    // Try IndexedDB first
-    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
-      const config = await window.PersonalPenniesDB.getConfig('account-config');
+    // Try VFS first
+    if (window.PersonalPenniesDataAccess) {
+      const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
       if (config) {
         return config;
       }
     }
     
-    // Fallback to file (migration path)
+    // Fallback to file (first-time setup)
     const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const response = await fetch(`${basePath}/index.directory/account-config.json`);
     
     if (response.ok) {
       const config = await response.json();
       
-      // Migrate to IndexedDB
-      if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
-        await window.PersonalPenniesDB.saveConfig('account-config', config);
+      // Migrate to VFS
+      if (window.PersonalPenniesDataAccess) {
+        await window.PersonalPenniesDataAccess.saveAccountConfig(config);
       }
       
       return config;

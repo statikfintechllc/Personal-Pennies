@@ -25,10 +25,7 @@ document.head.appendChild(localforageScript);
 
 async function loadSystemModules() {
   try {
-    // Import storage layer (legacy bucket-based)
-    const DB = await import('./storage/db.js');
-    
-    // Import VFS (new filesystem-based storage)
+    // Import VFS (filesystem-based storage)
     const VFS = await import('./storage/vfs.js');
     const VFSInit = await import('./storage/vfs-init.js');
     const VFSAdapter = await import('./storage/vfs-adapter.js');
@@ -62,7 +59,6 @@ async function loadSystemModules() {
 
     // Make modules globally available
     window.PersonalPenniesSystem = {
-      DB,
       VFS,
       VFSInit,
       VFSAdapter,
@@ -93,11 +89,8 @@ async function loadSystemModules() {
     console.log('[System] Version:', window.PersonalPenniesSystem.version);
     console.log('[System] Modules loaded:', Object.keys(window.PersonalPenniesSystem).length);
 
-    // Initialize VFS (new filesystem-based storage)
+    // Initialize VFS (filesystem-based storage)
     await initializeVFS();
-    
-    // Check if legacy IndexedDB needs to be seeded with initial data (for backwards compatibility)
-    await seedIndexedDBIfEmpty();
 
     // Emit system ready event
     if (window.SFTiEventBus) {
@@ -110,111 +103,22 @@ async function loadSystemModules() {
 
 /**
  * Initialize VFS and populate with repository content
- * 
- * Note: VFS initialization is DISABLED for now to allow legacy storage to work.
- * The VFS will be populated on-demand or manually.
  */
 async function initializeVFS() {
   try {
-    console.log('[VFS] VFS initialization is disabled - using legacy storage');
-    console.log('[VFS] To enable VFS, uncomment the auto-initialize code in loader.js');
+    console.log('[VFS] Initializing Virtual Filesystem...');
     
-    // DISABLED: Auto-initialize VFS if empty
-    // const stats = await window.PersonalPenniesVFSInit.autoInitialize();
+    // Auto-initialize VFS if empty
+    const stats = await window.PersonalPenniesVFSInit.autoInitialize();
     
-    // Just report ready
+    console.log('[VFS] Virtual Filesystem ready');
+    console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
+    
+    // Emit VFS ready event
     if (window.SFTiEventBus) {
-      window.SFTiEventBus.emit('vfs:ready', { totalFiles: 0, note: 'VFS disabled' });
+      window.SFTiEventBus.emit('vfs:ready', stats);
     }
   } catch (error) {
     console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
-  }
-}
-
-/**
- * Seeds IndexedDB with data from JSON files if database is empty
- * This ensures first-time users see data immediately
- * 
- * NOTE: This is legacy code for backwards compatibility
- * New code should use VFS instead
- */
-async function seedIndexedDBIfEmpty() {
-  try {
-    console.log('[Seed] Checking if IndexedDB needs seeding...');
-    
-    // Check if trades exist in IndexedDB
-    const trades = await window.PersonalPenniesDB.getAllTrades();
-    
-    if (!trades || trades.length === 0) {
-      console.log('[Seed] IndexedDB is empty, loading seed data from JSON files...');
-      
-      // Determine base path (works for both root and subdirectory deployments)
-      const basePath = window.location.pathname.includes('/index.directory/') 
-        ? window.location.pathname.split('/index.directory/')[0] 
-        : '';
-      
-      // Load trades-index.json
-      try {
-        const tradesResponse = await fetch(`${basePath}/index.directory/trades-index.json`);
-        if (tradesResponse.ok) {
-          const tradesData = await tradesResponse.json();
-          console.log('[Seed] Loaded trades data from JSON:', tradesData.trades?.length || 0, 'trades');
-          
-          // Save each trade to IndexedDB
-          if (tradesData.trades && Array.isArray(tradesData.trades)) {
-            for (const trade of tradesData.trades) {
-              // Extract week key from file_path
-              // Format: "index.directory/SFTi.Tradez/week.2025.46/11:13:2025.1.md"
-              const pathMatch = trade.file_path?.match(/week\.(\d+)\.(\d+)/);
-              if (pathMatch) {
-                const weekKey = `week.${pathMatch[1]}.${pathMatch[2]}`;
-                await window.PersonalPenniesDB.saveTrade(weekKey, trade);
-              } else {
-                console.warn('[Seed] Could not extract week key from:', trade.file_path);
-              }
-            }
-            console.log('[Seed] ✓ Saved', tradesData.trades.length, 'trades to IndexedDB');
-          }
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load trades-index.json:', error);
-      }
-      
-      // Load analytics.json
-      try {
-        const analyticsResponse = await fetch(`${basePath}/index.directory/analytics.json`);
-        if (analyticsResponse.ok) {
-          const analyticsData = await analyticsResponse.json();
-          console.log('[Seed] Loaded analytics data from JSON');
-          
-          // Save analytics to IndexedDB
-          await window.PersonalPenniesDB.saveAnalytics(analyticsData);
-          console.log('[Seed] ✓ Saved analytics to IndexedDB');
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load analytics.json:', error);
-      }
-      
-      // Load account-config.json
-      try {
-        const configResponse = await fetch(`${basePath}/index.directory/account-config.json`);
-        if (configResponse.ok) {
-          const configData = await configResponse.json();
-          console.log('[Seed] Loaded account config from JSON');
-          
-          // Save account config to IndexedDB
-          await window.PersonalPenniesDB.saveConfig('account-config', configData);
-          console.log('[Seed] ✓ Saved account config to IndexedDB');
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load account-config.json:', error);
-      }
-      
-      console.log('[Seed] ✓ Database seeding complete - IndexedDB now has initial data');
-    } else {
-      console.log('[Seed] IndexedDB already contains data (' + trades.length + ' trades), skipping seed');
-    }
-  } catch (error) {
-    console.error('[Seed] Error during database seeding:', error);
   }
 }

@@ -126,21 +126,21 @@ class TradingJournal {
   }
   
   /**
-   * Refresh stats - Load directly from IndexedDB
+   * Refresh stats - Load from VFS
    */
   async refreshStats() {
     try {
-      // Wait for IndexedDB to be available
-      if (!window.PersonalPenniesDB) {
-        console.warn('[TradingJournal] IndexedDB not available yet, waiting...');
-        // Wait up to 5 seconds for IndexedDB
+      // Wait for DataAccess to be available
+      if (!window.PersonalPenniesDataAccess) {
+        console.warn('[TradingJournal] DataAccess not available yet, waiting...');
+        // Wait up to 5 seconds for DataAccess
         let retries = 0;
-        while (!window.PersonalPenniesDB && retries < 50) {
+        while (!window.PersonalPenniesDataAccess && retries < 50) {
           await new Promise(resolve => setTimeout(resolve, 100));
           retries++;
         }
-        if (!window.PersonalPenniesDB) {
-          console.error('[TradingJournal] IndexedDB failed to initialize');
+        if (!window.PersonalPenniesDataAccess) {
+          console.error('[TradingJournal] DataAccess failed to initialize');
           return;
         }
       }
@@ -158,19 +158,20 @@ class TradingJournal {
         }
       }
       
-      // Load trades and calculate statistics
-      const trades = await window.PersonalPenniesDB.getAllTrades();
-      const stats = this.calculateTradesStatistics(trades || []);
+      // Load trades from VFS
+      const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex();
+      const trades = tradesIndex.trades || [];
+      const stats = this.calculateTradesStatistics(trades);
       
-      // Load analytics
-      const analyticsData = await window.PersonalPenniesDB.getAnalytics();
+      // Load analytics from VFS
+      const analyticsData = await window.PersonalPenniesDataAccess.loadAnalytics();
       
       // Update stats
       this.updateStats(stats, analyticsData);
-      console.log('[TradingJournal] Stats refreshed from IndexedDB');
+      console.log('[TradingJournal] Stats refreshed from VFS');
       
     } catch (error) {
-      console.error('[TradingJournal] Error refreshing stats from IndexedDB:', error);
+      console.error('[TradingJournal] Error refreshing stats from VFS:', error);
     }
   }
   
