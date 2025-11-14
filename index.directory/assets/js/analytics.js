@@ -74,7 +74,7 @@ async function loadAnalyticsData() {
   try {
     // First, try to load from IndexedDB
     if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
-      analyticsData = await window.PersonalPenniesDB.getAnalytics('all-analytics');
+      analyticsData = await window.PersonalPenniesDB.getAnalytics(); // No parameter - stores at 'current'
       if (analyticsData) {
         console.log('Loaded analytics data from IndexedDB');
         return;
