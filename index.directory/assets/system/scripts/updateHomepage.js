@@ -13,14 +13,14 @@
 export async function updateHomepage() {
   console.log('[UpdateHomepage] Updating homepage with recent trades...');
   
-  if (!window.PersonalPenniesDB) {
-    console.error('[UpdateHomepage] DB not initialized');
-    return { status: 'error', message: 'DB not initialized' };
+  if (!window.PersonalPenniesDataAccess) {
+    console.error('[UpdateHomepage] DataAccess not initialized');
+    return { status: 'error', message: 'DataAccess not initialized' };
   }
   
   try {
     // Load trades index
-    const indexData = await window.PersonalPenniesDB.getIndex('trades-index');
+    const indexData = await window.PersonalPenniesDataAccess.loadTradesIndex();
     
     if (!indexData) {
       console.warn('[UpdateHomepage] Could not load trades index');
@@ -34,9 +34,9 @@ export async function updateHomepage() {
     console.log(`[UpdateHomepage] Statistics: Win Rate: ${stats.win_rate || 0}%, Total P&L: $${stats.total_pnl || 0}`);
     
     // In browser context, the homepage uses JavaScript to dynamically load data
-    // So we just need to ensure the data is in IndexedDB
+    // So we just need to ensure the data is in VFS
     console.log('[UpdateHomepage] Homepage will load data via JavaScript');
-    console.log('[UpdateHomepage] trades-index is ready in IndexedDB');
+    console.log('[UpdateHomepage] trades-index is ready in VFS');
     
     // Emit event so homepage can refresh
     if (window.SFTiEventBus) {

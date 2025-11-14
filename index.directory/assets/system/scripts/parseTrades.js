@@ -8,8 +8,8 @@
 // Get functions from global scope (loaded by loader.js)
 function getDependencies() {
   return {
-    getAllTrades: window.PersonalPenniesDB?.getAllTrades,
-    saveIndex: window.PersonalPenniesDB?.saveIndex,
+    VFS: window.PersonalPenniesSystem?.VFS,
+    DataAccess: window.PersonalPenniesDataAccess,
     sortTradesByDate: window.PersonalPenniesUtils?.sortTradesByDate,
     calculatePeriodStats: window.PersonalPenniesUtils?.calculatePeriodStats
   };
@@ -193,28 +193,32 @@ function calculateStatistics(trades) {
 export async function parseTrades() {
   console.log('[ParseTrades] Starting trade parsing...');
   
-  const { getAllTrades, saveIndex, sortTradesByDate } = getDependencies();
+  const { VFS, DataAccess, sortTradesByDate } = getDependencies();
   
-  if (!getAllTrades || !saveIndex || !sortTradesByDate) {
+  if (!VFS || !DataAccess || !sortTradesByDate) {
     console.error('[ParseTrades] Dependencies not loaded');
     throw new Error('Required dependencies not loaded');
   }
   
   try {
-    // Get all trades from IndexedDB
-    const allTrades = await getAllTrades();
-    console.log(`[ParseTrades] Found ${allTrades.length} trades in IndexedDB`);
+    // Get all trade markdown files from VFS
+    const tradeFiles = await VFS.listFiles('index.directory/SFTi.Tradez/');
+    console.log(`[ParseTrades] Found ${tradeFiles.length} trade files in VFS`);
     
     // Parse each trade
     const parsedTrades = [];
-    for (const [key, tradeData] of Object.entries(allTrades)) {
+    for (const filePath of tradeFiles) {
+      if (!filePath.endsWith('.md')) continue;
+      
       try {
-        const parsed = parseTrade(tradeData._key || key, tradeData);
+        const fileData = await VFS.readFile(filePath);
+        const content = fileData.content;
+        const parsed = parseTrade(filePath, { content });
         if (parsed.trade_number && parsed.ticker) {
           parsedTrades.push(parsed);
         }
       } catch (error) {
-        console.error(`[ParseTrades] Error parsing trade ${key}:`, error);
+        console.error(`[ParseTrades] Error parsing trade ${filePath}:`, error);
       }
     }
     
@@ -232,8 +236,8 @@ export async function parseTrades() {
       version: '1.0'
     };
     
-    // Save to IndexedDB
-    await saveIndex('trades-index', indexData);
+    // Save to VFS
+    await DataAccess.saveTradesIndex(indexData);
     
     console.log(`[ParseTrades] Parsed ${sortedTrades.length} trades`);
     console.log(`[ParseTrades] Statistics:`, statistics);
