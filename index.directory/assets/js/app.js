@@ -133,28 +133,15 @@ class TradingJournal {
       // Wait for DataAccess to be available
       if (!window.PersonalPenniesDataAccess) {
         console.warn('[TradingJournal] DataAccess not available yet, waiting...');
-        // Wait up to 5 seconds for DataAccess
+        // Wait up to 2 seconds for DataAccess
         let retries = 0;
-        while (!window.PersonalPenniesDataAccess && retries < 50) {
+        while (!window.PersonalPenniesDataAccess && retries < 20) {
           await new Promise(resolve => setTimeout(resolve, 100));
           retries++;
         }
         if (!window.PersonalPenniesDataAccess) {
           console.error('[TradingJournal] DataAccess failed to initialize');
           return;
-        }
-      }
-      
-      // Wait for accountManager to be ready (needed for portfolio value calculation)
-      if (!window.accountManager || !window.accountManager.initialized) {
-        console.warn('[TradingJournal] AccountManager not ready yet, waiting...');
-        let retries = 0;
-        while ((!window.accountManager || !window.accountManager.initialized) && retries < 50) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          retries++;
-        }
-        if (!window.accountManager || !window.accountManager.initialized) {
-          console.error('[TradingJournal] AccountManager failed to initialize');
         }
       }
       
@@ -166,8 +153,8 @@ class TradingJournal {
       // Load analytics from VFS
       const analyticsData = await window.PersonalPenniesDataAccess.loadAnalytics();
       
-      // Update stats
-      this.updateStats(stats, analyticsData);
+      // Update stats (portfolio value calculated directly from VFS)
+      await this.updateStats(stats, analyticsData);
       console.log('[TradingJournal] Stats refreshed from VFS');
       
     } catch (error) {
@@ -407,13 +394,23 @@ class TradingJournal {
    * @param {Object} stats - Statistics object from trades index
    * @param {Object} analytics - Analytics data with percentage returns
    */
-  updateStats(stats, analytics = null) {
+  async updateStats(stats, analytics = null) {
     if (!stats || Object.keys(stats).length === 0) return;
     
-    // Calculate portfolio value if accountManager is available
+    // Calculate portfolio value directly from VFS (no accountManager dependency)
     let portfolioValue = 0;
-    if (window.accountManager && window.accountManager.initialized) {
-      portfolioValue = window.accountManager.calculatePortfolioValue(stats.total_pnl || 0);
+    if (window.PersonalPenniesDataAccess) {
+      try {
+        const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
+        if (config) {
+          const startingBalance = config.starting_balance || 0;
+          const totalDeposits = (config.deposits || []).reduce((sum, d) => sum + d.amount, 0);
+          const totalWithdrawals = (config.withdrawals || []).reduce((sum, w) => sum + w.amount, 0);
+          portfolioValue = startingBalance + totalDeposits - totalWithdrawals + (stats.total_pnl || 0);
+        }
+      } catch (error) {
+        console.error('[TradingJournal] Error calculating portfolio value:', error);
+      }
     }
     
     // Get total return percentage from analytics
