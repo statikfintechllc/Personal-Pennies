@@ -1,6 +1,7 @@
 /**
  * Charts JavaScript - Main Homepage Charts
  * Handles all chart types: equity curve, trade distribution, performance by day, ticker performance
+ * Loads data from IndexedDB first, falls back to JSON files
  */
 
 // Use utilities from global SFTiUtils and SFTiChartConfig
@@ -21,6 +22,34 @@ let rMultipleChart = null;
 // Chart options are now imported from chartConfig.js
 
 /**
+ * Helper: Load chart data from IndexedDB or file fallback
+ * @param {string} chartName - Name of the chart (e.g., 'equity-curve-data')
+ * @returns {Promise<Object>} Chart data
+ */
+async function loadChartData(chartName) {
+  let data = null;
+  
+  // Try IndexedDB first
+  if (window.PersonalPenniesDB && window.PersonalPenniesDB.getChart) {
+    data = await window.PersonalPenniesDB.getChart(chartName);
+    if (data) {
+      console.log(`[Charts] Loaded ${chartName} from IndexedDB`);
+      return data;
+    }
+  }
+  
+  // Fallback to file
+  const response = await fetch(`${basePath}/index.directory/assets/charts/${chartName}.json`);
+  if (!response.ok) {
+    throw new Error(`Chart data ${chartName} not available`);
+  }
+  
+  data = await response.json();
+  console.log(`[Charts] Loaded ${chartName} from file (fallback)`);
+  return data;
+}
+
+/**
  * Load and render equity curve chart
  */
 async function loadEquityCurveChart() {
@@ -28,8 +57,7 @@ async function loadEquityCurveChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/equity-curve-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('equity-curve-data');
     
     if (equityCurveChart) {
       equityCurveChart.destroy();
@@ -54,8 +82,7 @@ async function loadWinLossRatioByStrategyChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/win-loss-ratio-by-strategy-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('win-loss-ratio-by-strategy-data');
     
     if (winLossRatioByStrategyChart) {
       winLossRatioByStrategyChart.destroy();
@@ -115,8 +142,7 @@ async function loadPerformanceByDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/performance-by-day-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('performance-by-day-data');
     
     if (performanceByDayChart) {
       performanceByDayChart.destroy();
@@ -141,8 +167,7 @@ async function loadTickerPerformanceChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/ticker-performance-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('ticker-performance-data');
     
     if (tickerPerformanceChart) {
       tickerPerformanceChart.destroy();
@@ -184,8 +209,7 @@ async function loadTimeOfDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/time-of-day-performance-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('time-of-day-performance-data');
     
     if (timeOfDayChart) {
       timeOfDayChart.destroy();
@@ -210,8 +234,29 @@ async function loadStrategyChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    // Load analytics data (not a chart file, but analytics-data.json)
+    let data = null;
+    
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
+      data = await window.PersonalPenniesDB.getAnalytics();
+      if (data) {
+        console.log('[Charts] Loaded analytics from IndexedDB for strategy chart');
+      }
+    }
+    
+    // Fallback to file
+    if (!data) {
+      const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
+      if (response.ok) {
+        data = await response.json();
+        console.log('[Charts] Loaded analytics from file for strategy chart (fallback)');
+      }
+    }
+    
+    if (!data) {
+      throw new Error('Analytics data not available');
+    }
     
     if (strategyChart) {
       strategyChart.destroy();
@@ -534,3 +579,48 @@ function initCharts() {
 
 // Initialize when DOM is ready
 SFTiUtils.onDOMReady(initCharts);
+
+/**
+ * Setup event listeners for reactive chart updates
+ */
+function setupChartsEventListeners() {
+  const eventBus = window.SFTiEventBus;
+  if (!eventBus) {
+    console.warn('[Charts] EventBus not available');
+    return;
+  }
+  
+  // Listen for pipeline completion to refresh all charts
+  eventBus.on('pipeline:completed', async (results) => {
+    console.log('[Charts] Pipeline completed, refreshing all charts');
+    
+    // Reload all visible charts
+    await loadEquityCurveChart();
+    await loadWinLossRatioByStrategyChart();
+    await loadPerformanceByDayChart();
+    await loadTickerPerformanceChart();
+    await loadTimeOfDayChart();
+    await loadStrategyChart();
+    await loadSetupChart();
+    await loadWinRateChart();
+    await loadDrawdownChart();
+  });
+  
+  // Listen for analytics updates to refresh analytics-based charts
+  eventBus.on('analytics:updated', async (analytics) => {
+    console.log('[Charts] Analytics updated, refreshing analytics-based charts');
+    
+    await loadStrategyChart();
+    await loadSetupChart();
+    await loadWinRateChart();
+    await loadDrawdownChart();
+  });
+  
+  console.log('[Charts] Event listeners setup complete');
+}
+
+// Setup event listeners after DOM is ready
+SFTiUtils.onDOMReady(() => {
+  // Small delay to ensure EventBus is loaded
+  setTimeout(setupChartsEventListeners, 100);
+});

@@ -192,18 +192,36 @@ async function loadPortfolioChart(timeframe) {
   }
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    let data = null;
     
-    // Load chart data based on timeframe
-    const dataUrl = `${basePath}/index.directory/assets/charts/portfolio-value-${timeframe}.json`;
-    console.log(`[Portfolio Chart] Loading ${timeframe} timeframe from ${dataUrl}`);
-    const response = await fetch(dataUrl);
-    
-    if (!response.ok) {
-      throw new Error('Chart data not available');
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getChart) {
+      const chartName = `portfolio-value-${timeframe}`;
+      data = await window.PersonalPenniesDB.getChart(chartName);
+      if (data) {
+        console.log(`[Portfolio Chart] Loaded ${timeframe} from IndexedDB`);
+      }
     }
     
-    const data = await response.json();
+    // Fallback to file if IndexedDB doesn't have data
+    if (!data) {
+      const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+      const dataUrl = `${basePath}/index.directory/assets/charts/portfolio-value-${timeframe}.json`;
+      console.log(`[Portfolio Chart] Loading ${timeframe} from file (fallback)`);
+      const response = await fetch(dataUrl);
+      
+      if (!response.ok) {
+        throw new Error('Chart data not available');
+      }
+      
+      data = await response.json();
+      console.log(`[Portfolio Chart] Loaded ${timeframe} from file`);
+    }
+    
+    if (!data) {
+      throw new Error('No chart data available');
+    }
+    
     logChartData('Portfolio Chart', timeframe, data);
     
     // Create chart
@@ -233,18 +251,36 @@ async function loadReturnChart(timeframe) {
   }
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+    let data = null;
     
-    // Load chart data based on timeframe
-    const dataUrl = `${basePath}/index.directory/assets/charts/total-return-${timeframe}.json`;
-    console.log(`[Total Return Chart] Loading ${timeframe} timeframe from ${dataUrl}`);
-    const response = await fetch(dataUrl);
-    
-    if (!response.ok) {
-      throw new Error('Chart data not available');
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getChart) {
+      const chartName = `total-return-${timeframe}`;
+      data = await window.PersonalPenniesDB.getChart(chartName);
+      if (data) {
+        console.log(`[Total Return Chart] Loaded ${timeframe} from IndexedDB`);
+      }
     }
     
-    const data = await response.json();
+    // Fallback to file if IndexedDB doesn't have data
+    if (!data) {
+      const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+      const dataUrl = `${basePath}/index.directory/assets/charts/total-return-${timeframe}.json`;
+      console.log(`[Total Return Chart] Loading ${timeframe} from file (fallback)`);
+      const response = await fetch(dataUrl);
+      
+      if (!response.ok) {
+        throw new Error('Chart data not available');
+      }
+      
+      data = await response.json();
+      console.log(`[Total Return Chart] Loaded ${timeframe} from file`);
+    }
+    
+    if (!data) {
+      throw new Error('No chart data available');
+    }
+    
     logChartData('Total Return Chart', timeframe, data);
     
     // Create chart
@@ -750,7 +786,75 @@ document.addEventListener('DOMContentLoaded', () => {
   if (avgPnLCard) {
     avgPnLCard.addEventListener('click', openAvgPnLModal);
   }
+  
+  // Setup event listeners for reactive updates
+  setupModalEventListeners();
 });
+
+/**
+ * Setup event listeners for modal data refresh
+ */
+function setupModalEventListeners() {
+  const eventBus = window.SFTiEventBus;
+  if (!eventBus) {
+    console.warn('[Modals] EventBus not available');
+    return;
+  }
+  
+  // Listen for pipeline completion to refresh all modal data
+  eventBus.on('pipeline:completed', async (results) => {
+    console.log('[Modals] Pipeline completed, refreshing modal data if modals are open');
+    
+    // Check if portfolio modal is open and refresh
+    const portfolioModal = document.getElementById('portfolio-modal');
+    if (portfolioModal && portfolioModal.style.display === 'flex') {
+      console.log('[Modals] Refreshing portfolio modal chart');
+      await loadPortfolioChart(portfolioTimeframe);
+      await updatePortfolioModalDisplay();
+    }
+    
+    // Check if return modal is open and refresh
+    const returnModal = document.getElementById('total-return-modal');
+    if (returnModal && returnModal.style.display === 'flex') {
+      console.log('[Modals] Refreshing return modal chart');
+      await loadReturnChart(returnTimeframe);
+      updateReturnModalDisplay();
+    }
+    
+    // Check if trade P&L modal is open and refresh
+    const tradePnLModal = document.getElementById('trade-pnl-modal');
+    if (tradePnLModal && tradePnLModal.style.display === 'flex') {
+      console.log('[Modals] Refreshing monthly returns heatmap');
+      await generateMonthlyReturnsHeatmap();
+    }
+    
+    // Check if avg P&L modal is open and refresh
+    const avgPnLModal = document.getElementById('avg-pnl-modal');
+    if (avgPnLModal && avgPnLModal.style.display === 'flex') {
+      console.log('[Modals] Refreshing avg win/loss data');
+      await loadAvgWinLossData();
+    }
+  });
+  
+  // Listen for analytics updates to refresh modal displays
+  eventBus.on('analytics:updated', async (analytics) => {
+    console.log('[Modals] Analytics updated, refreshing modal displays if open');
+    
+    const portfolioModal = document.getElementById('portfolio-modal');
+    if (portfolioModal && portfolioModal.style.display === 'flex') {
+      await loadPortfolioChart(portfolioTimeframe);
+      await updatePortfolioModalDisplay();
+    }
+    
+    const returnModal = document.getElementById('total-return-modal');
+    if (returnModal && returnModal.style.display === 'flex') {
+      await loadReturnChart(returnTimeframe);
+      updateReturnModalDisplay();
+    }
+  });
+  
+  console.log('[Modals] Event listeners setup complete');
+}
 
 // ======================================================================
 // Trade P&L Modal Functions (Monthly Returns Heatmap)
@@ -787,16 +891,29 @@ async function generateMonthlyReturnsHeatmap() {
   if (!container) return;
   
   try {
-    // Load trades data
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/trades-index.json`);
+    let trades = [];
     
-    if (!response.ok) {
-      throw new Error('Trades data not available');
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAllTrades) {
+      trades = await window.PersonalPenniesDB.getAllTrades();
+      if (trades && trades.length > 0) {
+        console.log('[Modals] Loaded trades from IndexedDB for heatmap');
+      }
     }
     
-    const data = await response.json();
-    const trades = data.trades || [];
+    // Fallback to file if IndexedDB doesn't have data
+    if (!trades || trades.length === 0) {
+      const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+      const response = await fetch(`${basePath}/index.directory/trades-index.json`);
+      
+      if (!response.ok) {
+        throw new Error('Trades data not available');
+      }
+      
+      const data = await response.json();
+      trades = data.trades || [];
+      console.log('[Modals] Loaded trades from file for heatmap (fallback)');
+    }
     
     if (trades.length === 0) {
       container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">No trades available yet. Add trades to see your monthly returns.</p>';
@@ -987,15 +1104,30 @@ function closeAvgPnLModal() {
  */
 async function loadAvgWinLossData() {
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-    const response = await fetch(`${basePath}/index.directory/trades-index.json`);
+    let stats = null;
     
-    if (!response.ok) {
-      throw new Error('Trades data not available');
+    // Try IndexedDB first
+    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
+      const analyticsData = await window.PersonalPenniesDB.getAnalytics();
+      if (analyticsData) {
+        stats = analyticsData;
+        console.log('[Modals] Loaded analytics from IndexedDB for avg win/loss');
+      }
     }
     
-    const data = await response.json();
-    const stats = data.statistics || {};
+    // Fallback to file if IndexedDB doesn't have data
+    if (!stats) {
+      const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
+      const response = await fetch(`${basePath}/index.directory/trades-index.json`);
+      
+      if (!response.ok) {
+        throw new Error('Trades data not available');
+      }
+      
+      const data = await response.json();
+      stats = data.statistics || {};
+      console.log('[Modals] Loaded stats from trades-index file (fallback)');
+    }
     
     // Get win/loss averages
     const avgWin = stats.avg_winner || 0;
