@@ -406,6 +406,9 @@ class AccountManager {
         total_deposits: this.getTotalDeposits()
       });
     }
+    
+    // Trigger client-side regeneration of analytics and charts
+    this.triggerRegeneration();
   }
 
   /**
@@ -413,6 +416,26 @@ class AccountManager {
    */
   formatCurrency(value) {
     return parseFloat(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  
+  /**
+   * Trigger client-side regeneration after config changes
+   */
+  async triggerRegeneration() {
+    // Defer to avoid blocking UI
+    setTimeout(async () => {
+      try {
+        // Check if tradingJournal exists and has regenerateAllData method
+        if (window.tradingJournal && typeof window.tradingJournal.regenerateAllData === 'function') {
+          console.log('[AccountManager] Triggering data regeneration...');
+          await window.tradingJournal.regenerateAllData();
+        } else {
+          console.log('[AccountManager] TradingJournal not available yet for regeneration');
+        }
+      } catch (error) {
+        console.error('[AccountManager] Error triggering regeneration:', error);
+      }
+    }, 100);
   }
 }
 

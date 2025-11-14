@@ -783,10 +783,13 @@ class TradingJournal {
       
       // Show success message
       if (window.showToast) {
-        window.showToast(`Trade #${tradeNum} submitted successfully!`, 'success', 3000);
+        window.showToast(`Trade #${tradeNum} submitted successfully! Regenerating analytics...`, 'success', 3000);
       } else {
         alert(`Trade #${tradeNum} submitted successfully!\nFile: ${tradePath}`);
       }
+      
+      // Trigger client-side regeneration of all analytics, charts, and indexes
+      await this.regenerateAllData();
       
       // Reset form
       event.target.reset();
@@ -997,6 +1000,85 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
       }
     } catch (error) {
       console.error('[TradingJournal] Error updating portfolio value:', error);
+    }
+  }
+  
+  /**
+   * Regenerate all data after trade add/edit/delete
+   * Triggers client-side generation of analytics, charts, indexes, and pages
+   */
+  async regenerateAllData() {
+    try {
+      console.log('[Regeneration] Starting client-side data regeneration...');
+      
+      // Check if system modules are loaded
+      if (!window.PersonalPenniesSystem) {
+        console.warn('[Regeneration] System modules not loaded yet, waiting...');
+        // Wait up to 5 seconds for system to load
+        let retries = 0;
+        while (!window.PersonalPenniesSystem && retries < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries++;
+        }
+        if (!window.PersonalPenniesSystem) {
+          console.error('[Regeneration] System modules failed to load');
+          return;
+        }
+      }
+      
+      const { ParseTrades, GenerateAnalytics, GenerateCharts, GenerateSummaries, 
+              GenerateTradePages, GenerateWeekSummaries, GenerateIndex, 
+              UpdateHomepage } = window.PersonalPenniesSystem;
+      
+      // Step 1: Parse all trades from markdown files
+      console.log('[Regeneration] Step 1/7: Parsing trades...');
+      const tradesData = await ParseTrades.parseTrades();
+      
+      // Step 2: Generate analytics
+      console.log('[Regeneration] Step 2/7: Generating analytics...');
+      await GenerateAnalytics.generate(tradesData);
+      
+      // Step 3: Generate charts
+      console.log('[Regeneration] Step 3/7: Generating charts...');
+      await GenerateCharts.generate(tradesData);
+      
+      // Step 4: Generate summaries
+      console.log('[Regeneration] Step 4/7: Generating summaries...');
+      await GenerateSummaries.generate(tradesData);
+      
+      // Step 5: Generate trade pages
+      console.log('[Regeneration] Step 5/7: Generating trade pages...');
+      await GenerateTradePages.generate(tradesData);
+      
+      // Step 6: Generate week summaries
+      console.log('[Regeneration] Step 6/7: Generating week summaries...');
+      await GenerateWeekSummaries.generate(tradesData);
+      
+      // Step 7: Generate index and update homepage
+      console.log('[Regeneration] Step 7/7: Updating indexes and homepage...');
+      await GenerateIndex.generate(tradesData);
+      await UpdateHomepage.update();
+      
+      console.log('[Regeneration] ✓ All data regenerated successfully');
+      
+      // Refresh the current page stats
+      await this.refreshStats();
+      
+      // Emit event for any listeners
+      if (this.eventBus) {
+        this.eventBus.emit('data:regenerated', { timestamp: new Date().toISOString() });
+      }
+      
+      // Show success toast
+      if (window.showToast) {
+        window.showToast('Analytics and charts updated!', 'success', 2000);
+      }
+      
+    } catch (error) {
+      console.error('[Regeneration] Error during data regeneration:', error);
+      if (window.showToast) {
+        window.showToast(`Failed to regenerate analytics: ${error.message}`, 'error', 5000);
+      }
     }
   }
 }

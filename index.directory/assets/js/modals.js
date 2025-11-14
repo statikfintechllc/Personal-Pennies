@@ -588,6 +588,11 @@ function addWithdrawal(event) {
   
   // Show notification
   showNotification('Withdrawal Added', `Withdrawal of $${parseFloat(amount).toFixed(2)} recorded successfully!`, 'success');
+  
+  // Trigger client-side regeneration
+  if (window.accountManager && typeof window.accountManager.triggerRegeneration === 'function') {
+    window.accountManager.triggerRegeneration();
+  }
 }
 
 /**
