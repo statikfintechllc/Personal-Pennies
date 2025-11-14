@@ -926,3 +926,11 @@ async function loadTotalReturn5YearChart() {
 
 // Initialize on DOM ready
 SFTiUtils.onDOMReady(initAnalytics);
+
+// Listen for data regeneration events to reload analytics
+if (window.SFTiEventBus) {
+  window.SFTiEventBus.on('data:regenerated', () => {
+    console.log('[Analytics] Data regenerated, reloading analytics...');
+    initAnalytics();
+  });
+}
