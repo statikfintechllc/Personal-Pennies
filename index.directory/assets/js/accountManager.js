@@ -68,23 +68,20 @@ class AccountManager {
   }
 
   /**
-   * Load account configuration from IndexedDB
+   * Load account configuration from VFS
    */
   async loadConfig() {
     try {
-      // Load from IndexedDB first
-      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
-        const config = await window.PersonalPenniesDB.getConfig('account-config');
+      // Load from VFS DataAccess
+      if (window.PersonalPenniesDataAccess) {
+        const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
         if (config) {
           this.config = config;
-          console.log('[AccountManager] Loaded config from IndexedDB:', this.config);
+          console.log('[AccountManager] Loaded config from VFS:', this.config);
           
-          // Ensure withdrawals array exists
-          if (!this.config.withdrawals) {
-            this.config.withdrawals = [];
-          }
-          
-          // Ensure account_opening_date field exists
+          // Ensure arrays exist
+          if (!this.config.withdrawals) this.config.withdrawals = [];
+          if (!this.config.deposits) this.config.deposits = [];
           if (this.config.account_opening_date === undefined) {
             this.config.account_opening_date = null;
           }
@@ -93,40 +90,26 @@ class AccountManager {
         }
       }
       
-      // Fallback: try to load from file (for first-time setup)
+      // Fallback: try to load from file (for first-time setup only)
       console.log('[AccountManager] No config in VFS, trying file...');
       try {
-        let config = null;
-        
-        // Try VFS DataAccess first
-        if (window.PersonalPenniesDataAccess) {
-          config = await window.PersonalPenniesDataAccess.loadAccountConfig();
-        }
-        
-        // Fallback to direct fetch if needed
-        if (!config) {
-          const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
-          if (response.ok) {
-            config = await response.json();
-            console.log('[AccountManager] Loaded config from file');
-          }
-        }
-        
-        if (config) {
+        const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
+        if (response.ok) {
+          const config = await response.json();
+          console.log('[AccountManager] Loaded config from file, migrating to VFS...');
           this.config = config;
-          console.log('[AccountManager] Migrating config to VFS...');
-          
-          // Save to VFS
-          if (window.PersonalPenniesDataAccess) {
-            await window.PersonalPenniesDataAccess.saveAccountConfig(this.config);
-            console.log('[AccountManager] Migrated config to VFS');
-          }
           
           // Ensure arrays exist
           if (!this.config.withdrawals) this.config.withdrawals = [];
           if (!this.config.deposits) this.config.deposits = [];
           if (this.config.account_opening_date === undefined) {
             this.config.account_opening_date = null;
+          }
+          
+          // Save to VFS
+          if (window.PersonalPenniesDataAccess) {
+            await window.PersonalPenniesDataAccess.saveAccountConfig(this.config);
+            console.log('[AccountManager] Migrated config to VFS');
           }
           
           return;
@@ -442,21 +425,21 @@ class AccountManager {
 // Initialize global account manager on window object
 window.accountManager = null;
 
-// Initialize when DOM is ready and IndexedDB is available
+// Initialize when DOM is ready and VFS DataAccess is available
 SFTiUtils.onDOMReady(async () => {
-  console.log('[AccountManager] Waiting for IndexedDB system...');
+  console.log('[AccountManager] Waiting for VFS DataAccess...');
   
-  // Wait for IndexedDB system to be ready (max 5 seconds)
+  // Wait for DataAccess to be ready (max 5 seconds)
   let retries = 0;
-  while (!window.PersonalPenniesDB && retries < 50) {
+  while (!window.PersonalPenniesDataAccess && retries < 50) {
     await new Promise(resolve => setTimeout(resolve, 100));
     retries++;
   }
   
-  if (!window.PersonalPenniesDB) {
-    console.warn('[AccountManager] ⚠ IndexedDB system not loaded after 5s, using fallback');
+  if (!window.PersonalPenniesDataAccess) {
+    console.warn('[AccountManager] ⚠ DataAccess not loaded after 5s, using fallback');
   } else {
-    console.log('[AccountManager] ✓ IndexedDB system ready');
+    console.log('[AccountManager] ✓ DataAccess ready');
   }
   
   window.accountManager = new AccountManager();

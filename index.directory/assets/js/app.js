@@ -980,9 +980,9 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
     try {
       let portfolioValue = 0;
       
-      // Calculate from IndexedDB directly (no waiting for accountManager)
-      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
-        const config = await window.PersonalPenniesDB.getConfig('account-config');
+      // Calculate from VFS directly (no waiting for accountManager)
+      if (window.PersonalPenniesDataAccess) {
+        const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
         if (config) {
           const startingBalance = config.starting_balance || 0;
           const totalDeposits = (config.deposits || []).reduce((sum, d) => sum + d.amount, 0);
