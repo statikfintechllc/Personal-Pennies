@@ -118,9 +118,18 @@ class TradingJournal {
       this.refreshStats();
     });
     
-    // Listen for pipeline completion
-    this.eventBus.on('pipeline:completed', (results) => {
-      console.log('[TradingJournal] Pipeline completed, refreshing display');
+    // Listen for pipeline completion - reload data from IndexedDB
+    this.eventBus.on('pipeline:completed', async (results) => {
+      console.log('[TradingJournal] Pipeline completed, reloading data from IndexedDB');
+      if (window.SFTiStateManager && window.SFTiStateManager.reloadData) {
+        await window.SFTiStateManager.reloadData();
+        // Data reload will emit state:reloaded which triggers refresh below
+      }
+    });
+    
+    // Listen for state reload completion
+    this.eventBus.on('state:reloaded', () => {
+      console.log('[TradingJournal] State reloaded from IndexedDB, refreshing display');
       this.refreshStats();
     });
   }
@@ -130,14 +139,13 @@ class TradingJournal {
    */
   async refreshStats() {
     try {
-      // Use StateManager to reload data from IndexedDB
-      if (window.SFTiStateManager) {
-        await window.SFTiStateManager.loadAllData();
+      // Use StateManager's CURRENT state without reloading (prevents infinite loop)
+      if (window.SFTiStateManager && window.SFTiStateManager.initialized) {
         const state = window.SFTiStateManager.getState();
         
-        // Update stats with data from StateManager (which loads from IndexedDB first)
+        // Update stats with data from StateManager (already loaded from IndexedDB)
         this.updateStats(state.trades.statistics || {}, state.analytics.data);
-        console.log('[TradingJournal] Stats refreshed from StateManager (IndexedDB)');
+        console.log('[TradingJournal] Stats refreshed from StateManager state (no reload)');
         return;
       }
       

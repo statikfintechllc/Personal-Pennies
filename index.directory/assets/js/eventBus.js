@@ -164,6 +164,24 @@ class StateManager {
       this.loadAnalytics()
     ]);
   }
+  
+  /**
+   * Reload data from IndexedDB (for after pipeline updates)
+   * This skips event emission during load to prevent loops
+   */
+  async reloadData() {
+    const wasInitialized = this.initialized;
+    this.initialized = false; // Temporarily disable event emission
+    
+    await this.loadAllData();
+    
+    this.initialized = wasInitialized;
+    
+    // Emit single update event after all data loaded
+    if (this.initialized && window.SFTiEventBus) {
+      window.SFTiEventBus.emit('state:reloaded', this.state);
+    }
+  }
 
   /**
    * Load account configuration
@@ -334,8 +352,11 @@ class StateManager {
     this.state.account.portfolio_value = this.state.account.starting_balance + 
       this.state.account.total_deposits - total_withdrawals + total_pnl;
     
-    window.SFTiEventBus.emit('trades:updated', this.state.trades);
-    window.SFTiEventBus.emit('account:updated', this.state.account);
+    // Only emit events after initialization to prevent infinite loops
+    if (this.initialized && window.SFTiEventBus) {
+      window.SFTiEventBus.emit('trades:updated', this.state.trades);
+      window.SFTiEventBus.emit('account:updated', this.state.account);
+    }
   }
 
   /**
@@ -347,7 +368,10 @@ class StateManager {
       loaded: true
     };
     
-    window.SFTiEventBus.emit('analytics:updated', this.state.analytics.data);
+    // Only emit events after initialization to prevent infinite loops
+    if (this.initialized && window.SFTiEventBus) {
+      window.SFTiEventBus.emit('analytics:updated', this.state.analytics.data);
+    }
   }
 
   /**
