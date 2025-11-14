@@ -120,59 +120,66 @@ class TradingJournal {
     
     // Listen for pipeline completion - reload data from IndexedDB
     this.eventBus.on('pipeline:completed', async (results) => {
-      console.log('[TradingJournal] Pipeline completed, reloading data from IndexedDB');
-      if (window.SFTiStateManager && window.SFTiStateManager.reloadData) {
-        await window.SFTiStateManager.reloadData();
-        // Data reload will emit state:reloaded which triggers refresh below
-      }
-    });
-    
-    // Listen for state reload completion
-    this.eventBus.on('state:reloaded', () => {
-      console.log('[TradingJournal] State reloaded from IndexedDB, refreshing display');
-      this.refreshStats();
+      console.log('[TradingJournal] Pipeline completed, reloading stats from IndexedDB');
+      await this.refreshStats();
     });
   }
   
   /**
-   * Refresh stats without reloading trades
+   * Refresh stats - Load directly from IndexedDB
    */
   async refreshStats() {
     try {
-      // Use StateManager's CURRENT state without reloading (prevents infinite loop)
-      if (window.SFTiStateManager && window.SFTiStateManager.initialized) {
-        const state = window.SFTiStateManager.getState();
-        
-        // Update stats with data from StateManager (already loaded from IndexedDB)
-        this.updateStats(state.trades.statistics || {}, state.analytics.data);
-        console.log('[TradingJournal] Stats refreshed from StateManager state (no reload)');
+      // Load directly from IndexedDB (no fallbacks - this is production)
+      if (!window.PersonalPenniesDB) {
+        console.warn('[TradingJournal] IndexedDB not available yet');
         return;
       }
       
-      // Fallback: Load from files if StateManager not available
-      const response = await fetch(`${this.basePath}/index.directory/trades-index.json`);
-      if (!response.ok) return;
-      
-      const data = await response.json();
+      // Load trades and calculate statistics
+      const trades = await window.PersonalPenniesDB.getAllTrades();
+      const stats = this.calculateTradesStatistics(trades || []);
       
       // Load analytics
-      let analyticsData = null;
-      try {
-        const analyticsResponse = await fetch(`${this.basePath}/index.directory/assets/charts/analytics-data.json`);
-        if (analyticsResponse.ok) {
-          analyticsData = await analyticsResponse.json();
-        }
-      } catch (err) {
-        console.warn('Could not load analytics data:', err);
-      }
+      const analyticsData = await window.PersonalPenniesDB.getAnalytics();
       
       // Update stats
-      this.updateStats(data.statistics || {}, analyticsData);
-      console.log('[TradingJournal] Stats refreshed from files (fallback)');
+      this.updateStats(stats, analyticsData);
+      console.log('[TradingJournal] Stats refreshed from IndexedDB');
       
     } catch (error) {
-      console.warn('Could not refresh stats:', error);
+      console.error('[TradingJournal] Error refreshing stats from IndexedDB:', error);
     }
+  }
+  
+  /**
+   * Calculate statistics from trades array
+   */
+  calculateTradesStatistics(trades) {
+    if (!trades || trades.length === 0) {
+      return {
+        total_trades: 0,
+        total_pnl: 0,
+        avg_pnl: 0,
+        win_rate: 0,
+        wins: 0,
+        losses: 0
+      };
+    }
+    
+    const totalPnL = trades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
+    const wins = trades.filter(trade => (trade.pnl || 0) > 0).length;
+    const losses = trades.filter(trade => (trade.pnl || 0) < 0).length;
+    const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(2) : 0;
+    
+    return {
+      total_trades: trades.length,
+      total_pnl: totalPnL,
+      avg_pnl: totalPnL / trades.length,
+      win_rate: winRate,
+      wins,
+      losses
+    };
   }
   
   /**
@@ -943,3 +950,34 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
 document.addEventListener('DOMContentLoaded', () => {
   window.tradingJournal = new TradingJournal();
 });
+  
+  /**
+   * Update portfolio value asynchronously
+   * @param {number} totalPnL - Total P&L from trades
+   */
+  async updatePortfolioValue(totalPnL) {
+    try {
+      let portfolioValue = 0;
+      
+      // Calculate from IndexedDB directly (no waiting for accountManager)
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getConfig) {
+        const config = await window.PersonalPenniesDB.getConfig('account-config');
+        if (config) {
+          const startingBalance = config.starting_balance || 0;
+          const totalDeposits = (config.deposits || []).reduce((sum, d) => sum + d.amount, 0);
+          const totalWithdrawals = (config.withdrawals || []).reduce((sum, w) => sum + w.amount, 0);
+          portfolioValue = startingBalance + totalDeposits - totalWithdrawals + totalPnL;
+        }
+      }
+      
+      // Update DOM
+      const element = document.getElementById('stat-portfolio-value');
+      if (element) {
+        element.textContent = `$${portfolioValue.toFixed(2)}`;
+        element.classList.remove('positive', 'negative');
+        element.classList.add(portfolioValue >= 0 ? 'positive' : 'negative');
+      }
+    } catch (error) {
+      console.error('[TradingJournal] Error updating portfolio value:', error);
+    }
+  }
