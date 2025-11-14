@@ -176,13 +176,10 @@ class AccountManager {
         this.eventBus.emit('account:config-updated', this.config);
       }
       
-      // Show success notification
-      if (window.showToast) {
-        if (isDeposit) {
-          window.showToast('Deposit/Withdrawal recorded successfully!', 'success');
-        } else {
-          window.showToast(`Starting balance updated to $${this.config.starting_balance}`, 'success');
-        }
+      // Show success notification only for starting balance updates
+      // Deposits/withdrawals handle their own notifications to avoid duplicates
+      if (window.showToast && !isDeposit) {
+        window.showToast(`Starting balance updated to $${this.config.starting_balance}`, 'success');
       }
       
       this.updateDisplay();
@@ -192,19 +189,6 @@ class AccountManager {
       if (window.showToast) {
         window.showToast(`Error saving config: ${error.message}`, 'error');
       }
-    }
-  }
-      );
-      
-    } catch (error) {
-      console.error('Error saving config:', error);
-      // Show error just like trade submission does
-      this.showNotification(
-        'Failed to Save',
-        `Failed to commit changes: ${error.message}`,
-        'error',
-        5000
-      );
     }
   }
   
@@ -420,8 +404,23 @@ class AccountManager {
 // Initialize global account manager on window object
 window.accountManager = null;
 
-// Initialize when DOM is ready
+// Initialize when DOM is ready and IndexedDB is available
 SFTiUtils.onDOMReady(async () => {
+  console.log('[AccountManager] Waiting for IndexedDB system...');
+  
+  // Wait for IndexedDB system to be ready (max 5 seconds)
+  let retries = 0;
+  while (!window.PersonalPenniesDB && retries < 50) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    retries++;
+  }
+  
+  if (!window.PersonalPenniesDB) {
+    console.warn('[AccountManager] ⚠ IndexedDB system not loaded after 5s, using fallback');
+  } else {
+    console.log('[AccountManager] ✓ IndexedDB system ready');
+  }
+  
   window.accountManager = new AccountManager();
   await window.accountManager.init();
 });

@@ -622,6 +622,9 @@
   <script src="index.directory/assets/js/auth.js"></script>
   <script src="index.directory/assets/js/glowing-bubbles.js"></script>
   
+  <!-- IndexedDB Storage System - Must load before accountManager -->
+  <script src="index.directory/assets/system/loader.js" type="module"></script>
+  
   <!-- Application Logic - Account management, modals, and main app -->
   <script src="index.directory/assets/js/accountManager.js"></script>
   <script src="index.directory/assets/js/modals.js"></script>
@@ -642,18 +645,45 @@
   
   <!-- Pre-load AccountManager config synchronously on page load -->
   <script>
+    // AccountManager initialization is handled in accountManager.js
+    // This script ensures stats are loaded after AccountManager is ready
     document.addEventListener('DOMContentLoaded', async function() {
-      console.log('[Init] Pre-loading AccountManager config...');
+      console.log('[Init] Page loaded, waiting for AccountManager and TradingJournal...');
       
-      if (window.accountManager) {
-        try {
-          await window.accountManager.init();
-          console.log('[Init] ✓ Config loaded and cached - UI ready for interactions');
-        } catch (error) {
-          console.error('[Init] ✗ Failed to load config:', error);
-        }
+      // Wait for accountManager to be initialized
+      let retries = 0;
+      while ((!window.accountManager || !window.accountManager.initialized) && retries < 100) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
+      
+      // Check if initialization timed out
+      if (retries >= 100 || !window.accountManager || !window.accountManager.initialized) {
+        console.error('[Init] ✗ AccountManager failed to initialize (timeout)');
+        return;
+      }
+      
+      console.log('[Init] ✓ AccountManager ready');
+      
+      // Wait for TradingJournal app to be initialized
+      retries = 0;
+      while (!window.tradingJournal && retries < 100) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        retries++;
+      }
+      
+      // Check if TradingJournal initialization timed out
+      if (retries >= 100 || !window.tradingJournal) {
+        console.error('[Init] ✗ TradingJournal app failed to initialize (timeout)');
+        return;
+      }
+      
+      // Trigger initial stats refresh now that everything is ready
+      if (window.tradingJournal.refreshStats) {
+        console.log('[Init] ✓ TradingJournal app ready, loading initial stats from IndexedDB');
+        await window.tradingJournal.refreshStats();
       } else {
-        console.error('[Init] ✗ AccountManager not found');
+        console.error('[Init] ✗ TradingJournal refreshStats method not available');
       }
     });
   </script>

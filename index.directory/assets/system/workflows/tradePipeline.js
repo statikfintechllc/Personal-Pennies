@@ -1,16 +1,20 @@
 /**
  * Trade Pipeline Orchestrator
- * Event-driven pipeline that runs when trades are added/modified
+ * Event-driven pipeline that runs when trades or account config are modified
  * 
  * This replaces the GitHub Actions workflow (.github/workflows/trade_pipeline.yml)
  * with a client-side event-driven system that runs in the browser.
  * 
+ * Triggers:
+ * - Trade events: trade:added, trade:updated, trade:deleted
+ * - Account events: account:deposit-added, account:withdrawal-added, account:balance-updated
+ * 
  * Pipeline Steps:
- * 1. Trade added to IndexedDB → trigger pipeline
- * 2. Parse trades → generate trades-index.json
- * 3. Generate analytics → analytics-data.json
- * 4. Generate charts → chart data
- * 5. Generate summaries → summary data
+ * 1. Parse trades → generate trades-index.json
+ * 2. Generate analytics → analytics-data.json (uses account config for returns calculations)
+ * 3. Generate charts → chart data
+ * 4. Generate summaries → summary data
+ * 5. Generate trade pages → individual trade HTML pages
  * 6. Update indexes (books, notes)
  * 7. Emit completion event
  */
@@ -96,6 +100,12 @@ export async function runTradePipeline(options = {}) {
       completed_at: new Date().toISOString()
     };
     console.log(`[Pipeline] ✓ Generated analytics (Expectancy: $${analytics.expectancy})`);
+    
+    // Emit analytics updated event so UI refreshes
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('analytics:updated', analytics);
+      console.log('[Pipeline] ✓ Emitted analytics:updated event');
+    }
 
     // Step 3: Generate charts
     console.log('[Pipeline] Step 3: Generating charts...');
@@ -264,6 +274,34 @@ export function initializePipeline() {
     }
   });
 
+  // Listen for account config events (mirrors old Python workflow watching account-config.json)
+  window.SFTiEventBus.on('account:deposit-added', async (data) => {
+    console.log('[Pipeline] Deposit added event received, triggering pipeline to recalculate analytics...');
+    try {
+      await runTradePipeline({ trigger: 'account:deposit-added', data });
+    } catch (error) {
+      console.error('[Pipeline] Failed to run pipeline after deposit:added:', error);
+    }
+  });
+
+  window.SFTiEventBus.on('account:withdrawal-added', async (data) => {
+    console.log('[Pipeline] Withdrawal added event received, triggering pipeline to recalculate analytics...');
+    try {
+      await runTradePipeline({ trigger: 'account:withdrawal-added', data });
+    } catch (error) {
+      console.error('[Pipeline] Failed to run pipeline after withdrawal:added:', error);
+    }
+  });
+
+  window.SFTiEventBus.on('account:balance-updated', async (data) => {
+    console.log('[Pipeline] Starting balance updated event received, triggering pipeline to recalculate analytics...');
+    try {
+      await runTradePipeline({ trigger: 'account:balance-updated', data });
+    } catch (error) {
+      console.error('[Pipeline] Failed to run pipeline after balance:updated:', error);
+    }
+  });
+
   // Listen for manual pipeline trigger
   window.SFTiEventBus.on('pipeline:run', async (options) => {
     console.log('[Pipeline] Manual pipeline run requested...');
@@ -274,7 +312,7 @@ export function initializePipeline() {
     }
   });
 
-  console.log('[Pipeline] ✓ Pipeline event listeners initialized');
+  console.log('[Pipeline] ✓ Pipeline event listeners initialized (trade and account events)');
 }
 
 // Auto-initialize when DOM is ready
