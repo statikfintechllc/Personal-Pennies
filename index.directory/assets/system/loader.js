@@ -35,17 +35,37 @@ async function loadSystemModules() {
     const Utils = await import('./scripts/utils.js');
     const GlobalsUtils = await import('./scripts/globalsUtils.js');
 
-    // Import scripts
-    const ParseTrades = await import('./scripts/parseTrades.js');
-    const GenerateAnalytics = await import('./scripts/generateAnalytics.js');
-    const GenerateCharts = await import('./scripts/generateCharts.js');
-    const GenerateSummaries = await import('./scripts/generateSummaries.js');
-    const GenerateTradePages = await import('./scripts/generateTradePages.js');
-    const GenerateWeekSummaries = await import('./scripts/generateWeekSummaries.js');
-    const GenerateBooksIndex = await import('./scripts/generateBooksIndex.js');
-    const GenerateNotesIndex = await import('./scripts/generateNotesIndex.js');
-    const GenerateIndex = await import('./scripts/generateIndex.js');
-    const UpdateHomepage = await import('./scripts/updateHomepage.js');
+    // Import scripts (using named exports)
+    const ParseTradesModule = await import('./scripts/parseTrades.js');
+    const ParseTrades = { parseTrades: ParseTradesModule.parseTrades, generate: ParseTradesModule.parseTrades };
+    
+    const GenerateAnalyticsModule = await import('./scripts/generateAnalytics.js');
+    const GenerateAnalytics = { generate: GenerateAnalyticsModule.generate || GenerateAnalyticsModule.generateAnalytics };
+    
+    const GenerateChartsModule = await import('./scripts/generateCharts.js');
+    const GenerateCharts = { generate: GenerateChartsModule.generate || GenerateChartsModule.generateCharts };
+    
+    const GenerateSummariesModule = await import('./scripts/generateSummaries.js');
+    const GenerateSummaries = { generate: GenerateSummariesModule.generate || GenerateSummariesModule.generateSummaries };
+    
+    const GenerateTradePagesModule = await import('./scripts/generateTradePages.js');
+    const GenerateTradePages = { generate: GenerateTradePagesModule.generate || GenerateTradePagesModule.generateTradePages };
+    
+    const GenerateWeekSummariesModule = await import('./scripts/generateWeekSummaries.js');
+    const GenerateWeekSummaries = { generate: GenerateWeekSummariesModule.generate || GenerateWeekSummariesModule.generateWeekSummaries };
+    
+    const GenerateBooksIndexModule = await import('./scripts/generateBooksIndex.js');
+    const GenerateBooksIndex = { generate: GenerateBooksIndexModule.generate || GenerateBooksIndexModule.generateBooksIndex };
+    
+    const GenerateNotesIndexModule = await import('./scripts/generateNotesIndex.js');
+    const GenerateNotesIndex = { generate: GenerateNotesIndexModule.generate || GenerateNotesIndexModule.generateNotesIndex };
+    
+    const GenerateIndexModule = await import('./scripts/generateIndex.js');
+    const GenerateIndex = { generate: GenerateIndexModule.generate || GenerateIndexModule.generateIndex };
+    
+    const UpdateHomepageModule = await import('./scripts/updateHomepage.js');
+    const UpdateHomepage = { update: UpdateHomepageModule.update || UpdateHomepageModule.updateHomepage };
+    
     const NavbarTemplate = await import('./scripts/navbarTemplate.js');
     const NormalizeSchema = await import('./scripts/normalizeSchema.js');
     const AttachMedia = await import('./scripts/attachMedia.js');
