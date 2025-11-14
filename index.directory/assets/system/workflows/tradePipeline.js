@@ -100,6 +100,12 @@ export async function runTradePipeline(options = {}) {
       completed_at: new Date().toISOString()
     };
     console.log(`[Pipeline] ✓ Generated analytics (Expectancy: $${analytics.expectancy})`);
+    
+    // Emit analytics updated event so UI refreshes
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('analytics:updated', analytics);
+      console.log('[Pipeline] ✓ Emitted analytics:updated event');
+    }
 
     // Step 3: Generate charts
     console.log('[Pipeline] Step 3: Generating charts...');

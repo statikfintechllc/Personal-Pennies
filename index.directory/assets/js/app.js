@@ -117,6 +117,12 @@ class TradingJournal {
       console.log('[TradingJournal] Analytics updated, refreshing display');
       this.refreshStats();
     });
+    
+    // Listen for pipeline completion
+    this.eventBus.on('pipeline:completed', (results) => {
+      console.log('[TradingJournal] Pipeline completed, refreshing display');
+      this.refreshStats();
+    });
   }
   
   /**
