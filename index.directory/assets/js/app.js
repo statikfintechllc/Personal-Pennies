@@ -189,9 +189,10 @@ class TradingJournal {
       };
     }
     
-    const totalPnL = trades.reduce((sum, trade) => sum + (trade.pnl || 0), 0);
-    const wins = trades.filter(trade => (trade.pnl || 0) > 0).length;
-    const losses = trades.filter(trade => (trade.pnl || 0) < 0).length;
+    // Handle both pnl and pnl_usd field names for backwards compatibility
+    const totalPnL = trades.reduce((sum, trade) => sum + (trade.pnl || trade.pnl_usd || 0), 0);
+    const wins = trades.filter(trade => (trade.pnl || trade.pnl_usd || 0) > 0).length;
+    const losses = trades.filter(trade => (trade.pnl || trade.pnl_usd || 0) < 0).length;
     const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(2) : 0;
     
     return {
