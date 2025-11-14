@@ -130,7 +130,18 @@ class TradingJournal {
    */
   async refreshStats() {
     try {
-      // Load latest trades data
+      // Use StateManager to reload data from IndexedDB
+      if (window.SFTiStateManager) {
+        await window.SFTiStateManager.loadAllData();
+        const state = window.SFTiStateManager.getState();
+        
+        // Update stats with data from StateManager (which loads from IndexedDB first)
+        this.updateStats(state.trades.statistics || {}, state.analytics.data);
+        console.log('[TradingJournal] Stats refreshed from StateManager (IndexedDB)');
+        return;
+      }
+      
+      // Fallback: Load from files if StateManager not available
       const response = await fetch(`${this.basePath}/index.directory/trades-index.json`);
       if (!response.ok) return;
       
@@ -149,6 +160,7 @@ class TradingJournal {
       
       // Update stats
       this.updateStats(data.statistics || {}, analyticsData);
+      console.log('[TradingJournal] Stats refreshed from files (fallback)');
       
     } catch (error) {
       console.warn('Could not refresh stats:', error);

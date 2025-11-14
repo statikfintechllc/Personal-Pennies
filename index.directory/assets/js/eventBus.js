@@ -213,16 +213,54 @@ class StateManager {
    */
   async loadTrades() {
     try {
+      // Try IndexedDB first
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAllTrades) {
+        const trades = await window.PersonalPenniesDB.getAllTrades();
+        if (trades && trades.length > 0) {
+          // Calculate statistics from trades
+          const data = this.calculateTradesStatistics(trades);
+          this.updateTrades(data);
+          console.log('[StateManager] Loaded trades from IndexedDB');
+          return;
+        }
+      }
+      
+      // Fallback to file
       const basePath = SFTiUtils.getBasePath();
       const response = await fetch(`${basePath}/index.directory/trades-index.json`);
       
       if (response.ok) {
         const data = await response.json();
         this.updateTrades(data);
+        console.log('[StateManager] Loaded trades from file (fallback)');
       }
     } catch (error) {
       console.warn('[StateManager] Could not load trades:', error);
     }
+  }
+  
+  /**
+   * Calculate statistics from trades array
+   */
+  calculateTradesStatistics(trades) {
+    const total_pnl = trades.reduce((sum, t) => sum + parseFloat(t.pnl || 0), 0);
+    const winning_trades = trades.filter(t => parseFloat(t.pnl || 0) > 0).length;
+    const losing_trades = trades.filter(t => parseFloat(t.pnl || 0) < 0).length;
+    const total_trades = trades.length;
+    const win_rate = total_trades > 0 ? (winning_trades / total_trades) * 100 : 0;
+    const avg_pnl = total_trades > 0 ? total_pnl / total_trades : 0;
+    
+    return {
+      trades: trades,
+      statistics: {
+        total_pnl,
+        winning_trades,
+        losing_trades,
+        total_trades,
+        win_rate,
+        avg_pnl
+      }
+    };
   }
 
   /**
@@ -230,12 +268,24 @@ class StateManager {
    */
   async loadAnalytics() {
     try {
+      // Try IndexedDB first
+      if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
+        const data = await window.PersonalPenniesDB.getAnalytics();
+        if (data) {
+          this.updateAnalytics(data);
+          console.log('[StateManager] Loaded analytics from IndexedDB');
+          return;
+        }
+      }
+      
+      // Fallback to file
       const basePath = SFTiUtils.getBasePath();
       const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
       
       if (response.ok) {
         const data = await response.json();
         this.updateAnalytics(data);
+        console.log('[StateManager] Loaded analytics from file (fallback)');
       }
     } catch (error) {
       console.warn('[StateManager] Could not load analytics:', error);
