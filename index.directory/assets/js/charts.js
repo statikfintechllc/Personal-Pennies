@@ -28,25 +28,35 @@ let rMultipleChart = null;
  */
 async function loadChartData(chartName) {
   let data = null;
+  let fromIndexedDB = false;
+  let fromFile = false;
   
   // Try IndexedDB first
   if (window.PersonalPenniesDB && window.PersonalPenniesDB.getChart) {
     data = await window.PersonalPenniesDB.getChart(chartName);
     if (data) {
       console.log(`[Charts] Loaded ${chartName} from IndexedDB`);
+      fromIndexedDB = true;
       return data;
     }
   }
   
   // Fallback to file
-  const response = await fetch(`${basePath}/index.directory/assets/charts/${chartName}.json`);
-  if (!response.ok) {
-    throw new Error(`Chart data ${chartName} not available`);
+  try {
+    const response = await fetch(`${basePath}/index.directory/assets/charts/${chartName}.json`);
+    if (!response.ok) {
+      throw new Error(`Chart data ${chartName} not available`);
+    }
+    
+    data = await response.json();
+    console.log(`[Charts] Loaded ${chartName} from file (fallback)`);
+    fromFile = true;
+    return data;
+  } catch (error) {
+    // Both IndexedDB and file failed - log warning
+    console.warn(`[Charts] ⚠️ Chart data ${chartName} not available in IndexedDB or file. This is expected on first load before any trades are added.`);
+    throw error;
   }
-  
-  data = await response.json();
-  console.log(`[Charts] Loaded ${chartName} from file (fallback)`);
-  return data;
 }
 
 /**

@@ -352,6 +352,55 @@ This journal follows key principles:
 - ✅ Mobile-optimized interface
 - ✅ PWA installation support
 
+## 🔄 Data Flow & Event Model
+
+### IndexedDB-First Architecture
+
+The application uses a modern, IndexedDB-first data architecture for optimal performance and offline support:
+
+**Data Storage:**
+- **Primary:** IndexedDB (browser-based, offline-capable)
+- **Fallback:** JSON files (for initial load/migration)
+- All trade data, analytics, and charts stored in IndexedDB stores
+
+**Event-Driven Updates:**
+1. **Trade Added** → `trade:added` event emitted
+2. **Pipeline Triggered** → Parse trades, generate analytics, create charts
+3. **Pipeline Complete** → `pipeline:completed` event emitted
+4. **UI Auto-Refresh** → All components reload from IndexedDB
+
+**Key Event Listeners:**
+- `pipeline:completed` - Refreshes all UI components after data processing
+- `analytics:updated` - Updates analytics displays and charts
+- `trade:added` - Triggers pipeline and updates trade lists
+- `account:balance-updated` - Recalculates portfolio values and returns
+
+**Component Data Loading:**
+```javascript
+// modals.js, analytics.js, charts.js all follow this pattern:
+1. Try IndexedDB first (fast, offline)
+2. Fallback to JSON file (migration/initial load)
+3. Show warning if both fail (true first load)
+4. Listen for events to auto-refresh
+```
+
+**Trade Addition Flow:**
+```
+Add Trade Form → Save to IndexedDB → Emit trade:added 
+  ↓
+Trade Pipeline → Parse → Analytics → Charts → Summaries
+  ↓
+Emit pipeline:completed → All UI components refresh from IndexedDB
+  ↓
+User sees updated stats, charts, and analytics immediately
+```
+
+This architecture ensures:
+- ✅ Fast, offline-first data access
+- ✅ Automatic UI updates without page refresh
+- ✅ Consistent data across all components
+- ✅ Smooth migration from legacy file-based system
+
 ## 📄 License & Attribution
 
 **License:** MIT - See [LICENSE](./LICENSE)

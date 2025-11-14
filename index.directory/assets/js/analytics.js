@@ -442,7 +442,6 @@ async function loadEquityCurveChart() {
   if (!ctx) return;
 
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("equity-curve-data");
     
     
@@ -469,7 +468,6 @@ async function loadWinLossRatioByStrategyChart() {
   if (!ctx) return;
 
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("win-loss-ratio-by-strategy-data");
     
     
@@ -531,7 +529,6 @@ async function loadPerformanceByDayChart() {
   if (!ctx) return;
 
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("performance-by-day-data");
     
     
@@ -558,7 +555,6 @@ async function loadTickerPerformanceChart() {
   if (!ctx) return;
 
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("ticker-performance-data");
     
     
@@ -599,7 +595,6 @@ async function loadTimeOfDayChart() {
   if (!ctx) return;
 
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("time-of-day-performance-data");
     
     
@@ -680,9 +675,21 @@ async function loadChartDataFromStorage(chartName) {
   }
   
   // Fallback to file
-  const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
-  const data = await loadChartDataFromStorage("${chartName}");
-  if (!response.ok) {
+  try {
+    const response = await fetch(`${basePath}/index.directory/assets/charts/${chartName}.json`);
+    if (!response.ok) {
+      throw new Error(`Chart data ${chartName} not available`);
+    }
+    
+    data = await response.json();
+    console.log(`[Analytics] Loaded ${chartName} from file (fallback)`);
+    return data;
+  } catch (error) {
+    // Both IndexedDB and file failed - log warning
+    console.warn(`[Analytics] ⚠️ Chart data ${chartName} not available in IndexedDB or file. This is expected on first load before any trades are added.`);
+    throw error;
+  }
+}
     throw new Error(`Chart data ${chartName} not available`);
   }
   
@@ -776,7 +783,6 @@ async function loadPortfolioValueYearChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("portfolio-value-year");
     
     
@@ -798,7 +804,6 @@ async function loadPortfolioValue5YearChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("portfolio-value-5year");
     
     
@@ -824,7 +829,6 @@ async function loadTotalReturnDayChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-day");
     
     
@@ -846,7 +850,6 @@ async function loadTotalReturnWeekChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-week");
     
     
@@ -868,7 +871,6 @@ async function loadTotalReturnMonthChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-month");
     
     
@@ -890,7 +892,6 @@ async function loadTotalReturnQuarterChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-quarter");
     
     
@@ -912,7 +913,6 @@ async function loadTotalReturnYearChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-year");
     
     
@@ -934,7 +934,6 @@ async function loadTotalReturn5YearChart() {
   if (!ctx) return;
   
   try {
-    const basePath = window.SFTiUtils ? SFTiUtils.getBasePath() : '';
     const data = await loadChartDataFromStorage("total-return-5year");
     
     
