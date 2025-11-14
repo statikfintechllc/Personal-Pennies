@@ -110,20 +110,21 @@ async function loadSystemModules() {
 
 /**
  * Initialize VFS and populate with repository content
+ * 
+ * Note: VFS initialization is DISABLED for now to allow legacy storage to work.
+ * The VFS will be populated on-demand or manually.
  */
 async function initializeVFS() {
   try {
-    console.log('[VFS] Initializing Virtual Filesystem...');
+    console.log('[VFS] VFS initialization is disabled - using legacy storage');
+    console.log('[VFS] To enable VFS, uncomment the auto-initialize code in loader.js');
     
-    // Auto-initialize VFS if empty
-    const stats = await window.PersonalPenniesVFSInit.autoInitialize();
+    // DISABLED: Auto-initialize VFS if empty
+    // const stats = await window.PersonalPenniesVFSInit.autoInitialize();
     
-    console.log('[VFS] Virtual Filesystem ready');
-    console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
-    
-    // Emit VFS ready event
+    // Just report ready
     if (window.SFTiEventBus) {
-      window.SFTiEventBus.emit('vfs:ready', stats);
+      window.SFTiEventBus.emit('vfs:ready', { totalFiles: 0, note: 'VFS disabled' });
     }
   } catch (error) {
     console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
@@ -162,7 +163,15 @@ async function seedIndexedDBIfEmpty() {
           // Save each trade to IndexedDB
           if (tradesData.trades && Array.isArray(tradesData.trades)) {
             for (const trade of tradesData.trades) {
-              await window.PersonalPenniesDB.saveTrade(trade);
+              // Extract week key from file_path
+              // Format: "index.directory/SFTi.Tradez/week.2025.46/11:13:2025.1.md"
+              const pathMatch = trade.file_path?.match(/week\.(\d+)\.(\d+)/);
+              if (pathMatch) {
+                const weekKey = `week.${pathMatch[1]}.${pathMatch[2]}`;
+                await window.PersonalPenniesDB.saveTrade(weekKey, trade);
+              } else {
+                console.warn('[Seed] Could not extract week key from:', trade.file_path);
+              }
             }
             console.log('[Seed] ✓ Saved', tradesData.trades.length, 'trades to IndexedDB');
           }

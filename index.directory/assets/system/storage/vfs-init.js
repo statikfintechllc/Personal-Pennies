@@ -36,7 +36,7 @@ const REPO_STRUCTURE = [
   'index.directory/account-config.json',
   'index.directory/notes-index.json',
   'index.directory/trades-index.json',
-  'index.directory/analytics.json',
+  // Note: analytics.json is generated, not a static file
   
   // CSS files
   'index.directory/assets/css/main.css',
