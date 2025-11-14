@@ -646,9 +646,9 @@
   <!-- Pre-load AccountManager config synchronously on page load -->
   <script>
     // AccountManager initialization is handled in accountManager.js
-    // This script just logs the initialization status
+    // This script ensures stats are loaded after AccountManager is ready
     document.addEventListener('DOMContentLoaded', async function() {
-      console.log('[Init] Page loaded, waiting for AccountManager...');
+      console.log('[Init] Page loaded, waiting for AccountManager and TradingJournal...');
       
       // Wait for accountManager to be initialized
       let retries = 0;
@@ -658,7 +658,22 @@
       }
       
       if (window.accountManager && window.accountManager.initialized) {
-        console.log('[Init] ✓ AccountManager ready - Portfolio value should be displayed');
+        console.log('[Init] ✓ AccountManager ready');
+        
+        // Wait for TradingJournal app to be initialized
+        retries = 0;
+        while (!window.tradingJournal && retries < 100) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries++;
+        }
+        
+        // Trigger initial stats refresh now that everything is ready
+        if (window.tradingJournal && window.tradingJournal.refreshStats) {
+          console.log('[Init] ✓ TradingJournal app ready, loading initial stats from IndexedDB');
+          await window.tradingJournal.refreshStats();
+        } else {
+          console.error('[Init] ✗ TradingJournal app not available');
+        }
       } else {
         console.error('[Init] ✗ AccountManager failed to initialize');
       }

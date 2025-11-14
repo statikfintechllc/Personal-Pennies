@@ -130,10 +130,32 @@ class TradingJournal {
    */
   async refreshStats() {
     try {
-      // Load directly from IndexedDB (no fallbacks - this is production)
+      // Wait for IndexedDB to be available
       if (!window.PersonalPenniesDB) {
-        console.warn('[TradingJournal] IndexedDB not available yet');
-        return;
+        console.warn('[TradingJournal] IndexedDB not available yet, waiting...');
+        // Wait up to 5 seconds for IndexedDB
+        let retries = 0;
+        while (!window.PersonalPenniesDB && retries < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries++;
+        }
+        if (!window.PersonalPenniesDB) {
+          console.error('[TradingJournal] IndexedDB failed to initialize');
+          return;
+        }
+      }
+      
+      // Wait for accountManager to be ready (needed for portfolio value calculation)
+      if (!window.accountManager || !window.accountManager.initialized) {
+        console.warn('[TradingJournal] AccountManager not ready yet, waiting...');
+        let retries = 0;
+        while ((!window.accountManager || !window.accountManager.initialized) && retries < 50) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries++;
+        }
+        if (!window.accountManager || !window.accountManager.initialized) {
+          console.error('[TradingJournal] AccountManager failed to initialize');
+        }
       }
       
       // Load trades and calculate statistics
