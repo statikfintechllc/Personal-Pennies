@@ -314,11 +314,15 @@ export async function generateWeekSummariesAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateWeekSummaries;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateWeekSummaries = {
     generateWeekSummaries,
     generateWeekSummariesAndEmit,
+    generate: generateWeekSummaries,
     calculateWeekStats,
     generateMasterMarkdown
   };

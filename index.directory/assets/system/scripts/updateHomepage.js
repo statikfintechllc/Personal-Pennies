@@ -60,14 +60,24 @@ export async function updateHomepage() {
  */
 export async function updateHomepageAndEmit() {
   const result = await updateHomepage();
+  
+  // Emit event (if needed in future)
+  if (window.SFTiEventBus) {
+    window.SFTiEventBus.emit('homepage:updated', result);
+  }
+  
   return result;
 }
+
+// Alias for pipeline compatibility
+export const update = updateHomepage;
 
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesUpdateHomepage = {
     updateHomepage,
-    updateHomepageAndEmit
+    updateHomepageAndEmit,
+    update: updateHomepage
   };
 }
 

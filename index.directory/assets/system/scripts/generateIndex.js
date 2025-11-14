@@ -63,11 +63,15 @@ export async function generateIndexAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateIndex;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateIndex = {
     generateIndex,
-    generateIndexAndEmit
+    generateIndexAndEmit,
+    generate: generateIndex
   };
 }
 

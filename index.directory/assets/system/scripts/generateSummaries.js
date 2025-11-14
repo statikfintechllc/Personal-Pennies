@@ -381,11 +381,15 @@ export async function generateSummariesAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateSummaries;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateSummaries = {
     generateSummaries,
     generateSummariesAndEmit,
+    generate: generateSummaries,
     groupTradesByPeriod,
     calculatePeriodStats,
     generateSummaryMarkdown

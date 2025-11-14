@@ -435,11 +435,15 @@ export async function generateTradePagesAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateTradePages;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateTradePages = {
     generateTradePages,
     generateTradePagesAndEmit,
+    generate: generateTradePages,
     generateTradeHtml
   };
 }
