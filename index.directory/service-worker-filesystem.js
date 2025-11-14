@@ -1,32 +1,23 @@
 /**
  * Service Worker for Virtual Filesystem
- * Intercepts fetch requests for generated files and serves from IndexedDB
+ * Intercepts fetch requests for generated files and serves from VFS IndexedDB
  * This allows browser-only operation while maintaining compatibility with
- * existing HTML pages that fetch files directly (review.html, all-weeks.html)
+ * existing HTML pages that fetch files directly
+ * 
+ * Version 2.0: Updated to use unified VFS instead of bucket-based storage
  */
 
-const CACHE_NAME = 'personal-pennies-v1';
-const VIRTUAL_FS_PREFIX = '/summaries/';
-const VIRTUAL_TRADES_PREFIX = '/trades/';
-const VIRTUAL_CHARTS_PREFIX = '/assets/charts/';
+const CACHE_NAME = 'personal-pennies-vfs-v2';
+const VFS_DB_NAME = 'PersonalPenniesVFS';
+const VFS_STORE_NAME = 'filesystem';
 
 // Import localforage in Service Worker context
 importScripts('https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js');
 
-// Initialize IndexedDB connection
-const summariesStore = localforage.createInstance({
-  name: 'PersonalPennies',
-  storeName: 'summaries'
-});
-
-const tradesStore = localforage.createInstance({
-  name: 'PersonalPennies',
-  storeName: 'trades'
-});
-
-const chartsStore = localforage.createInstance({
-  name: 'PersonalPennies',
-  storeName: 'charts'
+// Initialize VFS connection
+const vfsStore = localforage.createInstance({
+  name: VFS_DB_NAME,
+  storeName: VFS_STORE_NAME
 });
 
 /**
@@ -46,22 +37,30 @@ self.addEventListener('activate', (event) => {
 });
 
 /**
- * Fetch event - intercept requests and serve from IndexedDB
+ * Fetch event - intercept requests and serve from VFS
  */
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   const pathname = url.pathname;
 
-  // Check if this is a request for a generated file
-  if (pathname.includes(VIRTUAL_FS_PREFIX)) {
-    // Summary file request
-    event.respondWith(handleSummaryRequest(pathname));
-  } else if (pathname.includes(VIRTUAL_TRADES_PREFIX)) {
-    // Trade page request
-    event.respondWith(handleTradePageRequest(pathname));
-  } else if (pathname.includes(VIRTUAL_CHARTS_PREFIX) && pathname.endsWith('.json')) {
-    // Chart data request
-    event.respondWith(handleChartRequest(pathname));
+  // Check if this is a request for a file that might be in VFS
+  // We handle most common file types used by the app
+  const isVFSCandidate = 
+    pathname.endsWith('.md') ||
+    pathname.endsWith('.html') ||
+    pathname.endsWith('.json') ||
+    pathname.endsWith('.js') ||
+    pathname.endsWith('.css') ||
+    pathname.endsWith('.jpg') ||
+    pathname.endsWith('.jpeg') ||
+    pathname.endsWith('.png') ||
+    pathname.endsWith('.gif') ||
+    pathname.endsWith('.webp') ||
+    pathname.endsWith('.svg') ||
+    pathname.endsWith('.pdf');
+  
+  if (isVFSCandidate) {
+    event.respondWith(handleVFSRequest(pathname, event.request));
   } else {
     // Normal request - pass through
     event.respondWith(fetch(event.request));
@@ -69,153 +68,93 @@ self.addEventListener('fetch', (event) => {
 });
 
 /**
- * Handle summary file requests (*.md files)
+ * Normalize path (remove leading slash, handle relative paths)
  */
-async function handleSummaryRequest(pathname) {
+function normalizePath(pathname) {
+  // Remove leading slash
+  let path = pathname.replace(/^\/+/, '');
+  
+  // Remove trailing slash
+  path = path.replace(/\/+$/, '');
+  
+  // Handle multiple consecutive slashes
+  path = path.replace(/\/+/g, '/');
+  
+  return path;
+}
+
+/**
+ * Get MIME type from file extension
+ */
+function getMimeType(path) {
+  const ext = path.split('.').pop().toLowerCase();
+  const mimeTypes = {
+    'md': 'text/markdown',
+    'txt': 'text/plain',
+    'json': 'application/json',
+    'html': 'text/html',
+    'htm': 'text/html',
+    'css': 'text/css',
+    'js': 'application/javascript',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp',
+    'svg': 'image/svg+xml',
+    'pdf': 'application/pdf'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+
+/**
+ * Handle VFS request - unified handler for all file types
+ */
+async function handleVFSRequest(pathname, request) {
   try {
-    // Extract filename from path (e.g., /summaries/weekly-2025-W45.md -> weekly-2025-W45)
-    const filename = pathname.split('/').pop().replace('.md', '');
+    // Normalize path
+    const path = normalizePath(pathname);
     
-    console.log(`[ServiceWorker] Loading summary: ${filename}`);
+    console.log(`[ServiceWorker] Attempting to serve from VFS: ${path}`);
     
-    // Fetch from IndexedDB
-    const summaryData = await summariesStore.getItem(filename);
+    // Fetch from VFS
+    const fileData = await vfsStore.getItem(path);
     
-    if (summaryData && summaryData.markdown) {
-      // Return markdown content
-      return new Response(summaryData.markdown, {
+    if (fileData && fileData.content) {
+      console.log(`[ServiceWorker] ✓ Serving from VFS: ${path} (${fileData.type}, ${fileData.size} bytes)`);
+      
+      // Determine content type
+      const contentType = fileData.mimeType || getMimeType(path);
+      
+      // Return content with appropriate headers
+      return new Response(fileData.content, {
         status: 200,
         statusText: 'OK',
         headers: {
-          'Content-Type': 'text/markdown; charset=utf-8',
-          'X-Source': 'IndexedDB'
+          'Content-Type': contentType,
+          'Content-Length': String(fileData.size || 0),
+          'Last-Modified': fileData.lastModified || new Date().toUTCString(),
+          'X-Source': 'VFS',
+          'Cache-Control': 'public, max-age=3600'
         }
       });
     }
     
-    // File not found in IndexedDB
-    return new Response('Summary not found', {
-      status: 404,
-      statusText: 'Not Found'
-    });
+    // File not found in VFS, fall back to network
+    console.log(`[ServiceWorker] File not in VFS, fetching from network: ${path}`);
+    return await fetch(request);
     
   } catch (error) {
-    console.error('[ServiceWorker] Error loading summary:', error);
-    return new Response(`Error: ${error.message}`, {
-      status: 500,
-      statusText: 'Internal Server Error'
-    });
-  }
-}
-
-/**
- * Handle trade page requests (*.html files)
- */
-async function handleTradePageRequest(pathname) {
-  try {
-    // Extract filename from path
-    const filename = pathname.split('/').pop().replace('.html', '');
+    console.error('[ServiceWorker] Error handling VFS request:', error);
     
-    console.log(`[ServiceWorker] Loading trade page: ${filename}`);
-    
-    // Fetch from IndexedDB - trade pages are stored with full HTML
-    const pageData = await tradesStore.getItem(`page-${filename}`);
-    
-    if (pageData && pageData.html) {
-      return new Response(pageData.html, {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'X-Source': 'IndexedDB'
-        }
+    // Try network as fallback
+    try {
+      return await fetch(request);
+    } catch (fetchError) {
+      return new Response('File not found', {
+        status: 404,
+        statusText: 'Not Found'
       });
     }
-    
-    // File not found
-    return new Response('Trade page not found', {
-      status: 404,
-      statusText: 'Not Found'
-    });
-    
-  } catch (error) {
-    console.error('[ServiceWorker] Error loading trade page:', error);
-    return new Response(`Error: ${error.message}`, {
-      status: 500,
-      statusText: 'Internal Server Error'
-    });
-  }
-}
-
-/**
- * Handle chart data requests (*.json files)
- */
-async function handleChartRequest(pathname) {
-  try {
-    // Extract chart name from path (e.g., /assets/charts/equity-curve-data.json)
-    const filename = pathname.split('/').pop().replace('.json', '');
-    
-    console.log(`[ServiceWorker] Loading chart: ${filename}`);
-    
-    // Try to get from charts store
-    const chartData = await chartsStore.getItem('all-charts');
-    
-    if (chartData) {
-      // Map filename to chart data property
-      let data = null;
-      
-      if (filename === 'equity-curve-data') {
-        data = chartData.equity_curve;
-      } else if (filename === 'win-loss-by-strategy-data') {
-        data = chartData.win_loss_by_strategy;
-      } else if (filename === 'performance-by-day-data') {
-        data = chartData.performance_by_day;
-      } else if (filename === 'ticker-performance-data') {
-        data = chartData.ticker_performance;
-      } else if (filename === 'time-of-day-performance-data') {
-        data = chartData.time_of_day_performance;
-      } else if (filename.startsWith('portfolio-value-')) {
-        const timeframe = filename.replace('portfolio-value-', '');
-        if (chartData.portfolio_value_charts && chartData.portfolio_value_charts[timeframe]) {
-          data = chartData.portfolio_value_charts[timeframe];
-        }
-      } else if (filename.startsWith('total-return-')) {
-        const timeframe = filename.replace('total-return-', '');
-        if (chartData.total_return_charts && chartData.total_return_charts[timeframe]) {
-          data = chartData.total_return_charts[timeframe];
-        }
-      } else if (filename === 'analytics-data') {
-        // Get analytics data
-        const analyticsStore = localforage.createInstance({
-          name: 'PersonalPennies',
-          storeName: 'analytics'
-        });
-        data = await analyticsStore.getItem('current-analytics');
-      }
-      
-      if (data) {
-        return new Response(JSON.stringify(data, null, 2), {
-          status: 200,
-          statusText: 'OK',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Source': 'IndexedDB'
-          }
-        });
-      }
-    }
-    
-    // File not found
-    return new Response('Chart data not found', {
-      status: 404,
-      statusText: 'Not Found'
-    });
-    
-  } catch (error) {
-    console.error('[ServiceWorker] Error loading chart:', error);
-    return new Response(`Error: ${error.message}`, {
-      status: 500,
-      statusText: 'Internal Server Error'
-    });
   }
 }

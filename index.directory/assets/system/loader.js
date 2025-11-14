@@ -25,8 +25,13 @@ document.head.appendChild(localforageScript);
 
 async function loadSystemModules() {
   try {
-    // Import storage layer
+    // Import storage layer (legacy bucket-based)
     const DB = await import('./storage/db.js');
+    
+    // Import VFS (new filesystem-based storage)
+    const VFS = await import('./storage/vfs.js');
+    const VFSInit = await import('./storage/vfs-init.js');
+    const VFSAdapter = await import('./storage/vfs-adapter.js');
 
     // Import utilities
     const Utils = await import('./scripts/utils.js');
@@ -57,6 +62,9 @@ async function loadSystemModules() {
     // Make modules globally available
     window.PersonalPenniesSystem = {
       DB,
+      VFS,
+      VFSInit,
+      VFSAdapter,
       Utils,
       GlobalsUtils,
       ParseTrades,
@@ -75,7 +83,7 @@ async function loadSystemModules() {
       ImportExport,
       Importers,
       Pipeline,
-      version: '1.0.0',
+      version: '2.0.0',
       ready: true
     };
 
@@ -83,12 +91,15 @@ async function loadSystemModules() {
     console.log('[System] Version:', window.PersonalPenniesSystem.version);
     console.log('[System] Modules loaded:', Object.keys(window.PersonalPenniesSystem).length);
 
-    // Check if IndexedDB needs to be seeded with initial data
+    // Initialize VFS (new filesystem-based storage)
+    await initializeVFS();
+    
+    // Check if legacy IndexedDB needs to be seeded with initial data (for backwards compatibility)
     await seedIndexedDBIfEmpty();
 
     // Emit system ready event
     if (window.SFTiEventBus) {
-      window.SFTiEventBus.emit('system:ready', { version: '1.0.0' });
+      window.SFTiEventBus.emit('system:ready', { version: '2.0.0' });
     }
   } catch (error) {
     console.error('[System] Failed to load system modules:', error);
@@ -96,8 +107,33 @@ async function loadSystemModules() {
 }
 
 /**
+ * Initialize VFS and populate with repository content
+ */
+async function initializeVFS() {
+  try {
+    console.log('[VFS] Initializing Virtual Filesystem...');
+    
+    // Auto-initialize VFS if empty
+    const stats = await window.PersonalPenniesVFSInit.autoInitialize();
+    
+    console.log('[VFS] Virtual Filesystem ready');
+    console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
+    
+    // Emit VFS ready event
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('vfs:ready', stats);
+    }
+  } catch (error) {
+    console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
+  }
+}
+
+/**
  * Seeds IndexedDB with data from JSON files if database is empty
  * This ensures first-time users see data immediately
+ * 
+ * NOTE: This is legacy code for backwards compatibility
+ * New code should use VFS instead
  */
 async function seedIndexedDBIfEmpty() {
   try {
