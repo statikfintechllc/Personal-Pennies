@@ -84,6 +84,9 @@ async function loadSystemModules() {
       version: '2.0.0',
       ready: true
     };
+    
+    // Also expose DataAccess globally for easy access
+    window.PersonalPenniesDataAccess = DataAccess;
 
     console.log('[System] Personal-Pennies client-side system loaded successfully');
     console.log('[System] Version:', window.PersonalPenniesSystem.version);
@@ -109,7 +112,7 @@ async function initializeVFS() {
     console.log('[VFS] Initializing Virtual Filesystem...');
     
     // Auto-initialize VFS if empty
-    const stats = await window.PersonalPenniesVFSInit.autoInitialize();
+    const stats = await window.PersonalPenniesSystem.VFSInit.autoInitialize();
     
     console.log('[VFS] Virtual Filesystem ready');
     console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');

@@ -666,15 +666,15 @@ export function generateTotalReturnCharts(trades, accountConfig) {
 export async function generateCharts() {
   console.log('[GenerateCharts] Generating all chart data...');
   
-  if (!window.PersonalPenniesDB) {
-    console.error('[GenerateCharts] DB not initialized');
-    return { status: 'error', message: 'DB not initialized' };
+  if (!window.PersonalPenniesDataAccess) {
+    console.error('[GenerateCharts] DataAccess not initialized');
+    return { status: 'error', message: 'DataAccess not initialized' };
   }
   
   try {
-    // Load trades and account config
-    const tradesIndex = await window.PersonalPenniesDB.getIndex('trades-index');
-    const accountConfig = await window.PersonalPenniesDB.getConfig('account-config');
+    // Load trades and account config from VFS
+    const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex();
+    const accountConfig = await window.PersonalPenniesDataAccess.loadAccountConfig();
     
     if (!tradesIndex || !tradesIndex.trades) {
       console.warn('[GenerateCharts] No trades found');
@@ -697,10 +697,24 @@ export async function generateCharts() {
       generated_at: new Date().toISOString()
     };
     
-    // Save all chart data to IndexedDB
-    await window.PersonalPenniesDB.saveChart('all-charts', allCharts);
+    // Save individual chart files to VFS
+    await window.PersonalPenniesDataAccess.saveChart('equity-curve-data', allCharts.equity_curve);
+    await window.PersonalPenniesDataAccess.saveChart('win-loss-ratio-by-strategy-data', allCharts.win_loss_by_strategy);
+    await window.PersonalPenniesDataAccess.saveChart('performance-by-day-data', allCharts.performance_by_day);
+    await window.PersonalPenniesDataAccess.saveChart('ticker-performance-data', allCharts.ticker_performance);
+    await window.PersonalPenniesDataAccess.saveChart('time-of-day-performance-data', allCharts.time_of_day_performance);
     
-    console.log('[GenerateCharts] All charts generated and saved');
+    // Save portfolio value charts
+    for (const [period, data] of Object.entries(allCharts.portfolio_value_charts)) {
+      await window.PersonalPenniesDataAccess.saveChart(`portfolio-value-${period}`, data);
+    }
+    
+    // Save total return charts
+    for (const [period, data] of Object.entries(allCharts.total_return_charts)) {
+      await window.PersonalPenniesDataAccess.saveChart(`total-return-${period}`, data);
+    }
+    
+    console.log('[GenerateCharts] All charts generated and saved to VFS');
     console.log(`[GenerateCharts] Charts: equity_curve, win_loss_by_strategy, performance_by_day, ticker_performance, time_of_day_performance, portfolio_value, total_return`);
     
     return { status: 'success', data: allCharts };
@@ -725,11 +739,15 @@ export async function generateChartsAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateCharts;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateCharts = {
     generateCharts,
     generateChartsAndEmit,
+    generate: generateCharts,
     generateEquityCurveData,
     generateWinLossRatioByStrategyData,
     generatePerformanceByDayData,

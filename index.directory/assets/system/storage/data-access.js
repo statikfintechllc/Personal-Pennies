@@ -124,7 +124,7 @@ export async function loadTradeHTML(tradeId) {
  * @returns {Promise<Object>} Analytics data
  */
 export async function loadAnalytics() {
-  const path = 'index.directory/analytics.json';
+  const path = 'index.directory/assets/charts/analytics-data.json';
   
   try {
     const data = await readJSON(path);
@@ -141,7 +141,7 @@ export async function loadAnalytics() {
  * @param {Object} data - Analytics data
  */
 export async function saveAnalytics(data) {
-  const path = 'index.directory/analytics.json';
+  const path = 'index.directory/assets/charts/analytics-data.json';
   
   try {
     await writeJSON(path, data, { pretty: true });
