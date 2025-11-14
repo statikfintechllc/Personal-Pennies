@@ -93,18 +93,42 @@ class AccountManager {
         }
       }
       
-      // Fallback: try to load from file (migration path)
-      console.log('[AccountManager] No config in IndexedDB, trying file...');
+      // Fallback: try to load from VFS or file (migration path)
+      console.log('[AccountManager] No config in IndexedDB, trying VFS/file...');
       try {
-        const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
-        if (response.ok) {
-          this.config = await response.json();
-          console.log('[AccountManager] Loaded config from file, migrating to IndexedDB...');
+        let config = null;
+        
+        // Try VFS first if available
+        if (window.PersonalPenniesDataAccess) {
+          config = await window.PersonalPenniesDataAccess.loadAccountConfig();
+          if (config) {
+            console.log('[AccountManager] Loaded config from VFS');
+          }
+        }
+        
+        // Fallback to fetch if VFS didn't work
+        if (!config) {
+          const response = await fetch(`${this.basePath}/index.directory/account-config.json`);
+          if (response.ok) {
+            config = await response.json();
+            console.log('[AccountManager] Loaded config from file');
+          }
+        }
+        
+        if (config) {
+          this.config = config;
+          console.log('[AccountManager] Migrating config to IndexedDB and VFS...');
           
-          // Migrate to IndexedDB
+          // Migrate to IndexedDB (legacy storage)
           if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
             await window.PersonalPenniesDB.saveConfig('account-config', this.config);
             console.log('[AccountManager] Migrated config to IndexedDB');
+          }
+          
+          // Migrate to VFS (new storage)
+          if (window.PersonalPenniesDataAccess) {
+            await window.PersonalPenniesDataAccess.saveAccountConfig(this.config);
+            console.log('[AccountManager] Migrated config to VFS');
           }
           
           // Ensure arrays exist
@@ -117,7 +141,7 @@ class AccountManager {
           return;
         }
       } catch (fetchError) {
-        console.warn('[AccountManager] Could not load config from file:', fetchError);
+        console.warn('[AccountManager] Could not load config from VFS/file:', fetchError);
       }
       
       // Create default config
@@ -161,10 +185,16 @@ class AccountManager {
     try {
       this.config.last_updated = new Date().toISOString();
       
-      // Save to IndexedDB
+      // Save to IndexedDB (legacy storage)
       if (window.PersonalPenniesDB && window.PersonalPenniesDB.saveConfig) {
         await window.PersonalPenniesDB.saveConfig('account-config', this.config);
         console.log('[AccountManager] Config saved to IndexedDB');
+      }
+      
+      // Save to VFS (new storage)
+      if (window.PersonalPenniesDataAccess) {
+        await window.PersonalPenniesDataAccess.saveAccountConfig(this.config);
+        console.log('[AccountManager] Config saved to VFS');
       }
       
       // Also save to localStorage for backward compatibility

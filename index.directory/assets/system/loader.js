@@ -32,6 +32,7 @@ async function loadSystemModules() {
     const VFS = await import('./storage/vfs.js');
     const VFSInit = await import('./storage/vfs-init.js');
     const VFSAdapter = await import('./storage/vfs-adapter.js');
+    const DataAccess = await import('./storage/data-access.js');
 
     // Import utilities
     const Utils = await import('./scripts/utils.js');
@@ -65,6 +66,7 @@ async function loadSystemModules() {
       VFS,
       VFSInit,
       VFSAdapter,
+      DataAccess,
       Utils,
       GlobalsUtils,
       ParseTrades,
