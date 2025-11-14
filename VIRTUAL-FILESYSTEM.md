@@ -1,5 +1,48 @@
 # Virtual Filesystem Implementation
 
+## Version 2.0 - Complete Repository Mirror
+
+**Status:** ✅ **IMPLEMENTED**
+
+The VFS has been completely redesigned to mirror the entire repository structure, not just generated files.
+
+### What Changed
+
+**Version 1.0 (Old):**
+- Bucket-based storage (trades, summaries, charts)
+- Selective file interception
+- Manual path mapping
+- Limited file type support
+
+**Version 2.0 (New):**
+- **Complete repository mirror** in IndexedDB
+- **Path-based storage** (no buckets)
+- **All file types** supported (md, js, json, html, css, images, pdfs, etc.)
+- **Unified API** across all components
+- **Automatic initialization** from repository
+- **Transparent integration** via fetch() patching
+
+## Architecture Overview
+
+See [VFS-ARCHITECTURE.md](./VFS-ARCHITECTURE.md) for detailed architecture documentation.
+
+```
+User Interface → VFS Integration → Data Access → VFS Adapter → Core VFS → IndexedDB
+                                                                              ↓
+                                                              Service Worker serves from VFS
+```
+
+## Key Components
+
+1. **Core VFS** (`vfs.js`) - Low-level filesystem operations
+2. **VFS Init** (`vfs-init.js`) - Auto-populate from repository
+3. **VFS Adapter** (`vfs-adapter.js`) - Fetch API wrapper
+4. **Data Access** (`data-access.js`) - High-level typed API
+5. **VFS Integration** (`vfs-integration.js`) - Transparent patching
+6. **Service Worker** (`service-worker-filesystem.js`) - HTTP request interception
+
+## Quick Start
+
 ## Problem
 
 The original Python scripts write files to the actual filesystem:
