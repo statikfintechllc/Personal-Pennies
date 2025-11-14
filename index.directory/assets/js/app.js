@@ -1058,9 +1058,6 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
       
       console.log('[Regeneration] ✓ All data regenerated successfully');
       
-      // Refresh the current page stats
-      await this.refreshStats();
-      
       // Emit event for any listeners
       if (this.eventBus) {
         this.eventBus.emit('data:regenerated', { timestamp: new Date().toISOString() });
@@ -1068,8 +1065,14 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
       
       // Show success toast
       if (window.showToast) {
-        window.showToast('Analytics and charts updated!', 'success', 2000);
+        window.showToast('Analytics updated! Refreshing page...', 'success', 2000);
       }
+      
+      // Reload page after 1 second to show fresh data
+      // This ensures HTML pages load the newly generated JSON data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
       
     } catch (error) {
       console.error('[Regeneration] Error during data regeneration:', error);
