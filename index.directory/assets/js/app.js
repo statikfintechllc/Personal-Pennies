@@ -966,12 +966,6 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
       );
     }
   }
-}
-
-// Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.tradingJournal = new TradingJournal();
-});
   
   /**
    * Update portfolio value asynchronously
@@ -1003,3 +997,9 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('[TradingJournal] Error updating portfolio value:', error);
     }
   }
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.tradingJournal = new TradingJournal();
+});

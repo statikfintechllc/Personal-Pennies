@@ -8,8 +8,9 @@
 
 // Load LocalForage from local vendor directory (bundled locally, but updates client-side)
 const localforageScript = document.createElement('script');
-// Use absolute path relative to the website root
-localforageScript.src = '/index.directory/assets/system/vendor/localforage.min.js';
+// Use path relative to the base path of the site
+const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '';
+localforageScript.src = `${basePath}/index.directory/assets/system/vendor/localforage.min.js`;
 localforageScript.onload = async () => {
   console.log('[System] LocalForage loaded from local bundle');
   

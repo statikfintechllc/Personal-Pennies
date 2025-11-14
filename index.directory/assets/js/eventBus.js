@@ -111,8 +111,3 @@ console.log('[EventBus] Initialized global event bus');
 
 // StateManager removed - all components now read/write directly to IndexedDB via PersonalPenniesDB
 // This eliminates fallback complexity and ensures single source of truth
-  constructor() {
-    this.state = {
-
-// StateManager removed - all components now read/write directly to IndexedDB via PersonalPenniesDB
-// This eliminates fallback complexity and ensures single source of truth
