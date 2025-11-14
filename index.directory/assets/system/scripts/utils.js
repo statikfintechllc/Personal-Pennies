@@ -12,15 +12,15 @@
  */
 export async function loadTradesIndex() {
   try {
-    const { getIndex } = window.PersonalPenniesDB || {};
-    if (!getIndex) {
-      console.error('[Utils] PersonalPenniesDB not loaded');
+    const DataAccess = window.PersonalPenniesDataAccess;
+    if (!DataAccess) {
+      console.error('[Utils] PersonalPenniesDataAccess not loaded');
       return null;
     }
     
-    const index = await getIndex('trades-index');
+    const index = await DataAccess.loadTradesIndex();
     if (!index) {
-      console.warn('trades-index not found in IndexedDB. Run parseTrades first.');
+      console.warn('trades-index not found in VFS. Run parseTrades first.');
       return null;
     }
     return index;
@@ -39,15 +39,15 @@ export async function loadTradesIndex() {
  */
 export async function loadAccountConfig() {
   try {
-    const { getConfig } = window.PersonalPenniesDB || {};
-    if (!getConfig) {
-      console.error('[Utils] PersonalPenniesDB not loaded');
+    const DataAccess = window.PersonalPenniesDataAccess;
+    if (!DataAccess) {
+      console.error('[Utils] PersonalPenniesDataAccess not loaded');
       return getDefaultConfig();
     }
     
-    const config = await getConfig('account-config');
+    const config = await DataAccess.loadAccountConfig();
     if (!config) {
-      console.warn('account-config not found in IndexedDB, using defaults');
+      console.warn('account-config not found in VFS, using defaults');
       return getDefaultConfig();
     }
     return config;
