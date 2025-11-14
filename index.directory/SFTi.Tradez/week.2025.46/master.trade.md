@@ -2,24 +2,24 @@
 
 ## Overview
 
-This week's trading session included **2 trades** with a total P&L of **$11.49**.
+This week's trading session included **3 trades** with a total P&L of **$11.99**.
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
-| Total Trades | 2 |
-| Total P&L | $11.49 |
+| Total Trades | 3 |
+| Total P&L | $11.99 |
 | Win Rate | 100.0% |
-| Wins | 2 |
+| Wins | 3 |
 | Losses | 0 |
 | Breakeven | 0 |
-| Average Win | $5.74 |
+| Average Win | $4.00 |
 | Average Loss | $0.00 |
 | Largest Win | $8.29 |
 | Largest Loss | $0.00 |
 | Profit Factor | 0.00 |
-| Gross Profit | $11.49 |
+| Gross Profit | $11.99 |
 | Gross Loss | $0.00 |
 
 ## Trade List
@@ -43,6 +43,15 @@ This week's trading session included **2 trades** with a total P&L of **$11.49**
 - **Strategy**: Breakout Continuation
 - **Setup**: VWAP Bounce
 
+### 3. BBGL - 2025-11-13
+
+- **Direction**: LONG
+- **Entry**: $4.00
+- **Exit**: $4.50
+- **P&L**: $0.50
+- **Strategy**: Breakout
+- **Setup**: VWAP Bounce
+
 
 ## Weekly Reflection
 
@@ -50,4 +59,4 @@ _Add your weekly reflection, lessons learned, and improvements for next week..._
 
 ---
 
-*Generated on 2025-11-13 20:33:10*
+*Generated on 2025-11-14 05:12:40*

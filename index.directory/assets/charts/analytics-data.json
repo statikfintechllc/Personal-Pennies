@@ -1,12 +1,12 @@
 {
-  "expectancy": -1.62,
-  "profit_factor": 0.74,
-  "max_win_streak": 3,
+  "expectancy": -1.43,
+  "profit_factor": 0.75,
+  "max_win_streak": 4,
   "max_loss_streak": 3,
   "max_drawdown": -47.94,
   "max_drawdown_percent": -40.29,
-  "kelly_criterion": -17.4,
-  "sharpe_ratio": 0.1,
+  "kelly_criterion": -18.2,
+  "sharpe_ratio": 0.16,
   "r_multiple_distribution": {
     "labels": [
       "< -2R",
@@ -22,12 +22,12 @@
       1,
       4,
       1,
-      0,
+      1,
       2,
       2
     ],
-    "avg_r_multiple": 1.24,
-    "median_r_multiple": 0.08
+    "avg_r_multiple": 1.28,
+    "median_r_multiple": 0.64
   },
   "mae_mfe_analysis": {
     "available": false,
@@ -47,13 +47,13 @@
       "expectancy": 10.13
     },
     "Breakout": {
-      "total_trades": 6,
-      "winning_trades": 2,
+      "total_trades": 7,
+      "winning_trades": 3,
       "losing_trades": 4,
-      "win_rate": 33.3,
-      "total_pnl": -32.75,
-      "avg_pnl": -5.46,
-      "expectancy": -5.46
+      "win_rate": 42.9,
+      "total_pnl": -32.25,
+      "avg_pnl": -4.61,
+      "expectancy": -4.61
     },
     "VWAP Bounce": {
       "total_trades": 1,
@@ -103,13 +103,13 @@
       "expectancy": -10.22
     },
     "VWAP Bounce": {
-      "total_trades": 2,
-      "winning_trades": 1,
+      "total_trades": 3,
+      "winning_trades": 2,
       "losing_trades": 1,
-      "win_rate": 50.0,
-      "total_pnl": -3.7,
-      "avg_pnl": -1.85,
-      "expectancy": -1.85
+      "win_rate": 66.7,
+      "total_pnl": -3.2,
+      "avg_pnl": -1.07,
+      "expectancy": -1.07
     },
     "Bull Flag": {
       "total_trades": 1,
@@ -157,6 +157,15 @@
       "total_pnl": 3.2,
       "avg_pnl": 3.2,
       "expectancy": 3.2
+    },
+    "After Hours": {
+      "total_trades": 1,
+      "winning_trades": 1,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "total_pnl": 0.5,
+      "avg_pnl": 0.5,
+      "expectancy": 0.5
     }
   },
   "drawdown_series": {
@@ -170,7 +179,8 @@
       "11/06",
       "11/10",
       "11/12",
-      "11/12"
+      "11/12",
+      "11/13"
     ],
     "values": [
       0.0,
@@ -182,20 +192,21 @@
       -47.94,
       -35.47,
       -27.18,
-      -23.98
+      -23.98,
+      -23.48
     ]
   },
   "returns": {
-    "total_return_percent": -13.6,
-    "avg_return_percent": -1.3597,
+    "total_return_percent": -13.18,
+    "avg_return_percent": -1.1979,
     "avg_risk_percent": 10.528,
-    "avg_position_size_percent": 70.6
+    "avg_position_size_percent": 64.53
   },
   "account": {
     "starting_balance": 165,
     "total_deposits": 0,
-    "total_pnl": -16.18,
-    "portfolio_value": 102.82
+    "total_pnl": -15.68,
+    "portfolio_value": 103.32
   },
-  "generated_at": "2025-11-13T20:33:10.086219"
+  "generated_at": "2025-11-14T05:12:40.266053"
 }
