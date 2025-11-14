@@ -13,12 +13,13 @@
  */
 async function parseTradeFile(tradeKey) {
   try {
-    if (!window.PersonalPenniesDB) {
+    if (!window.PersonalPenniesSystem?.VFS) {
       return {};
     }
     
-    const trade = await window.PersonalPenniesDB.getTrade(tradeKey);
-    return trade || {};
+    // Read trade markdown file from VFS
+    const fileData = await window.PersonalPenniesSystem.VFS.readFile(tradeKey);
+    return { content: fileData.content, _key: tradeKey };
   } catch (error) {
     console.error(`Error parsing trade ${tradeKey}:`, error);
     return {};
@@ -26,23 +27,32 @@ async function parseTradeFile(tradeKey) {
 }
 
 /**
- * Collect all trades from a week folder (from IndexedDB)
+ * Collect all trades from a week folder (from VFS)
  * @param {string} weekKey - Week identifier (e.g., "week.2025.45")
  * @returns {Promise<Array>} List of trade data
  */
 async function collectWeekTrades(weekKey) {
   try {
-    if (!window.PersonalPenniesDB) {
+    if (!window.PersonalPenniesSystem?.VFS) {
       return [];
     }
     
-    const allTrades = await window.PersonalPenniesDB.getAllTrades();
+    // List all trade files for this week from VFS
+    const weekPath = `index.directory/SFTi.Tradez/${weekKey}/`;
+    const tradeFiles = await window.PersonalPenniesSystem.VFS.listFiles(weekPath);
     
-    // Filter trades for this week
-    const weekTrades = allTrades.filter(trade => {
-      const filePath = trade._key || trade.file_path || '';
-      return filePath.includes(weekKey);
-    });
+    // Filter for .md files and read them
+    const weekTrades = [];
+    for (const filePath of tradeFiles) {
+      if (filePath.endsWith('.md')) {
+        const trade = await parseTradeFile(filePath);
+        if (trade && trade.content) {
+          weekTrades.push(trade);
+        }
+      }
+    }
+    
+    return weekTrades;
     
     // Sort by entry date
     weekTrades.sort((a, b) => {
@@ -224,9 +234,9 @@ async function processWeekFolder(weekKey) {
     // Generate markdown
     const markdown = generateMasterMarkdown(weekKey, stats, trades);
     
-    // Save to IndexedDB
-    if (window.PersonalPenniesDB) {
-      await window.PersonalPenniesDB.saveSummary(`week-${weekKey}`, {
+    // Save to VFS
+    if (window.PersonalPenniesDataAccess) {
+      await window.PersonalPenniesDataAccess.saveSummary(`week-${weekKey}`, {
         stats: stats,
         markdown: markdown,
         trades: trades.map(t => ({ trade_number: t.trade_number, ticker: t.ticker })),
@@ -251,13 +261,13 @@ async function processWeekFolder(weekKey) {
 export async function generateWeekSummaries() {
   console.log('[GenerateWeekSummaries] Generating week summaries...');
   
-  if (!window.PersonalPenniesDB) {
+  if (!window.PersonalPenniesDataAccess) {
     console.error('[GenerateWeekSummaries] DB not initialized');
     return { status: 'error', message: 'DB not initialized' };
   }
   
   try {
-    const tradesIndex = await window.PersonalPenniesDB.getIndex('trades-index');
+    const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex('trades-index');
     
     if (!tradesIndex || !tradesIndex.trades) {
       console.warn('[GenerateWeekSummaries] No trades found');
