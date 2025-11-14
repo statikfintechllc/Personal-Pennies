@@ -6,14 +6,20 @@
  * <script src="assets/system/loader.js" type="module"></script>
  */
 
-// Load LocalForage from CDN
+// Load LocalForage from local vendor directory (bundled locally, but updates client-side)
 const localforageScript = document.createElement('script');
-localforageScript.src = 'https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js';
+// Use relative path from the HTML page that loads this module
+const basePath = new URL('.', import.meta.url).pathname.replace('/assets/system/', '/');
+localforageScript.src = `${basePath}index.directory/assets/system/vendor/localforage.min.js`;
 localforageScript.onload = async () => {
-  console.log('[System] LocalForage loaded from CDN');
+  console.log('[System] LocalForage loaded from local bundle');
   
   // Now load our modules
   await loadSystemModules();
+};
+localforageScript.onerror = (error) => {
+  console.error('[System] Failed to load LocalForage:', error);
+  console.error('[System] Attempted to load from:', localforageScript.src);
 };
 document.head.appendChild(localforageScript);
 
