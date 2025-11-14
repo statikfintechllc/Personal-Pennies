@@ -176,13 +176,10 @@ class AccountManager {
         this.eventBus.emit('account:config-updated', this.config);
       }
       
-      // Show success notification
-      if (window.showToast) {
-        if (isDeposit) {
-          window.showToast('Deposit/Withdrawal recorded successfully!', 'success');
-        } else {
-          window.showToast(`Starting balance updated to $${this.config.starting_balance}`, 'success');
-        }
+      // Show success notification only for starting balance updates
+      // Deposits/withdrawals handle their own notifications to avoid duplicates
+      if (window.showToast && !isDeposit) {
+        window.showToast(`Starting balance updated to $${this.config.starting_balance}`, 'success');
       }
       
       this.updateDisplay();
