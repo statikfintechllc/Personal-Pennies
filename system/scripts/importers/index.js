@@ -52,31 +52,30 @@ function listBrokers() {
 }
 
 // Import and register broker implementations
-// Note: These modules should be migrated from their Python equivalents
-// For now, we provide graceful handling when they're not available
+// All broker importers are now available
 try {
-    const { IBKRImporter } = require('./ibkr');
+    const IBKRImporter = require('./ibkr');
     registerBroker('ibkr', IBKRImporter);
 } catch (error) {
     console.log('Note: IBKR importer not yet available');
 }
 
 try {
-    const { SchwabImporter } = require('./schwab');
+    const SchwabImporter = require('./schwab');
     registerBroker('schwab', SchwabImporter);
 } catch (error) {
     console.log('Note: Schwab importer not yet available');
 }
 
 try {
-    const { RobinhoodImporter } = require('./robinhood');
+    const RobinhoodImporter = require('./robinhood');
     registerBroker('robinhood', RobinhoodImporter);
 } catch (error) {
     console.log('Note: Robinhood importer not yet available');
 }
 
 try {
-    const { WebullImporter } = require('./webull');
+    const WebullImporter = require('./webull');
     registerBroker('webull', WebullImporter);
 } catch (error) {
     console.log('Note: Webull importer not yet available');
