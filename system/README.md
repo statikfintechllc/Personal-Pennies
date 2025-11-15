@@ -5,37 +5,50 @@ This directory contains the client-side JavaScript implementation of the Persona
 ## 📁 Directory Structure
 
 ```
-assets/system/
+system/
 ├── storage/
-│   └── db.js                         # IndexedDB storage layer (LocalForage)
+│   ├── vfs.js                          # Virtual Filesystem (VFS) implementation
+│   ├── vfs-init.js                     # VFS initialization
+│   ├── vfs-adapter.js                  # VFS adapter layer
+│   └── data-access.js                  # IndexedDB data access layer (LocalForage)
 ├── scripts/
-│   ├── utils.js                      # Utility functions (from utils.py)
-│   ├── globalsUtils.js               # Global utilities (from globals_utils.py)
-│   ├── parseTrades.js                # Trade parser (from parse_trades.py)
-│   ├── generateAnalytics.js          # Analytics generator (from generate_analytics.py)
-│   ├── generateCharts.js             # Charts generator (from generate_charts.py)
-│   ├── generateSummaries.js          # Summaries generator (from generate_summaries.py)
-│   ├── generateTradePages.js         # Trade pages generator (from generate_trade_pages.py)
-│   ├── generateWeekSummaries.js      # Week summaries (from generate_week_summaries.py)
-│   ├── generateBooksIndex.js         # Books index (from generate_books_index.py)
-│   ├── generateNotesIndex.js         # Notes index (from generate_notes_index.py)
-│   ├── generateIndex.js              # Master index (from generate_index.py)
-│   ├── updateHomepage.js             # Homepage updater (from update_homepage.py)
-│   ├── navbarTemplate.js             # Navbar template (from navbar_template.py)
-│   ├── normalizeSchema.js            # Schema normalizer (from normalize_schema.py)
-│   ├── attachMedia.js                # Media attachment (from attach_media.py)
-│   ├── importExport.js               # Backup/restore utilities
+│   ├── utils.js                        # Utility functions (from utils.py)
+│   ├── globals_utils.js                # Global utilities (from globals_utils.py)
+│   ├── parse_trades.js                 # Trade parser (from parse_trades.py)
+│   ├── generate_analytics.js           # Analytics generator (from generate_analytics.py)
+│   ├── generate_charts.js              # Charts generator (from generate_charts.py)
+│   ├── generate_summaries.js           # Summaries generator (from generate_summaries.py)
+│   ├── generate_trade_pages.js         # Trade pages generator (from generate_trade_pages.py)
+│   ├── generate_week_summaries.js      # Week summaries (from generate_week_summaries.py)
+│   ├── generate_books_index.js         # Books index (from generate_books_index.py)
+│   ├── generate_notes_index.js         # Notes index (from generate_notes_index.py)
+│   ├── generate_index.js               # Master index (from generate_index.py)
+│   ├── update_homepage.js              # Homepage updater (from update_homepage.py)
+│   ├── navbar_template.js              # Navbar template (from navbar_template.py)
+│   ├── normalize_schema.js             # Schema normalizer (from normalize_schema.py)
+│   ├── attach_media.js                 # Media attachment (from attach_media.py)
+│   ├── import_csv.js                   # CSV import workflow (from import_csv.py)
+│   ├── export_csv.js                   # CSV export (from export_csv.py)
+│   ├── test_imports.js                 # Module testing
 │   └── importers/
-│       ├── baseImporter.js           # Base importer class (from base_importer.py)
-│       ├── webullImporter.js         # Webull importer (from webull.py)
-│       ├── ibkrImporter.js           # IBKR importer (from ibkr.py)
-│       ├── schwabImporter.js         # Schwab importer (from schwab.py)
-│       ├── robinhoodImporter.js      # Robinhood importer (from robinhood.py)
-│       └── index.js                  # Importers index (from __init__.py)
+│       ├── base_importer.js            # Base importer class (from base_importer.py)
+│       ├── webull.js                   # Webull importer (from webull.py)
+│       ├── ibkr.js                     # IBKR importer (from ibkr.py)
+│       ├── schwab.js                   # Schwab importer (from schwab.py)
+│       ├── robinhood.js                # Robinhood importer (from robinhood.py)
+│       └── index.js                    # Importers registry (from __init__.py)
 ├── workflows/
-│   └── tradePipeline.js              # Event-driven pipeline orchestrator
-├── templates/                        # Template generators (future)
-└── loader.js                         # System initialization loader
+│   ├── trade_pipeline.yml.disabled     # Automated trade processing pipeline
+│   ├── import.yml.disabled             # CSV import workflow
+│   ├── site-submit.yml.disabled        # PR-based trade submission
+│   └── README.md                       # Workflow documentation
+├── templates/
+│   ├── trade.md.template               # Trade markdown template
+│   ├── weekly-summary.md.template      # Weekly summary template
+│   └── README.md                       # Template documentation
+├── vendor/
+│   └── localforage.min.js              # LocalForage library (IndexedDB wrapper)
+└── loader.js                           # System initialization loader
 ```
 
 ## 🚀 Features

@@ -3,14 +3,14 @@
  * Loads all system modules in the correct order
  * 
  * Usage: Add to HTML pages that need the client-side system
- * <script src="assets/system/loader.js" type="module"></script>
+ * <script src="system/loader.js" type="module"></script>
  */
 
 // Load LocalForage from local vendor directory (bundled locally, but updates client-side)
 const localforageScript = document.createElement('script');
 // Use path relative to the base path of the site
 const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '';
-localforageScript.src = `${basePath}/index.directory/assets/system/vendor/localforage.min.js`;
+localforageScript.src = `${basePath}/system/vendor/localforage.min.js`;
 localforageScript.onload = async () => {
   console.log('[System] LocalForage loaded from local bundle');
   
