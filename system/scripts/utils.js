@@ -210,3 +210,6 @@ module.exports = {
     loadAccountConfigSync,
     calculatePeriodStats
 };
+
+// ES Module exports for browser compatibility
+export { loadTradesIndex,loadTradesIndexSync,loadAccountConfig,loadAccountConfigSync,calculatePeriodStats };

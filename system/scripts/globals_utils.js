@@ -394,3 +394,6 @@ module.exports = {
     validateRequiredFields,
     roundDecimals
 };
+
+// ES Module exports for browser compatibility
+export { setupImports,ensureDirectory,ensureDirectorySync,loadJsonFile,loadJsonFileSync,saveJsonFile,saveJsonFileSync,parseDate,formatCurrency,safeDivide,getWeekFolder,calculateTimeInTrade,validateRequiredFields,roundDecimals };

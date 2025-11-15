@@ -33,7 +33,7 @@ async function loadSystemModules() {
 
     // Import utilities
     const Utils = await import('./scripts/utils.js');
-    const GlobalsUtils = await import('./scripts/globalsUtils.js');
+    const GlobalsUtils = await import('./scripts/globals_utils.js');
 
     // Import scripts (using named exports)
     const ParseTradesModule = await import('./scripts/parse_trades.js');
