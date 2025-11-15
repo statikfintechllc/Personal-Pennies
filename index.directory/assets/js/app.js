@@ -76,34 +76,40 @@ class TradingJournal {
   setupEventListeners() {
     if (!this.eventBus) return;
     
+    // Listen for trade added - trigger full regeneration
+    this.eventBus.on('trade:added', async () => {
+      console.log('[TradingJournal] Trade added, regenerating all data');
+      await this.regenerateAllData();
+    });
+    
     // Listen for account config loaded (initial load)
     this.eventBus.on('account:config-loaded', () => {
       console.log('[TradingJournal] Account config loaded, refreshing stats');
       this.refreshStats();
     });
     
-    // Listen for account balance changes
-    this.eventBus.on('account:balance-updated', () => {
-      console.log('[TradingJournal] Account balance updated, refreshing stats');
-      this.refreshStats();
+    // Listen for account balance changes - trigger regeneration
+    this.eventBus.on('account:balance-updated', async () => {
+      console.log('[TradingJournal] Account balance updated, regenerating analytics');
+      await this.regenerateAllData();
     });
     
-    // Listen for account state updates
-    this.eventBus.on('account:updated', () => {
-      console.log('[TradingJournal] Account state updated, refreshing stats');
-      this.refreshStats();
+    // Listen for account state updates - trigger regeneration
+    this.eventBus.on('account:updated', async () => {
+      console.log('[TradingJournal] Account state updated, regenerating analytics');
+      await this.regenerateAllData();
     });
     
-    // Listen for deposit additions
-    this.eventBus.on('account:deposit-added', () => {
-      console.log('[TradingJournal] Deposit added, refreshing stats');
-      this.refreshStats();
+    // Listen for deposit additions - trigger regeneration
+    this.eventBus.on('account:deposit-added', async () => {
+      console.log('[TradingJournal] Deposit added, regenerating analytics');
+      await this.regenerateAllData();
     });
     
-    // Listen for withdrawal additions
-    this.eventBus.on('account:withdrawal-added', () => {
-      console.log('[TradingJournal] Withdrawal added, refreshing stats');
-      this.refreshStats();
+    // Listen for withdrawal additions - trigger regeneration
+    this.eventBus.on('account:withdrawal-added', async () => {
+      console.log('[TradingJournal] Withdrawal added, regenerating analytics');
+      await this.regenerateAllData();
     });
     
     // Listen for trades updates
