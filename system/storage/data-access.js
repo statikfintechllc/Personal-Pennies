@@ -98,6 +98,135 @@ export async function saveTradeMarkdown(weekKey, tradeFile, content) {
 }
 
 /**
+ * Convert trade object to markdown format with YAML frontmatter
+ * @param {Object} trade - Trade data object
+ * @returns {string} Markdown content with YAML frontmatter
+ */
+export function tradeToMarkdown(trade) {
+  const {
+    trade_number,
+    ticker,
+    entry_date,
+    entry_time,
+    exit_date,
+    exit_time,
+    entry_price,
+    exit_price,
+    position_size,
+    direction,
+    strategy,
+    setup,
+    session,
+    market_condition,
+    stop_loss,
+    target_price,
+    risk_reward_ratio,
+    broker,
+    pnl_usd,
+    pnl_percent,
+    time_in_trade,
+    notes,
+    journal,
+    screenshots = []
+  } = trade;
+
+  // Build YAML frontmatter
+  const frontmatter = `---
+trade_number: ${trade_number || 1}
+ticker: ${ticker || ''}
+entry_date: ${entry_date || ''}
+entry_time: ${entry_time || ''}
+exit_date: ${exit_date || ''}
+exit_time: ${exit_time || ''}
+entry_price: ${entry_price || 0}
+exit_price: ${exit_price || 0}
+position_size: ${position_size || 0}
+direction: ${direction || 'LONG'}
+strategy: ${strategy || ''}
+setup: ${setup || ''}
+session: ${session || ''}
+market_condition: ${market_condition || ''}
+stop_loss: ${stop_loss || 0}
+target_price: ${target_price || 0}
+risk_reward_ratio: ${risk_reward_ratio || 0}
+broker: ${broker || ''}
+pnl_usd: ${pnl_usd || 0}
+pnl_percent: ${pnl_percent || 0}
+time_in_trade: ${time_in_trade || ''}
+screenshots:${screenshots.length > 0 ? '\n' + screenshots.map(s => `  - ${s}`).join('\n') : '\n  - None'}
+---`;
+
+  // Build markdown body
+  const body = `
+# Trade #${trade_number} - ${ticker}
+
+## Trade Details
+
+- **Ticker**: ${ticker}
+- **Direction**: ${direction}
+- **Entry**: $${entry_price} on ${entry_date} at ${entry_time || 'N/A'}
+- **Exit**: $${exit_price} on ${exit_date} at ${exit_time || 'N/A'}
+- **Position Size**: ${position_size} shares
+${strategy ? `- **Strategy**: ${strategy}` : ''}
+${setup ? `- **Setup**: ${setup}` : ''}
+${session ? `- **Session**: ${session}` : ''}
+${market_condition ? `- **Market Condition**: ${market_condition}` : ''}
+${broker ? `- **Broker**: ${broker}` : ''}
+
+## Risk Management
+
+${stop_loss ? `- **Stop Loss**: $${stop_loss}` : ''}
+${target_price ? `- **Target Price**: $${target_price}` : ''}
+${risk_reward_ratio ? `- **Risk:Reward Ratio**: ${risk_reward_ratio}` : ''}
+
+## Results
+
+- **P&L (USD)**: $${pnl_usd || 0}
+- **P&L (%)**: ${pnl_percent || 0}%
+${time_in_trade ? `- **Time in Trade**: ${time_in_trade}` : ''}
+
+## Notes
+
+${notes || 'No notes provided.'}
+
+${journal ? `## Journal Entry\n\n${journal}` : ''}
+
+${screenshots.length > 0 ? `## Screenshots\n\n${screenshots.map((s, i) => `![Screenshot ${i + 1}](${s})`).join('\n\n')}` : ''}
+`;
+
+  return frontmatter + '\n' + body;
+}
+
+/**
+ * Save a trade from form data
+ * @param {string} weekKey - Week key (e.g., "week.2025.45")
+ * @param {Object} tradeData - Trade data object from form
+ * @returns {Promise<string>} Trade file path
+ */
+export async function saveTrade(weekKey, tradeData) {
+  // Generate filename (MM:DD:YYYY.N.md)
+  const entryDate = new Date(tradeData.entry_date);
+  const month = String(entryDate.getMonth() + 1).padStart(2, '0');
+  const day = String(entryDate.getDate()).padStart(2, '0');
+  const year = entryDate.getFullYear();
+  const tradeNumber = tradeData.trade_number || 1;
+  
+  const tradeFile = `${month}:${day}:${year}.${tradeNumber}.md`;
+  
+  // Convert trade data to markdown
+  const markdown = tradeToMarkdown(tradeData);
+  
+  // Save to VFS
+  await saveTradeMarkdown(weekKey, tradeFile, markdown);
+  
+  const fullPath = `index.directory/SFTi.Tradez/${weekKey}/${tradeFile}`;
+  console.log(`[DataAccess] Trade saved to: ${fullPath}`);
+  
+  return fullPath;
+}
+
+
+/**
  * Load generated trade HTML page
  * @param {string} tradeId - Trade ID (e.g., "trade-001-SCNX")
  * @returns {Promise<string|null>} Trade HTML content
@@ -424,6 +553,8 @@ if (typeof window !== 'undefined') {
     loadTradesIndex,
     loadTradeMarkdown,
     saveTradeMarkdown,
+    saveTrade,
+    tradeToMarkdown,
     loadTradeHTML,
     
     // Analytics & Charts

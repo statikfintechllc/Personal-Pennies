@@ -223,12 +223,11 @@
 
       // Calculate week key
       const entryDate = new Date(formData.entry_date);
-      const weekKey = window.PersonalPenniesUtils.getYearWeekNumber(entryDate);
+      const weekKey = window.SFTiUtils.getYearWeekNumber(entryDate);
       console.log('[AddTrade] Week key:', weekKey);
 
-      // Save trade to IndexedDB
-      const { saveTrade } = window.PersonalPenniesSystem.DB;
-      const tradeKey = await saveTrade(weekKey, formData);
+      // Save trade using DataAccess
+      const tradeKey = await window.PersonalPenniesDataAccess.saveTrade(weekKey, formData);
       console.log('[AddTrade] Trade saved:', tradeKey);
 
       // Emit event to trigger pipeline

@@ -75,7 +75,7 @@ async function loadSystemModules() {
     const Importers = await import('./scripts/importers/index.js');
 
     // Import pipeline
-    const Pipeline = await import('./workflows/tradePipeline.js');
+    const Pipeline = await import('./workflows/trade_pipeline.js');
 
     // Make modules globally available
     window.PersonalPenniesSystem = {
@@ -115,6 +115,9 @@ async function loadSystemModules() {
     // Initialize VFS (filesystem-based storage)
     await initializeVFS();
 
+    // Set up trade pipeline event listener
+    setupPipelineEventListeners();
+
     // Emit system ready event
     if (window.SFTiEventBus) {
       window.SFTiEventBus.emit('system:ready', { version: '2.0.0' });
@@ -122,6 +125,40 @@ async function loadSystemModules() {
   } catch (error) {
     console.error('[System] Failed to load system modules:', error);
   }
+}
+
+/**
+ * Set up event listeners for automatic pipeline execution
+ */
+function setupPipelineEventListeners() {
+  if (!window.SFTiEventBus) {
+    console.warn('[System] EventBus not available, skipping pipeline event listeners');
+    return;
+  }
+
+  // Listen for trade:added event and run pipeline
+  window.SFTiEventBus.on('trade:added', async (eventData) => {
+    console.log('[System] Trade added, triggering pipeline...', eventData);
+    
+    try {
+      // Run the trade pipeline
+      const Pipeline = window.PersonalPenniesSystem.Pipeline;
+      if (Pipeline && Pipeline.runTradePipeline) {
+        const results = await Pipeline.runTradePipeline();
+        console.log('[System] Pipeline completed:', results);
+        
+        // Emit pipeline completed event
+        window.SFTiEventBus.emit('pipeline:completed', results);
+      } else {
+        console.error('[System] Pipeline not available or missing runTradePipeline method');
+      }
+    } catch (error) {
+      console.error('[System] Pipeline execution failed:', error);
+      window.SFTiEventBus.emit('pipeline:failed', { error: error.message });
+    }
+  });
+
+  console.log('[System] Pipeline event listeners set up');
 }
 
 /**

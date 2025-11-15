@@ -155,3 +155,42 @@ class TradePipelineWorkflow {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { TradePipelineWorkflow };
 }
+
+// Browser export with convenience function
+if (typeof window !== 'undefined') {
+    /**
+     * Run the trade pipeline
+     * Convenience function that creates workflow engine and executes pipeline
+     */
+    async function runTradePipeline(options = {}) {
+        console.log('[TradePipeline] Starting trade pipeline...');
+        
+        // Import dependencies
+        const WorkflowEngine = await import('./workflow_engine.js');
+        const VFS = window.PersonalPenniesSystem?.VFS;
+        
+        if (!VFS) {
+            throw new Error('VFS not initialized');
+        }
+        
+        // Create workflow engine and pipeline
+        const engine = new WorkflowEngine.WorkflowEngine();
+        const pipeline = new TradePipelineWorkflow(engine, VFS);
+        
+        // Execute pipeline
+        const results = await pipeline.execute(options);
+        
+        console.log('[TradePipeline] Pipeline completed:', results);
+        return results;
+    }
+    
+    // Export for global access
+    window.PersonalPenniesTradePipeline = {
+        TradePipelineWorkflow,
+        runTradePipeline
+    };
+    
+    console.log('[TradePipeline] Browser exports loaded');
+}
+
+export { TradePipelineWorkflow, runTradePipeline };
