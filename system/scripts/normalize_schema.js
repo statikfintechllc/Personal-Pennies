@@ -79,7 +79,7 @@ function migrate_1_0_to_1_1(trade) {
     }
     
     if (!('notes' in trade)) {
-        trade.notes = trade.notes || '';
+        trade.notes = '';
     }
     
     // Keep backward compatibility - maintain old 'strategy' field

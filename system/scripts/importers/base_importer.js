@@ -81,7 +81,7 @@ class BaseImporter {
      * Python equivalent: @abstractmethod def validate_trade(self, trade: Dict) -> tuple[bool, List[str]]
      * 
      * @param {Object} trade - Trade object
-     * @returns {Object} {isValid: boolean, errors: Array<string>}
+     * @returns {Array} [isValid: boolean, errors: Array<string>]
      * @abstract
      */
     validateTrade(trade) {
@@ -151,10 +151,7 @@ class BaseImporter {
             }
         }
 
-        return {
-            isValid: errors.length === 0,
-            errors: errors
-        };
+        return [errors.length === 0, errors];
     }
 
     /**

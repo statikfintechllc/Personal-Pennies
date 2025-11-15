@@ -304,7 +304,7 @@ class IBKRImporter extends BaseImporter {
                 };
 
                 // Calculate P&L
-                this._calculatePnl(trade);
+                trade = this._calculatePnl(trade);
                 trades.push(trade);
                 tradeNum++;
             }

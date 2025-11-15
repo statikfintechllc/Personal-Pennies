@@ -214,7 +214,7 @@ function main() {
     console.log('\n[Test 4] Testing BaseImporter class...');
     console.log('-'.repeat(70));
     result = testBaseImporter();
-    status = result.success ? '✗' : '✗';
+    status = result.success ? '✓' : '✗';
     console.log(`${status} ${result.message}`);
     if (!result.success) {
         failedTests.push(result.message);
