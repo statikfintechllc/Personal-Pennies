@@ -147,6 +147,10 @@ async function initializeVFS() {
     console.log('[VFS] Virtual Filesystem ready');
     console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
     
+    // Install VFS fetch adapter to intercept all fetch calls
+    window.PersonalPenniesSystem.VFSAdapter.installGlobalVFSFetch();
+    console.log('[VFS] Fetch adapter installed - fetch() now reads from IndexedDB first');
+    
     // Emit VFS ready event
     if (window.SFTiEventBus) {
       window.SFTiEventBus.emit('vfs:ready', stats);
