@@ -350,14 +350,14 @@ ${navbarHtml}
 export async function generateTradePages() {
   console.log('[GenerateTradePages] Generating trade detail pages...');
   
-  if (!window.PersonalPenniesDB) {
+  if (!window.PersonalPenniesDataAccess) {
     console.error('[GenerateTradePages] DB not initialized');
-    return { status: 'error', message: 'DB not initialized' };
+    return { status: 'error', message: 'DataAccess not initialized' };
   }
   
   try {
     // Load trades index
-    const tradesIndex = await window.PersonalPenniesDB.getIndex('trades-index');
+    const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex('trades-index');
     
     if (!tradesIndex || !tradesIndex.trades) {
       console.warn('[GenerateTradePages] No trades found');
@@ -396,7 +396,7 @@ export async function generateTradePages() {
     }
     
     // Save metadata to IndexedDB
-    await window.PersonalPenniesDB.saveIndex('trade-pages-index', {
+    await window.PersonalPenniesDataAccess.saveIndex('trade-pages-index', {
       pages: generatedPages.map(p => ({
         trade_number: p.trade_number,
         ticker: p.ticker,
@@ -435,11 +435,15 @@ export async function generateTradePagesAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateTradePages;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateTradePages = {
     generateTradePages,
     generateTradePagesAndEmit,
+    generate: generateTradePages,
     generateTradeHtml
   };
 }

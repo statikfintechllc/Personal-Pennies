@@ -143,11 +143,11 @@ function calculatePeriodStats(trades) {
  */
 async function loadExistingSummary(periodKey) {
   try {
-    if (!window.PersonalPenniesDB) {
+    if (!window.PersonalPenniesDataAccess) {
       return null;
     }
 
-    const summary = await window.PersonalPenniesDB.getSummary(periodKey);
+    const summary = await window.PersonalPenniesDataAccess.loadSummary(periodKey);
     if (!summary || !summary.review) {
       return null;
     }
@@ -250,14 +250,14 @@ ${nextGoals}
 export async function generateSummaries() {
   console.log('[GenerateSummaries] Generating all summaries...');
   
-  if (!window.PersonalPenniesDB) {
+  if (!window.PersonalPenniesDataAccess) {
     console.error('[GenerateSummaries] DB not initialized');
     return { status: 'error', message: 'DB not initialized' };
   }
   
   try {
     // Load trades index
-    const tradesIndex = await window.PersonalPenniesDB.getIndex('trades-index');
+    const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex('trades-index');
     
     if (!tradesIndex || !tradesIndex.trades) {
       console.warn('[GenerateSummaries] No trades found');
@@ -381,11 +381,15 @@ export async function generateSummariesAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateSummaries;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateSummaries = {
     generateSummaries,
     generateSummariesAndEmit,
+    generate: generateSummaries,
     groupTradesByPeriod,
     calculatePeriodStats,
     generateSummaryMarkdown

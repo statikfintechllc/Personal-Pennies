@@ -13,14 +13,14 @@
 export async function generateIndex() {
   console.log('[GenerateIndex] Generating master trade index...');
   
-  if (!window.PersonalPenniesDB) {
-    console.error('[GenerateIndex] DB not initialized');
-    return { status: 'error', message: 'DB not initialized' };
+  if (!window.PersonalPenniesDataAccess) {
+    console.error('[GenerateIndex] DataAccess not initialized');
+    return { status: 'error', message: 'DataAccess not initialized' };
   }
   
   try {
     // Check if trades-index exists
-    const indexData = await window.PersonalPenniesDB.getIndex('trades-index');
+    const indexData = await window.PersonalPenniesDataAccess.loadTradesIndex();
     
     if (!indexData) {
       console.warn('[GenerateIndex] trades-index not found');
@@ -35,7 +35,7 @@ export async function generateIndex() {
     console.log(`[GenerateIndex] Total P&L: $${stats.total_pnl || 0}`);
     console.log(`[GenerateIndex] Win Rate: ${stats.win_rate || 0}%`);
     
-    console.log('[GenerateIndex] Master index is ready in IndexedDB');
+    console.log('[GenerateIndex] Master index is ready in VFS');
     
     return { 
       status: 'success', 
@@ -63,11 +63,15 @@ export async function generateIndexAndEmit() {
   return result;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateIndex;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesGenerateIndex = {
     generateIndex,
-    generateIndexAndEmit
+    generateIndexAndEmit,
+    generate: generateIndex
   };
 }
 

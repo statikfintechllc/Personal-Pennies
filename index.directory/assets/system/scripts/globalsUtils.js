@@ -28,11 +28,13 @@ export function ensureDirectory(directoryPath) {
  */
 export async function loadJSONFile(filepath, defaultValue = null) {
   try {
-    // Try IndexedDB first
-    if (window.PersonalPenniesDB) {
-      const key = filepath.replace('index.directory/', '');
-      const data = await window.PersonalPenniesDB.getIndex(key);
-      if (data) return data;
+    // Try VFS first
+    const VFS = window.PersonalPenniesSystem?.VFS;
+    if (VFS) {
+      const content = await VFS.readFile(filepath);
+      if (content) {
+        return typeof content === 'string' ? JSON.parse(content) : content;
+      }
     }
     
     // Fallback to fetch

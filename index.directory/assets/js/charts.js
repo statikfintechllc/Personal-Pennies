@@ -21,6 +21,27 @@ let rMultipleChart = null;
 // Chart options are now imported from chartConfig.js
 
 /**
+ * Helper function to load chart data from VFS or fallback to fetch
+ * @param {string} chartName - Name of chart file (without .json extension)
+ * @returns {Promise<object>} Chart data
+ */
+async function loadChartData(chartName) {
+  try {
+    // Try VFS/DataAccess first
+    if (window.PersonalPenniesDataAccess) {
+      return await window.PersonalPenniesDataAccess.loadChart(chartName);
+    }
+    
+    // Fallback to fetch if DataAccess not available
+    const response = await fetch(`${basePath}/index.directory/assets/charts/${chartName}.json`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Error loading chart data for ${chartName}:`, error);
+    throw error;
+  }
+}
+
+/**
  * Load and render equity curve chart
  */
 async function loadEquityCurveChart() {
@@ -28,8 +49,7 @@ async function loadEquityCurveChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/equity-curve-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('equity-curve-data');
     
     if (equityCurveChart) {
       equityCurveChart.destroy();
@@ -54,8 +74,7 @@ async function loadWinLossRatioByStrategyChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/win-loss-ratio-by-strategy-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('win-loss-ratio-by-strategy-data');
     
     if (winLossRatioByStrategyChart) {
       winLossRatioByStrategyChart.destroy();
@@ -115,8 +134,7 @@ async function loadPerformanceByDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/performance-by-day-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('performance-by-day-data');
     
     if (performanceByDayChart) {
       performanceByDayChart.destroy();
@@ -141,8 +159,7 @@ async function loadTickerPerformanceChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/ticker-performance-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('ticker-performance-data');
     
     if (tickerPerformanceChart) {
       tickerPerformanceChart.destroy();
@@ -184,8 +201,7 @@ async function loadTimeOfDayChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/time-of-day-performance-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('time-of-day-performance-data');
     
     if (timeOfDayChart) {
       timeOfDayChart.destroy();
@@ -210,8 +226,7 @@ async function loadStrategyChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('analytics-data');
     
     if (strategyChart) {
       strategyChart.destroy();
@@ -250,8 +265,7 @@ async function loadSetupChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('analytics-data');
     
     if (setupChart) {
       setupChart.destroy();
@@ -290,8 +304,7 @@ async function loadWinRateChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('analytics-data');
     
     if (winrateChart) {
       winrateChart.destroy();
@@ -343,8 +356,7 @@ async function loadDrawdownChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('analytics-data');
     
     if (drawdownChart) {
       drawdownChart.destroy();
@@ -381,8 +393,7 @@ async function loadRMultipleChart() {
   if (!ctx) return;
 
   try {
-    const response = await fetch(`${basePath}/index.directory/assets/charts/analytics-data.json`);
-    const data = await response.json();
+    const data = await loadChartData('analytics-data');
     
     if (rMultipleChart) {
       rMultipleChart.destroy();
@@ -534,3 +545,11 @@ function initCharts() {
 
 // Initialize when DOM is ready
 SFTiUtils.onDOMReady(initCharts);
+
+// Listen for data regeneration events to reload charts
+if (window.SFTiEventBus) {
+  window.SFTiEventBus.on('data:regenerated', () => {
+    console.log('[Charts] Data regenerated, reloading all charts...');
+    initCharts();
+  });
+}

@@ -1,43 +1,6 @@
 {
   "trades": [
     {
-      "file_path": "index.directory/SFTi.Tradez/week.2025.46/11:13:2025.1.md",
-      "body": "# Trade #1 - BBGL\n\n## Trade Details\n\n- **Ticker**: BBGL\n- **Direction**: LONG\n- **Entry**: $4 on 2025-11-13 at 23:08\n- **Exit**: $4.5 on 2025-11-13 at 23:08\n- **Position Size**: 1 shares\n- **Strategy*...",
-      "notes": "No additional notes.",
-      "trade_number": 1,
-      "ticker": "BBGL",
-      "entry_date": "2025-11-13",
-      "entry_time": "23:08",
-      "exit_date": "2025-11-13",
-      "exit_time": "23:08",
-      "entry_price": 4.0,
-      "exit_price": 4.5,
-      "position_size": 1.0,
-      "direction": "LONG",
-      "strategy": "Breakout",
-      "stop_loss": 3.7,
-      "target_price": 4.5,
-      "risk_reward_ratio": 1.67,
-      "broker": "IBKR",
-      "pnl_usd": 0.5,
-      "pnl_percent": 12.5,
-      "strategy_tags": [
-        "Breakout"
-      ],
-      "setup_tags": [
-        "VWAP Bounce"
-      ],
-      "session_tags": [
-        "After Hours"
-      ],
-      "market_condition_tags": [
-        "Choppy"
-      ],
-      "screenshots": [
-        "None"
-      ]
-    },
-    {
       "file_path": "index.directory/SFTi.Tradez/week.2025.46/11:12:2025.1.md",
       "body": "# Trade #1 - LPTX\n\n## Trade Details\n\n- **Ticker**: LPTX\n- **Direction**: LONG\n- **Entry**: $0.6164 on 2025-11-12 at 08:26\n- **Exit**: $0.7546 on 2025-11-12 at 08:48\n- **Position Size**: 60 shares\n- **...",
       "notes": "Saw this morning runner eat all of its short-able shares and not drop, so I got in and rode my ~10-20% and got out. Great play, could have held longer.",

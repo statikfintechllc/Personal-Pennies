@@ -72,22 +72,22 @@ async function initAnalytics() {
  */
 async function loadAnalyticsData() {
   try {
-    // First, try to load from IndexedDB
-    if (window.PersonalPenniesDB && window.PersonalPenniesDB.getAnalytics) {
-      analyticsData = await window.PersonalPenniesDB.getAnalytics('all-analytics');
+    // Load from VFS
+    if (window.PersonalPenniesDataAccess) {
+      analyticsData = await window.PersonalPenniesDataAccess.loadAnalytics();
       if (analyticsData) {
-        console.log('Loaded analytics data from IndexedDB');
+        console.log('Loaded analytics data from VFS');
         return;
       }
     }
     
-    // Fallback to file if IndexedDB doesn't have data
+    // Fallback to file if VFS doesn't have data yet
     const response = await fetch('assets/charts/analytics-data.json');
     if (response.ok) {
       analyticsData = await response.json();
       console.log('Loaded analytics data from file (fallback)');
     } else {
-      console.error('Analytics data not found in IndexedDB or file');
+      console.error('Analytics data not found in VFS or file');
       analyticsData = null;
     }
   } catch (fetchError) {
@@ -926,3 +926,11 @@ async function loadTotalReturn5YearChart() {
 
 // Initialize on DOM ready
 SFTiUtils.onDOMReady(initAnalytics);
+
+// Listen for data regeneration events to reload analytics
+if (window.SFTiEventBus) {
+  window.SFTiEventBus.on('data:regenerated', () => {
+    console.log('[Analytics] Data regenerated, reloading analytics...');
+    initAnalytics();
+  });
+}

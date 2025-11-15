@@ -12,10 +12,10 @@
 // Get functions from global scope (loaded by loader.js)
 function getDependencies() {
   return {
-    loadTradesIndex: window.PersonalPenniesUtils?.loadTradesIndex,
-    loadAccountConfig: window.PersonalPenniesUtils?.loadAccountConfig,
-    sortTradesByDate: window.PersonalPenniesUtils?.sortTradesByDate,
-    saveAnalytics: window.PersonalPenniesDB?.saveAnalytics
+    loadTradesIndex: window.PersonalPenniesDataAccess?.loadTradesIndex,
+    loadAccountConfig: window.PersonalPenniesDataAccess?.loadAccountConfig,
+    sortTradesByDate: window.PersonalPenniesSystem?.Utils?.sortTradesByDate,
+    saveAnalytics: window.PersonalPenniesDataAccess?.saveAnalytics
   };
 }
 
@@ -694,11 +694,15 @@ export async function generateAnalyticsAndEmit() {
   return analytics;
 }
 
+// Alias for pipeline compatibility
+export const generate = generateAnalytics;
+
 // Export for global access
 if (typeof window !== 'undefined') {
   window.PersonalPenniesAnalytics = {
     generateAnalytics,
-    generateAnalyticsAndEmit
+    generateAnalyticsAndEmit,
+    generate: generateAnalytics
   };
 }
 

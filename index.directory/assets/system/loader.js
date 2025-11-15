@@ -25,24 +25,47 @@ document.head.appendChild(localforageScript);
 
 async function loadSystemModules() {
   try {
-    // Import storage layer
-    const DB = await import('./storage/db.js');
+    // Import VFS (filesystem-based storage)
+    const VFS = await import('./storage/vfs.js');
+    const VFSInit = await import('./storage/vfs-init.js');
+    const VFSAdapter = await import('./storage/vfs-adapter.js');
+    const DataAccess = await import('./storage/data-access.js');
 
     // Import utilities
     const Utils = await import('./scripts/utils.js');
     const GlobalsUtils = await import('./scripts/globalsUtils.js');
 
-    // Import scripts
-    const ParseTrades = await import('./scripts/parseTrades.js');
-    const GenerateAnalytics = await import('./scripts/generateAnalytics.js');
-    const GenerateCharts = await import('./scripts/generateCharts.js');
-    const GenerateSummaries = await import('./scripts/generateSummaries.js');
-    const GenerateTradePages = await import('./scripts/generateTradePages.js');
-    const GenerateWeekSummaries = await import('./scripts/generateWeekSummaries.js');
-    const GenerateBooksIndex = await import('./scripts/generateBooksIndex.js');
-    const GenerateNotesIndex = await import('./scripts/generateNotesIndex.js');
-    const GenerateIndex = await import('./scripts/generateIndex.js');
-    const UpdateHomepage = await import('./scripts/updateHomepage.js');
+    // Import scripts (using named exports)
+    const ParseTradesModule = await import('./scripts/parseTrades.js');
+    const ParseTrades = { parseTrades: ParseTradesModule.parseTrades, generate: ParseTradesModule.parseTrades };
+    
+    const GenerateAnalyticsModule = await import('./scripts/generateAnalytics.js');
+    const GenerateAnalytics = { generate: GenerateAnalyticsModule.generate || GenerateAnalyticsModule.generateAnalytics };
+    
+    const GenerateChartsModule = await import('./scripts/generateCharts.js');
+    const GenerateCharts = { generate: GenerateChartsModule.generate || GenerateChartsModule.generateCharts };
+    
+    const GenerateSummariesModule = await import('./scripts/generateSummaries.js');
+    const GenerateSummaries = { generate: GenerateSummariesModule.generate || GenerateSummariesModule.generateSummaries };
+    
+    const GenerateTradePagesModule = await import('./scripts/generateTradePages.js');
+    const GenerateTradePages = { generate: GenerateTradePagesModule.generate || GenerateTradePagesModule.generateTradePages };
+    
+    const GenerateWeekSummariesModule = await import('./scripts/generateWeekSummaries.js');
+    const GenerateWeekSummaries = { generate: GenerateWeekSummariesModule.generate || GenerateWeekSummariesModule.generateWeekSummaries };
+    
+    const GenerateBooksIndexModule = await import('./scripts/generateBooksIndex.js');
+    const GenerateBooksIndex = { generate: GenerateBooksIndexModule.generate || GenerateBooksIndexModule.generateBooksIndex };
+    
+    const GenerateNotesIndexModule = await import('./scripts/generateNotesIndex.js');
+    const GenerateNotesIndex = { generate: GenerateNotesIndexModule.generate || GenerateNotesIndexModule.generateNotesIndex };
+    
+    const GenerateIndexModule = await import('./scripts/generateIndex.js');
+    const GenerateIndex = { generate: GenerateIndexModule.generate || GenerateIndexModule.generateIndex };
+    
+    const UpdateHomepageModule = await import('./scripts/updateHomepage.js');
+    const UpdateHomepage = { update: UpdateHomepageModule.update || UpdateHomepageModule.updateHomepage };
+    
     const NavbarTemplate = await import('./scripts/navbarTemplate.js');
     const NormalizeSchema = await import('./scripts/normalizeSchema.js');
     const AttachMedia = await import('./scripts/attachMedia.js');
@@ -56,7 +79,10 @@ async function loadSystemModules() {
 
     // Make modules globally available
     window.PersonalPenniesSystem = {
-      DB,
+      VFS,
+      VFSInit,
+      VFSAdapter,
+      DataAccess,
       Utils,
       GlobalsUtils,
       ParseTrades,
@@ -75,20 +101,23 @@ async function loadSystemModules() {
       ImportExport,
       Importers,
       Pipeline,
-      version: '1.0.0',
+      version: '2.0.0',
       ready: true
     };
+    
+    // Also expose DataAccess globally for easy access
+    window.PersonalPenniesDataAccess = DataAccess;
 
     console.log('[System] Personal-Pennies client-side system loaded successfully');
     console.log('[System] Version:', window.PersonalPenniesSystem.version);
     console.log('[System] Modules loaded:', Object.keys(window.PersonalPenniesSystem).length);
 
-    // Check if IndexedDB needs to be seeded with initial data
-    await seedIndexedDBIfEmpty();
+    // Initialize VFS (filesystem-based storage)
+    await initializeVFS();
 
     // Emit system ready event
     if (window.SFTiEventBus) {
-      window.SFTiEventBus.emit('system:ready', { version: '1.0.0' });
+      window.SFTiEventBus.emit('system:ready', { version: '2.0.0' });
     }
   } catch (error) {
     console.error('[System] Failed to load system modules:', error);
@@ -96,78 +125,23 @@ async function loadSystemModules() {
 }
 
 /**
- * Seeds IndexedDB with data from JSON files if database is empty
- * This ensures first-time users see data immediately
+ * Initialize VFS and populate with repository content
  */
-async function seedIndexedDBIfEmpty() {
+async function initializeVFS() {
   try {
-    console.log('[Seed] Checking if IndexedDB needs seeding...');
+    console.log('[VFS] Initializing Virtual Filesystem...');
     
-    // Check if trades exist in IndexedDB
-    const trades = await window.PersonalPenniesDB.getAllTrades();
+    // Auto-initialize VFS if empty
+    const stats = await window.PersonalPenniesSystem.VFSInit.autoInitialize();
     
-    if (!trades || trades.length === 0) {
-      console.log('[Seed] IndexedDB is empty, loading seed data from JSON files...');
-      
-      // Determine base path (works for both root and subdirectory deployments)
-      const basePath = window.location.pathname.includes('/index.directory/') 
-        ? window.location.pathname.split('/index.directory/')[0] 
-        : '';
-      
-      // Load trades-index.json
-      try {
-        const tradesResponse = await fetch(`${basePath}/index.directory/trades-index.json`);
-        if (tradesResponse.ok) {
-          const tradesData = await tradesResponse.json();
-          console.log('[Seed] Loaded trades data from JSON:', tradesData.trades?.length || 0, 'trades');
-          
-          // Save each trade to IndexedDB
-          if (tradesData.trades && Array.isArray(tradesData.trades)) {
-            for (const trade of tradesData.trades) {
-              await window.PersonalPenniesDB.saveTrade(trade);
-            }
-            console.log('[Seed] ✓ Saved', tradesData.trades.length, 'trades to IndexedDB');
-          }
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load trades-index.json:', error);
-      }
-      
-      // Load analytics.json
-      try {
-        const analyticsResponse = await fetch(`${basePath}/index.directory/analytics.json`);
-        if (analyticsResponse.ok) {
-          const analyticsData = await analyticsResponse.json();
-          console.log('[Seed] Loaded analytics data from JSON');
-          
-          // Save analytics to IndexedDB
-          await window.PersonalPenniesDB.saveAnalytics(analyticsData);
-          console.log('[Seed] ✓ Saved analytics to IndexedDB');
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load analytics.json:', error);
-      }
-      
-      // Load account-config.json
-      try {
-        const configResponse = await fetch(`${basePath}/index.directory/account-config.json`);
-        if (configResponse.ok) {
-          const configData = await configResponse.json();
-          console.log('[Seed] Loaded account config from JSON');
-          
-          // Save account config to IndexedDB
-          await window.PersonalPenniesDB.saveConfig('account-config', configData);
-          console.log('[Seed] ✓ Saved account config to IndexedDB');
-        }
-      } catch (error) {
-        console.warn('[Seed] Could not load account-config.json:', error);
-      }
-      
-      console.log('[Seed] ✓ Database seeding complete - IndexedDB now has initial data');
-    } else {
-      console.log('[Seed] IndexedDB already contains data (' + trades.length + ' trades), skipping seed');
+    console.log('[VFS] Virtual Filesystem ready');
+    console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
+    
+    // Emit VFS ready event
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('vfs:ready', stats);
     }
   } catch (error) {
-    console.error('[Seed] Error during database seeding:', error);
+    console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
   }
 }
