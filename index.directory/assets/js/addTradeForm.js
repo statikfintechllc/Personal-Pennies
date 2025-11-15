@@ -232,7 +232,7 @@
 
       // Emit event to trigger pipeline
       if (window.SFTiEventBus) {
-        window.SFTiEventBus.emit('trade:added', { key: tradeKey, data: formData });
+        window.SFTiEventBus.emit('trades:updated', { key: tradeKey, data: formData });
       }
 
       // Show success message with trade number
