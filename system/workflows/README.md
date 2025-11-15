@@ -1,154 +1,203 @@
-# System Workflows
+# System Workflows - Browser-Based JavaScript Implementation
 
-This directory contains client-side workflow files that define automated processes for the Personal-Pennies trading journal system.
+This directory contains browser-executable JavaScript workflow orchestration that automates the trade processing pipeline **entirely in the browser**, with no server or GitHub Actions required.
 
-## Available Workflows
+## Overview
 
-### 1. `trade_pipeline.yml.disabled`
-**Purpose**: Main trade processing pipeline
+The workflow system provides a complete automation pipeline that runs client-side, using the VFS (Virtual File System) for storage and executing all processing steps in the browser.
 
-**Triggers**:
-- Push to `index.directory/SFTi.Tradez/**`
-- Push to trade-related directories (assets, books, notes)
-- Manual workflow dispatch
+## Files
 
-**Process Steps**:
-1. Parse trades into JSON index
-2. Generate books index
-3. Generate notes index
-4. Generate summaries (weekly/monthly/yearly)
-5. Generate master index
-6. Generate charts (Chart.js data)
-7. Generate analytics
-8. Generate trade detail pages
-9. Generate week summaries
-10. Update homepage
-11. Optimize images
-12. Commit and push generated files
+### Core Engine
+- **`workflow_engine.js`** - Generic workflow execution engine
+  - Step-by-step execution with progress tracking
+  - Event-driven architecture
+  - Error handling and rollback support
+  - Fully async/await based
 
-**Dependencies**:
-- Node.js runtime (for JavaScript scripts)
-- System scripts in `system/scripts/`
+### Workflows
+- **`trade_pipeline.js`** - 10-step trade processing pipeline
+- **`import_workflow.js`** - CSV import with broker auto-detection
+- **`site_submit_workflow.js`** - Browser-based trade submission
 
-### 2. `import.yml.disabled`
-**Purpose**: CSV import workflow for broker trade data
+## Usage
 
-**Triggers**:
-- Push to `import/*.csv` files
-- Manual workflow dispatch with CSV file path
+### Trade Pipeline Workflow
 
-**Process Steps**:
-1. Find CSV files in `import/` directory
-2. Auto-detect broker or use specified broker
-3. Parse CSV using broker-specific importer
-4. Create trade markdown files
-5. Commit imported trades (triggers trade_pipeline)
+```javascript
+// Initialize VFS and workflow engine
+import { VFS } from '../storage/vfs.js';
+import { WorkflowEngine } from './workflow_engine.js';
+import { TradePipelineWorkflow } from './trade_pipeline.js';
 
-**Supported Brokers**:
-- Interactive Brokers (IBKR)
-- Charles Schwab / TD Ameritrade
-- Robinhood
-- Webull
+const vfs = new VFS();
+await vfs.init();
 
-**Dependencies**:
-- `system/scripts/import_csv.js`
-- `system/scripts/importers/` (broker parsers)
+const engine = new WorkflowEngine();
+const pipeline = new TradePipelineWorkflow(engine, vfs);
 
-### 3. `site-submit.yml.disabled`
-**Purpose**: Pull request workflow for trade submissions
+// Add progress listeners
+engine.on('onStepStart', (data) => {
+    console.log(`Starting step: ${data.step} (${data.stepNumber}/${data.totalSteps})`);
+});
 
-**Triggers**:
-- Manual workflow dispatch
-- Repository dispatch events
+engine.on('onStepComplete', (data) => {
+    console.log(`Completed step: ${data.step}`, data.result);
+});
 
-**Process Steps**:
-1. Create submission branch
-2. Stage pending changes from `pending-submissions/`
-3. Commit changes
-4. Create pull request
-5. Trigger trade pipeline on merge
-
-**Use Case**: Multi-contributor workflows where trades are reviewed before integration
-
-## Usage Notes
-
-### Enabling Workflows
-
-These workflows are currently disabled (`.disabled` extension). To enable:
-
-1. **For GitHub Actions**: Remove `.disabled` extension and place in `.github/workflows/`
-2. **For Client-Side Execution**: Use Node.js to execute the scripts directly:
-   ```bash
-   node system/scripts/parse_trades.js
-   node system/scripts/import_csv.js <file.csv> --broker ibkr
-   ```
-
-### Workflow Dependencies
-
-All workflows depend on:
-- `system/scripts/` - JavaScript implementations of all automation
-- `system/templates/` - Markdown templates for trade and summary files
-- `index.directory/` - Data directory structure
-
-### Converting to JavaScript/Node.js
-
-These workflows were originally written for Python scripts. They can be adapted for JavaScript by:
-
-1. Replace `python .github/scripts/xxx.py` with `node system/scripts/xxx.js`
-2. Replace Python dependencies with npm packages
-3. Update image optimization commands for Node.js tools
-
-### Local Development
-
-Run scripts locally without workflows:
-
-```bash
-# Parse trades
-node system/scripts/parse_trades.js
-
-# Import CSV
-node system/scripts/import_csv.js broker-data.csv --broker schwab
-
-# Generate all outputs
-node system/scripts/generate_index.js
-node system/scripts/generate_analytics.js
-node system/scripts/generate_charts.js
-node system/scripts/generate_summaries.js
-node system/scripts/generate_trade_pages.js
-node system/scripts/generate_week_summaries.js
-node system/scripts/update_homepage.js
+// Execute pipeline
+const result = await pipeline.execute();
+console.log('Pipeline complete:', result);
 ```
 
-## Workflow Customization
+### Import Workflow
 
-### Modifying Paths
+```javascript
+import { ImportWorkflow } from './import_workflow.js';
 
-Update these path patterns in workflows:
-- `index.directory/SFTi.Tradez/**` - Trade file location
-- `index.directory/assets/` - Asset file location
-- `import/*.csv` - CSV import location
+const engine = new WorkflowEngine();
+const importWorkflow = new ImportWorkflow(engine, vfs);
 
-### Adding New Steps
+// Read CSV file from user upload
+const csvContent = await readFileFromUpload();
 
-To extend workflows:
-1. Create new script in `system/scripts/`
-2. Add step to workflow YAML
-3. Update dependencies if needed
+// Execute import
+const result = await importWorkflow.execute(csvContent, {
+    broker: 'ibkr',  // Optional: auto-detected if not provided
+    outputDir: 'trades',
+    skipPipeline: false  // Trigger trade pipeline after import
+});
 
-### Performance Optimization
+console.log(`Imported ${result.results.validate_trades.result.validCount} trades`);
+```
 
-For large trade volumes:
-- Run workflows conditionally (only on relevant changes)
-- Cache dependencies between workflow runs
-- Optimize script execution order
+### Site Submit Workflow
 
-## Migration Notes
+```javascript
+import { SiteSubmitWorkflow } from './site_submit_workflow.js';
 
-This directory represents the **client-side migration** of GitHub Actions workflows. The original Python-based workflows in `.github/workflows/` are preserved for reference.
+const engine = new WorkflowEngine();
+const submitWorkflow = new SiteSubmitWorkflow(engine, vfs);
 
-**Key Changes**:
-- Python scripts → JavaScript/Node.js scripts
-- Server-side execution → Client-side execution capability
-- PyYAML, matplotlib → js-yaml (optional), Chart.js
+// Collect trade data from form
+const trade = {
+    ticker: 'AAPL',
+    entry_date: '2024-01-15',
+    entry_price: 180.50,
+    exit_price: 182.75,
+    direction: 'LONG',
+    position_size: 100
+    // ... other fields
+};
 
-All workflows maintain 100% feature parity with original Python implementations.
+// Upload images if any
+const images = [
+    { name: 'screenshot1.png', data: imageBlob1 },
+    { name: 'screenshot2.png', data: imageBlob2 }
+];
+
+// Execute submission
+const result = await submitWorkflow.execute(trade, images, {
+    createPR: false,  // Set to true for PR workflow
+    skipPipeline: false
+});
+
+console.log('Trade submitted:', result.results.save_trade.result.filepath);
+```
+
+## Workflow Steps
+
+### Trade Pipeline (10 steps)
+1. **parse_trades** - Parse markdown files with YAML frontmatter
+2. **generate_analytics** - Calculate advanced metrics (Sharpe, Kelly, etc.)
+3. **generate_charts** - Generate Chart.js data
+4. **generate_summaries** - Create period summaries (week/month/year)
+5. **generate_trade_pages** - Generate individual trade HTML pages
+6. **generate_week_summaries** - Generate week folder summaries
+7. **generate_index** - Create master index
+8. **update_homepage** - Update homepage with latest data
+9. **optimize_images** - Validate and optimize trade images
+10. **save_results** - Save all generated data to VFS
+
+### Import Workflow (8 steps)
+1. **load_csv** - Validate CSV content
+2. **detect_broker** - Auto-detect broker format (IBKR/Schwab/Robinhood/Webull)
+3. **parse_csv** - Parse CSV using broker-specific importer
+4. **validate_trades** - Validate with broker-specific rules
+5. **generate_markdown** - Create trade markdown files from template
+6. **save_trades** - Save markdown files to VFS
+7. **update_index** - Update trades-index.json
+8. **trigger_pipeline** - Execute trade pipeline
+
+### Site Submit Workflow (7 steps)
+1. **validate_submission** - Validate required fields
+2. **generate_markdown** - Render trade template
+3. **upload_images** - Save images to VFS
+4. **save_trade** - Save trade markdown file
+5. **update_index** - Update trades index
+6. **trigger_pipeline** - Execute trade pipeline
+7. **create_pull_request** - Create PR metadata (optional)
+
+## Event System
+
+All workflows emit events you can listen to:
+
+```javascript
+const engine = new WorkflowEngine();
+
+engine.on('onWorkflowStart', (data) => {
+    console.log('Workflow started:', data.workflow);
+});
+
+engine.on('onStepStart', (data) => {
+    console.log(`Step ${data.stepNumber}/${data.totalSteps}: ${data.step}`);
+    // Update progress bar in UI
+});
+
+engine.on('onStepComplete', (data) => {
+    console.log('Step completed:', data.step, data.result);
+});
+
+engine.on('onStepError', (data) => {
+    console.error('Step failed:', data.step, data.error);
+});
+
+engine.on('onWorkflowComplete', (data) => {
+    console.log('Workflow complete!', data);
+});
+
+engine.on('onWorkflowError', (data) => {
+    console.error('Workflow failed:', data.error);
+});
+```
+
+## Integration with System Scripts
+
+All workflows use the JavaScript scripts from `../scripts/`:
+- `parse_trades.js`
+- `generate_analytics.js`
+- `generate_charts.js`
+- `generate_summaries.js`
+- `generate_trade_pages.js`
+- `generate_week_summaries.js`
+- `generate_index.js`
+- `update_homepage.js`
+- `attach_media.js`
+- `import_csv.js`
+- Broker importers from `../scripts/importers/`
+
+## Integration with Templates
+
+Workflows use the template engine from `../templates/`:
+- `template_engine.js` - Template rendering engine
+- `trade_template.js` - Trade markdown template
+- `weekly_summary_template.js` - Weekly summary template
+
+## Python Migration
+
+These JavaScript workflows replace:
+- `.github/workflows/trade_pipeline.yml` → `trade_pipeline.js`
+- `.github/workflows/import.yml` → `import_workflow.js`
+- `.github/workflows/site-submit.yml` → `site_submit_workflow.js`
+
+All functionality is preserved with 100% feature parity, but now runs entirely in the browser using the VFS for storage.

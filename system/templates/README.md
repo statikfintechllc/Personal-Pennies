@@ -1,213 +1,255 @@
-# System Templates
+# System Templates - Browser-Based JavaScript Implementation
 
-This directory contains markdown templates for generating trade and summary files in the Personal-Pennies trading journal system.
+This directory contains browser-executable JavaScript template engine and template definitions for generating markdown files **entirely in the browser**.
 
-## Available Templates
+## Overview
 
-### 1. `trade.md.template`
-**Purpose**: Template for individual trade markdown files
+The template system provides a powerful rendering engine that can generate trade markdown files and weekly summaries with variable substitution, conditionals, and loops - all running client-side.
 
-**Location**: Generated files placed in `index.directory/SFTi.Tradez/week.YYYY.WW/MM:DD:YYYY.N.md`
+## Files
 
-**Template Variables**:
-- `{trade_number}` - Unique trade identifier
-- `{ticker}` - Stock/asset symbol
-- `{entry_date}` - Entry date (YYYY-MM-DD)
-- `{entry_time}` - Entry time (HH:MM:SS)
-- `{exit_date}` - Exit date (YYYY-MM-DD)
-- `{exit_time}` - Exit time (HH:MM:SS)
-- `{entry_price}` - Entry price (USD)
-- `{exit_price}` - Exit price (USD)
-- `{position_size}` - Number of shares/contracts
-- `{direction}` - LONG or SHORT
-- `{strategy}` - Trading strategy name
-- `{stop_loss}` - Stop loss price
-- `{target_price}` - Target/take-profit price
-- `{risk_reward_ratio}` - R:R ratio (e.g., 2.5 for 1:2.5)
-- `{broker}` - Broker name (ibkr, schwab, robinhood, webull)
-- `{pnl_usd}` - Profit/loss in USD
-- `{pnl_percent}` - Profit/loss percentage
-- `{screenshots}` - Array of screenshot paths
-- `{notes}` - Trade notes/journal content
+### Core Engine
+- **`template_engine.js`** - Template rendering engine
+  - Variable substitution with `${variable}` syntax
+  - Conditional blocks with `{{#if condition}}`
+  - Loop support with `{{#each array}}`
+  - YAML frontmatter generation
+  - Date/currency/percent formatting helpers
 
-**YAML Frontmatter**: All variables are included in frontmatter for programmatic access
+### Templates
+- **`trade_template.js`** - Individual trade markdown template (21 variables)
+- **`weekly_summary_template.js`** - Weekly summary template (20+ variables)
 
-**Usage**:
+## Usage
+
+### Render Trade Template
+
 ```javascript
-// In JavaScript
-const fs = require('fs');
-const template = fs.readFileSync('system/templates/trade.md.template', 'utf8');
-const tradeFile = template
-  .replace(/{ticker}/g, trade.ticker)
-  .replace(/{entry_date}/g, trade.entry_date)
-  // ... replace all variables
+import { renderTradeTemplate } from './template_engine.js';
+
+// Prepare trade data
+const trade = {
+    ticker: 'AAPL',
+    entry_date: '2024-01-15',
+    entry_time: '09:30:00',
+    entry_price: 180.50,
+    exit_date: '2024-01-15',
+    exit_time: '15:45:00',
+    exit_price: 182.75,
+    direction: 'LONG',
+    position_size: 100,
+    pnl_usd: 225.00,
+    pnl_percent: 1.25,
+    commission: 2.00,
+    strategy_tags: ['momentum', 'breakout'],
+    setup_tags: ['bull-flag'],
+    session_tags: ['pre-market'],
+    market_condition_tags: ['trending'],
+    stop_loss: 178.00,
+    target: 185.00,
+    risk_reward_ratio: '1:3',
+    time_in_trade: '6h 15m',
+    images: ['assets/trade-images/aapl-entry.png'],
+    notes: 'Clean breakout above resistance',
+    journal: 'Followed plan, took profit at target'
+};
+
+// Render to markdown
+const markdown = await renderTradeTemplate(trade);
+console.log(markdown);
 ```
 
-### 2. `weekly-summary.md.template`
-**Purpose**: Template for weekly trading summaries
+### Render Weekly Summary Template
 
-**Location**: Generated files placed in `index.directory/SFTi.Tradez/week.YYYY.WW/master.trade.md`
-
-**Template Variables**:
-- `{week_number}` - ISO week number (1-53)
-- `{start_date}` - Week start date (Monday)
-- `{end_date}` - Week end date (Sunday)
-- `{total_trades}` - Total trades executed
-- `{winning_trades}` - Number of profitable trades
-- `{losing_trades}` - Number of losing trades
-- `{win_rate}` - Win rate percentage
-- `{total_pnl}` - Total P&L (USD)
-- `{avg_pnl}` - Average P&L per trade
-- `{best_trade_ticker}` - Ticker of best trade
-- `{best_trade_pnl}` - P&L of best trade
-- `{worst_trade_ticker}` - Ticker of worst trade
-- `{worst_trade_pnl}` - P&L of worst trade
-- `{total_volume}` - Total shares/contracts traded
-- `{what_went_well}` - Reflection section (user-edited)
-- `{what_needs_improvement}` - Reflection section (user-edited)
-- `{key_lessons}` - Reflection section (user-edited)
-- `{strategy_breakdown}` - Performance by strategy
-- `{goal_1}`, `{goal_2}`, `{goal_3}` - Next week goals
-- `{generated_date}` - Generation timestamp
-
-**Reflection Sections**: User-edited sections preserved across regenerations by `generate_week_summaries.js`
-
-**Usage**:
 ```javascript
-// In JavaScript
-const fs = require('fs');
-const template = fs.readFileSync('system/templates/weekly-summary.md.template', 'utf8');
-const summaryFile = template
-  .replace(/{week_number}/g, weekNumber)
-  .replace(/{total_trades}/g, stats.totalTrades)
-  // ... replace all variables
+import { renderWeeklySummaryTemplate } from './template_engine.js';
+
+// Prepare week data
+const weekData = {
+    week: 3,
+    year: 2024,
+    total_trades: 15,
+    wins: 10,
+    losses: 4,
+    breakeven: 1,
+    win_rate: 66.67,
+    pnl_usd: 1250.50,
+    avg_win: 187.50,
+    avg_loss: -93.75,
+    largest_win: 450.00,
+    largest_loss: -175.00,
+    profit_factor: 2.0,
+    volume_usd: 125000.00,
+    reflection: 'Strong week overall with disciplined execution',
+    what_went_well: 'Stuck to trading plan, cut losses quickly',
+    what_went_wrong: 'Over-traded on Friday, need to be more selective',
+    lessons: 'Quality over quantity - focus on A+ setups',
+    improvements: 'Better position sizing on high-conviction trades',
+    goals: 'Focus on pre-market momentum plays',
+    strategy_breakdown: [
+        { strategy: 'Momentum', trades: 8, win_rate: 75, pnl_usd: 900 },
+        { strategy: 'Reversal', trades: 7, win_rate: 57, pnl_usd: 350.50 }
+    ],
+    trades: [
+        { ticker: 'AAPL', direction: 'LONG', entry_price: 180, exit_price: 182, pnl_usd: 200, pnl_percent: 1.1 },
+        // ... more trades
+    ]
+};
+
+// Render to markdown
+const markdown = await renderWeeklySummaryTemplate(weekData);
+console.log(markdown);
 ```
 
-## Template Usage
+### Using Template Engine Directly
 
-### 1. CSV Import Workflow
-**Script**: `system/scripts/import_csv.js`
-
-Process:
-1. Parse CSV file with broker-specific parser
-2. Load `trade.md.template`
-3. Replace variables with parsed trade data
-4. Write to week folder: `week.YYYY.WW/MM:DD:YYYY.N.md`
-
-### 2. Week Summary Generation
-**Script**: `system/scripts/generate_week_summaries.js`
-
-Process:
-1. Scan week folder for trade files
-2. Calculate statistics
-3. Load `weekly-summary.md.template`
-4. Replace variables with calculated stats
-5. Preserve user reflection sections
-6. Write to `week.YYYY.WW/master.trade.md`
-
-### 3. Manual Trade Entry
-Users can manually copy templates and fill in values:
-```bash
-cp system/templates/trade.md.template index.directory/SFTi.Tradez/week.2024.45/11:15:2024.1.md
-# Edit file with trade data
-```
-
-## Template Customization
-
-### Adding New Variables
-
-1. Add variable to template: `{new_variable}`
-2. Update corresponding script to replace variable
-3. Update documentation (this README)
-
-### Modifying Structure
-
-Templates use standard markdown with:
-- YAML frontmatter (delimited by `---`)
-- Markdown body content
-- Variable placeholders in `{curly_braces}`
-
-### Best Practices
-
-1. **Keep frontmatter complete**: All variables should appear in frontmatter for programmatic access
-2. **Use descriptive variable names**: Clear naming helps with maintainability
-3. **Preserve user content**: Scripts should preserve user-edited sections (like reflections)
-4. **Document all variables**: Update this README when adding variables
-
-## Variable Replacement Patterns
-
-### Simple Replacement
 ```javascript
-content = content.replace(/{variable}/g, value);
+import { TemplateEngine } from './template_engine.js';
+
+// Simple variable substitution
+const template = 'Hello ${name}, you have ${count} messages';
+const result = TemplateEngine.render(template, { name: 'Alice', count: 5 });
+// Output: "Hello Alice, you have 5 messages"
+
+// Conditional blocks
+const template2 = '{{#if premium}}Premium User{{/if}}';
+const result2 = TemplateEngine.render(template2, { premium: true });
+// Output: "Premium User"
+
+// Loop blocks
+const template3 = '{{#each items}}- ${item}\n{{/each}}';
+const result3 = TemplateEngine.render(template3, { items: ['Apple', 'Banana', 'Cherry'] });
+// Output: "- Apple\n- Banana\n- Cherry\n"
+
+// Generate YAML frontmatter
+const data = {
+    title: 'My Trade',
+    tags: ['momentum', 'breakout'],
+    metrics: { pnl: 100, win_rate: 75 }
+};
+const yaml = TemplateEngine.generateYAMLFrontmatter(data);
+console.log(yaml);
 ```
 
-### Conditional Replacement
+## Template Variables
+
+### Trade Template (21 variables)
+
+**Required:**
+- `ticker` - Stock/crypto ticker symbol
+- `entry_date` - Entry date (YYYY-MM-DD)
+- `entry_price` - Entry price
+- `exit_date` - Exit date (YYYY-MM-DD)
+- `exit_price` - Exit price
+- `direction` - LONG or SHORT
+- `position_size` - Number of shares/contracts
+- `pnl_usd` - Profit/loss in USD
+- `pnl_percent` - Profit/loss percentage
+
+**Optional:**
+- `entry_time` - Entry time (HH:MM:SS)
+- `exit_time` - Exit time (HH:MM:SS)
+- `commission` - Commission paid
+- `strategy_tags` - Array of strategy tags
+- `setup_tags` - Array of setup tags
+- `session_tags` - Array of session tags
+- `market_condition_tags` - Array of market condition tags
+- `stop_loss` - Stop loss price
+- `target` - Target price
+- `risk_reward_ratio` - Risk/reward ratio (e.g., "1:2")
+- `time_in_trade` - Time in trade (e.g., "2h 30m")
+- `images` - Array of image paths
+- `notes` - Trade notes
+- `journal` - Journal entry
+
+### Weekly Summary Template (20+ variables)
+
+**Required:**
+- `week` - ISO week number
+- `year` - Year
+- `total_trades` - Total trades this week
+- `wins` - Number of winning trades
+- `losses` - Number of losing trades
+- `breakeven` - Number of breakeven trades
+- `win_rate` - Win rate percentage
+- `pnl_usd` - Net P&L in USD
+- `avg_win` - Average win amount
+- `avg_loss` - Average loss amount
+- `largest_win` - Largest win
+- `largest_loss` - Largest loss
+- `profit_factor` - Profit factor ratio
+- `volume_usd` - Total volume traded
+
+**Optional:**
+- `reflection` - Weekly reflection text
+- `what_went_well` - What went well this week
+- `what_went_wrong` - What went wrong this week
+- `lessons` - Lessons learned
+- `improvements` - Areas for improvement
+- `goals` - Goals for next week
+- `strategy_breakdown` - Array of strategy stats
+- `trades` - Array of trade summaries
+
+## Template Syntax
+
+### Variable Substitution
+```
+${variableName}
+${array[0]}
+```
+
+### Conditionals
+```
+{{#if condition}}
+  Content shown if condition is truthy
+{{/if}}
+```
+
+### Loops
+```
+{{#each arrayName}}
+  ${item} or ${item.property}
+{{/each}}
+```
+
+## Helper Functions
+
+### Format Date
 ```javascript
-if (trade.screenshots && trade.screenshots.length > 0) {
-  const screenshotMarkdown = trade.screenshots.map(s => `![](${s})`).join('\n');
-  content = content.replace(/{screenshots}/g, screenshotMarkdown);
-} else {
-  content = content.replace(/{screenshots}/g, '_No screenshots available_');
-}
+TemplateEngine.formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss');
+// Output: "2024-01-15 09:30:00"
 ```
 
-### Array Handling
+### Format Currency
 ```javascript
-// For YAML frontmatter arrays
-if (Array.isArray(trade.screenshots)) {
-  const yamlArray = trade.screenshots.map(s => `  - ${s}`).join('\n');
-  content = content.replace(/screenshots:\n  - /g, `screenshots:\n${yamlArray}`);
-}
+TemplateEngine.formatCurrency(1234.56);
+// Output: "$1234.56"
 ```
 
-## Scripts Using Templates
-
-1. **import_csv.js** - Uses `trade.md.template` for CSV imports
-2. **generate_week_summaries.js** - Uses `weekly-summary.md.template` for week summaries
-3. **attach_media.js** - Updates screenshot arrays in existing trade files
-
-## File Naming Conventions
-
-### Trade Files
-Format: `MM:DD:YYYY.N.md`
-- `MM:DD:YYYY` - Trade exit date
-- `N` - Sequence number for trades on same day (1, 2, 3, ...)
-- Example: `11:15:2024.1.md` (first trade on Nov 15, 2024)
-
-**Note**: Jekyll excludes files with colons by default. Add to `_config.yml`:
-```yaml
-include:
-  - "_*.md"
-  - "*:*.md"
+### Format Percent
+```javascript
+TemplateEngine.formatPercent(12.345, 2);
+// Output: "12.35%"
 ```
 
-### Week Summary Files
-Format: `master.trade.md`
-- Single file per week folder
-- Located in `week.YYYY.WW/` (e.g., `week.2024.45/`)
+### Escape Markdown
+```javascript
+TemplateEngine.escapeMarkdown('**bold** text');
+// Output: "\\*\\*bold\\*\\* text"
+```
 
-### Week Folder Naming
-Format: `week.YYYY.WW`
-- `YYYY` - Year
-- `WW` - ISO week number (01-53)
-- Example: `week.2024.45` (week 45 of 2024)
+## Integration
 
-## Migration Notes
+Templates are used by:
+- `import_workflow.js` - Generates trade markdown from CSV
+- `site_submit_workflow.js` - Generates trade markdown from form
+- `generate_week_summaries.js` - Generates weekly summaries
+- `import_csv.js` - Direct template usage
 
-These templates are part of the **client-side migration** from Python to JavaScript. Original templates in `.github/templates/` are preserved for reference.
+## Python Migration
 
-**Key Changes**:
-- Template processing moved from Python to JavaScript
-- Variable replacement logic in `system/scripts/`
-- Backward compatible with existing trade files
+These JavaScript templates replace:
+- `.github/templates/trade.md` → `trade_template.js`
+- `.github/templates/weekly-summary.md` → `weekly_summary_template.js`
 
-All templates maintain 100% compatibility with original Python implementation.
-
-## Future Enhancements
-
-Potential improvements:
-1. **Template validation** - Validate variables before writing
-2. **Multi-language support** - Localized templates
-3. **Template versioning** - Schema migrations for templates
-4. **Custom templates** - User-defined template overrides
-5. **Template inheritance** - Base templates with extensions
+All functionality is preserved with 100% feature parity, but now runs entirely in the browser with the template engine providing variable substitution, conditionals, and loops.
