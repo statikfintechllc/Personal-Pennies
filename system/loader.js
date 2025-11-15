@@ -109,6 +109,14 @@ async function loadSystemModules() {
     
     // Also expose DataAccess globally for easy access
     window.PersonalPenniesDataAccess = DataAccess;
+    
+    // Expose DB interface for legacy compatibility
+    window.PersonalPenniesSystem.DB = {
+      saveTrade: DataAccess.saveTrade,
+      loadTradesIndex: DataAccess.loadTradesIndex,
+      loadTradeMarkdown: DataAccess.loadTradeMarkdown,
+      saveTradeMarkdown: DataAccess.saveTradeMarkdown
+    };
 
     console.log('[System] Personal-Pennies client-side system loaded successfully');
     console.log('[System] Version:', window.PersonalPenniesSystem.version);
@@ -117,9 +125,6 @@ async function loadSystemModules() {
     // Initialize VFS (filesystem-based storage)
     await initializeVFS();
 
-    // Set up trade pipeline event listener
-    setupPipelineEventListeners();
-
     // Emit system ready event
     if (window.SFTiEventBus) {
       window.SFTiEventBus.emit('system:ready', { version: '2.0.0' });
@@ -127,40 +132,6 @@ async function loadSystemModules() {
   } catch (error) {
     console.error('[System] Failed to load system modules:', error);
   }
-}
-
-/**
- * Set up event listeners for automatic pipeline execution
- */
-function setupPipelineEventListeners() {
-  if (!window.SFTiEventBus) {
-    console.warn('[System] EventBus not available, skipping pipeline event listeners');
-    return;
-  }
-
-  // Listen for trade:added event and run pipeline
-  window.SFTiEventBus.on('trade:added', async (eventData) => {
-    console.log('[System] Trade added, triggering pipeline...', eventData);
-    
-    try {
-      // Run the trade pipeline
-      const Pipeline = window.PersonalPenniesSystem.Pipeline;
-      if (Pipeline && Pipeline.runTradePipeline) {
-        const results = await Pipeline.runTradePipeline();
-        console.log('[System] Pipeline completed:', results);
-        
-        // Emit pipeline completed event
-        window.SFTiEventBus.emit('pipeline:completed', results);
-      } else {
-        console.error('[System] Pipeline not available or missing runTradePipeline method');
-      }
-    } catch (error) {
-      console.error('[System] Pipeline execution failed:', error);
-      window.SFTiEventBus.emit('pipeline:failed', { error: error.message });
-    }
-  });
-
-  console.log('[System] Pipeline event listeners set up');
 }
 
 /**
