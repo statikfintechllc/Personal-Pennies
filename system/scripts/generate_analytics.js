@@ -16,7 +16,18 @@
  */
 
 const { setupImports, saveJsonFile, ensureDirectory } = require('./globals_utils');
-const { loadTradesIndexSync, loadAccountConfigSync } = require('./utils');
+
+// Browser environment - use DataAccess
+let loadTradesIndex, loadAccountConfig;
+if (typeof window !== 'undefined' && window.PersonalPenniesDataAccess) {
+  loadTradesIndex = window.PersonalPenniesDataAccess.loadTradesIndex;
+  loadAccountConfig = window.PersonalPenniesDataAccess.loadAccountConfig;
+} else {
+  // Node.js environment - use sync versions
+  const utils = require('./utils');
+  loadTradesIndex = utils.loadTradesIndexSync;
+  loadAccountConfig = utils.loadAccountConfigSync;
+}
 
 // Setup imports (compatibility with Python version)
 setupImports(__filename);
@@ -570,17 +581,17 @@ function aggregateByTag(trades, tagField) {
  * 
  * Python equivalent: main()
  */
-function main() {
+async function main() {
     console.log('Generating analytics...');
 
-    // Load account config
-    const accountConfig = loadAccountConfigSync();
+    // Load account config (async in browser, sync in Node.js)
+    const accountConfig = await loadAccountConfig();
     const startingBalance = accountConfig.starting_balance || 1000.00;
     const totalDeposits = (accountConfig.deposits || []).reduce((sum, d) => sum + (d.amount || 0), 0);
     const totalWithdrawals = (accountConfig.withdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
     
-    // Load trades index
-    const indexData = loadTradesIndexSync();
+    // Load trades index (async in browser, sync in Node.js)
+    const indexData = await loadTradesIndex();
     if (!indexData) {
         return;
     }
@@ -734,6 +745,7 @@ module.exports = {
 // ES Module exports for browser compatibility
 export {
     main as generateAnalytics,
+    main as generate,
     calculateReturnsMetrics,
     calculateExpectancy,
     calculateProfitFactor,
