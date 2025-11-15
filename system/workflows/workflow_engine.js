@@ -199,3 +199,6 @@ class WorkflowEngine {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { WorkflowEngine };
 }
+
+// Browser export
+export { WorkflowEngine };
