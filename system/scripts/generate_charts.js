@@ -1041,3 +1041,15 @@ module.exports = {
     generatePortfolioValueCharts,
     generateTotalReturnCharts
 };
+
+// ES Module exports for browser compatibility
+export {
+    main as generateCharts,
+    generateEquityCurveData,
+    generateWinLossRatioByStrategyData,
+    generatePerformanceByDayData,
+    generateTickerPerformanceData,
+    generateTimeOfDayPerformanceData,
+    generatePortfolioValueCharts,
+    generateTotalReturnCharts,
+};

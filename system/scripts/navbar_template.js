@@ -32,3 +32,6 @@ function getNavbarHtml(level = 'root') {
 module.exports = {
     getNavbarHtml
 };
+
+// ES Module exports for browser compatibility
+export { getNavbarHtml };

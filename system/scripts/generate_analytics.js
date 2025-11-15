@@ -730,3 +730,18 @@ module.exports = {
     calculateMaeMfeAnalysis,
     aggregateByTag
 };
+
+// ES Module exports for browser compatibility
+export {
+    main as generateAnalytics,
+    calculateReturnsMetrics,
+    calculateExpectancy,
+    calculateProfitFactor,
+    calculateStreaks,
+    calculateDrawdownSeries,
+    calculateKellyCriterion,
+    calculateSharpeRatio,
+    calculateRMultipleDistribution,
+    calculateMaeMfeAnalysis,
+    aggregateByTag,
+};

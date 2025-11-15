@@ -398,3 +398,9 @@ module.exports = {
     main,
     generateTradeHtml
 };
+
+// ES Module exports for browser compatibility
+export {
+    main as generateTradePages,
+    generateTradeHtml,
+};

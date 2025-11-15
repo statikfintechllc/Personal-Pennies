@@ -524,3 +524,6 @@ module.exports = {
     findOrphanedImages,
     generateValidationReport
 };
+
+// ES Module exports for browser compatibility
+export { main,scanTradeImages,validateImageReferences,updateTradeMetadata,findOrphanedImages,generateValidationReport };

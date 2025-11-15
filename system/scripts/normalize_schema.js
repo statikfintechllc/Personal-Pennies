@@ -298,3 +298,6 @@ module.exports = {
     migrateSchema,
     validateSchema
 };
+
+// ES Module exports for browser compatibility
+export { main,CURRENT_SCHEMA_VERSION,SCHEMA_VERSIONS,getSchemaVersion,migrate_1_0_to_1_1,migrateSchema,validateSchema };

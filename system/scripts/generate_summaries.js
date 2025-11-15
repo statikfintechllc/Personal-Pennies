@@ -546,3 +546,13 @@ module.exports = {
     aggregateWeeklyInsights,
     aggregateMonthlyInsights
 };
+
+// ES Module exports for browser compatibility
+export {
+    main as generateSummaries,
+    loadExistingSummary,
+    groupTradesByPeriod,
+    generateSummaryMarkdown,
+    aggregateWeeklyInsights,
+    aggregateMonthlyInsights,
+};
