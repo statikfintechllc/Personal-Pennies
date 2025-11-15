@@ -234,6 +234,12 @@
       if (window.SFTiEventBus) {
         window.SFTiEventBus.emit('trades:updated', { key: tradeKey, data: formData });
       }
+      
+      // Trigger client-side regeneration
+      if (window.tradingJournal && typeof window.tradingJournal.regenerateAllData === 'function') {
+        console.log('[AddTrade] Triggering data regeneration...');
+        await window.tradingJournal.regenerateAllData();
+      }
 
       // Show success message with trade number
       if (window.showToast) {
