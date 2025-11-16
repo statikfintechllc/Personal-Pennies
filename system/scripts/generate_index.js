@@ -241,9 +241,3 @@ if (require.main === module) {
 }
 
 module.exports = { main, createTradeListHtml };
-
-// ES Module exports for browser compatibility
-export {
-    main as generateIndex,
-    //,
-};
