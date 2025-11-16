@@ -222,6 +222,12 @@ export async function saveTrade(weekKey, tradeData) {
   const fullPath = `index.directory/SFTi.Tradez/${weekKey}/${tradeFile}`;
   console.log(`[DataAccess] Trade saved to: ${fullPath}`);
   
+  // Emit event to trigger pipeline
+  if (typeof window !== 'undefined' && window.SFTiEventBus) {
+    console.log('[DataAccess] Emitting vfs:file-written event to trigger pipeline');
+    window.SFTiEventBus.emit('vfs:file-written', { path: fullPath, type: 'trade' });
+  }
+  
   return fullPath;
 }
 
@@ -349,6 +355,13 @@ export async function saveAccountConfig(data) {
   try {
     await writeJSON(path, data, { pretty: true });
     console.log('[DataAccess] Saved account config');
+    
+    // Emit event to trigger pipeline
+    if (typeof window !== 'undefined' && window.SFTiEventBus) {
+      console.log('[DataAccess] Emitting vfs:file-written event to trigger pipeline');
+      window.SFTiEventBus.emit('vfs:file-written', { path, type: 'account-config' });
+    }
+    
     return true;
   } catch (error) {
     console.error('[DataAccess] Failed to save account config:', error);
@@ -406,6 +419,13 @@ export async function saveNote(notePath, content) {
   try {
     await writeText(path, content, { mimeType: 'text/markdown' });
     console.log(`[DataAccess] Saved note: ${notePath}`);
+    
+    // Emit event to trigger pipeline
+    if (typeof window !== 'undefined' && window.SFTiEventBus) {
+      console.log('[DataAccess] Emitting vfs:file-written event to trigger pipeline');
+      window.SFTiEventBus.emit('vfs:file-written', { path, type: 'note' });
+    }
+    
     return true;
   } catch (error) {
     console.error(`[DataAccess] Failed to save note ${notePath}:`, error);
