@@ -230,22 +230,16 @@
       const tradeKey = await window.PersonalPenniesDataAccess.saveTrade(weekKey, formData);
       console.log('[AddTrade] Trade saved:', tradeKey);
 
-      // Emit event to trigger pipeline
+      // Emit event to trigger pipeline (app.js will handle regeneration)
       if (window.SFTiEventBus) {
         window.SFTiEventBus.emit('trades:updated', { key: tradeKey, data: formData });
-      }
-      
-      // Trigger client-side regeneration
-      if (window.tradingJournal && typeof window.tradingJournal.regenerateAllData === 'function') {
-        console.log('[AddTrade] Triggering data regeneration...');
-        await window.tradingJournal.regenerateAllData();
       }
 
       // Show success message with trade number
       if (window.showToast) {
-        window.showToast(`Trade #${formData.trade_number} added successfully! Processing pipeline...`, 'success');
+        window.showToast(`Trade #${formData.trade_number} added successfully! Generating analytics...`, 'success');
       } else {
-        alert('Trade added successfully! Processing pipeline...');
+        alert('Trade added successfully! Generating analytics...');
       }
 
       // Reset form
