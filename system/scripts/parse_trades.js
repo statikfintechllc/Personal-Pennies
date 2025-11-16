@@ -20,6 +20,32 @@ const fsSync = require('fs');
 const path = require('path');
 const { saveJsonFile } = require('./globals_utils');
 
+// File system abstraction - use VFS in browser, fs in Node.js
+let fs;
+if (typeof window !== 'undefined' && window.PersonalPenniesSystem?.VFS) {
+  // Browser: use VFS
+  const VFS = window.PersonalPenniesSystem.VFS;
+  fs = {
+    async readFile(filepath, encoding) {
+      return await VFS.readFile(filepath);
+    },
+    async readdir(dirpath) {
+      const files = await VFS.listFiles(dirpath, { recursive: false });
+      return files.map(f => f.name);
+    },
+    async stat(filepath) {
+      const stats = await VFS.stat(filepath);
+      return {
+        isDirectory() { return stats.isDirectory; },
+        isFile() { return !stats.isDirectory; }
+      };
+    }
+  };
+} else {
+  // Node.js: use fs
+  fs = require('fs').promises;
+}
+
 /**
  * Extract YAML frontmatter from markdown content
  * 

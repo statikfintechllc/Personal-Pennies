@@ -9,11 +9,20 @@
  * All data generation functions are fully implemented for Chart.js compatibility.
  */
 
-const fs = require('fs').promises;
-const fsSync = require('fs');
 const path = require('path');
 const { setupImports, ensureDirectory, saveJsonFile } = require('./globals_utils');
-const { loadTradesIndexSync, loadAccountConfigSync } = require('./utils');
+
+// Browser environment - use DataAccess
+let loadTradesIndex, loadAccountConfig;
+if (typeof window !== 'undefined' && window.PersonalPenniesDataAccess) {
+  loadTradesIndex = window.PersonalPenniesDataAccess.loadTradesIndex;
+  loadAccountConfig = window.PersonalPenniesDataAccess.loadAccountConfig;
+} else {
+  // Node.js environment - use sync versions
+  const utils = require('./utils');
+  loadTradesIndex = utils.loadTradesIndexSync;
+  loadAccountConfig = utils.loadAccountConfigSync;
+}
 
 // Setup imports (compatibility with Python version)
 setupImports(__filename);
@@ -953,19 +962,19 @@ function createDayChartData(sortedTrades, endDate, baseValue, chartType) {
  * 
  * Python equivalent: main()
  */
-function main() {
+async function main() {
     console.log('Generating charts...');
 
-    // Load trades index
-    const indexData = loadTradesIndexSync();
+    // Load trades index (async in browser, sync in Node.js)
+    const indexData = await loadTradesIndex();
     if (!indexData) {
         return;
     }
 
     const trades = indexData.trades || [];
     
-    // Load account config
-    const accountConfig = loadAccountConfigSync();
+    // Load account config (async in browser, sync in Node.js)
+    const accountConfig = await loadAccountConfig();
     
     console.log(`Processing ${trades.length} trades...`);
 
@@ -1045,6 +1054,7 @@ module.exports = {
 // ES Module exports for browser compatibility
 export {
     main as generateCharts,
+    main as generate,
     generateEquityCurveData,
     generateWinLossRatioByStrategyData,
     generatePerformanceByDayData,
