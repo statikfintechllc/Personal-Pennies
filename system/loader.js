@@ -155,7 +155,63 @@ async function initializeVFS() {
     if (window.SFTiEventBus) {
       window.SFTiEventBus.emit('vfs:ready', stats);
     }
+    
+    // Setup VFS file watcher to trigger pipeline (matches GitHub Actions on: push: paths:)
+    setupVFSWatcher();
+    
   } catch (error) {
     console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
   }
+}
+
+/**
+ * Setup VFS file watcher to trigger pipeline on file writes
+ * Matches GitHub Actions workflow trigger: on push to specific paths
+ */
+function setupVFSWatcher() {
+  console.log('[Workflow] Setting up VFS file watcher...');
+  
+  // Trigger paths from .github/workflows/trade_pipeline.yml
+  const triggerPaths = [
+    'index.directory/SFTi.Tradez/',          // Trades
+    'index.directory/account-config.json',    // Account config (deposits/withdrawals)
+    'index.directory/Informational.Bookz/',   // Books
+    'index.directory/SFTi.Notez/'            // Notes
+  ];
+  
+  // Intercept VFS writeFile to detect file changes
+  const originalWriteFile = window.PersonalPenniesSystem.VFS.writeFile;
+  
+  window.PersonalPenniesSystem.VFS.writeFile = async function(path, content, options) {
+    // Call original writeFile
+    const result = await originalWriteFile(path, content, options);
+    
+    // Check if path matches trigger patterns
+    const shouldTrigger = triggerPaths.some(triggerPath => path.startsWith(triggerPath));
+    
+    if (shouldTrigger) {
+      console.log(`[Workflow] File write detected in trigger path: ${path}`);
+      console.log('[Workflow] Auto-triggering trade pipeline...');
+      
+      // Trigger pipeline asynchronously (don't wait for it)
+      window.PersonalPenniesSystem.Pipeline.runTradePipeline()
+        .then(results => {
+          console.log('[Workflow] Pipeline completed successfully');
+          // Emit pipeline completed event
+          if (window.SFTiEventBus) {
+            window.SFTiEventBus.emit('pipeline:completed', results);
+          }
+        })
+        .catch(error => {
+          console.error('[Workflow] Pipeline failed:', error);
+          if (window.SFTiEventBus) {
+            window.SFTiEventBus.emit('pipeline:failed', { error: error.message });
+          }
+        });
+    }
+    
+    return result;
+  };
+  
+  console.log('[Workflow] VFS file watcher active - monitoring trigger paths');
 }
