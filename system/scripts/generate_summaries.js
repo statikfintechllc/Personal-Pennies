@@ -15,7 +15,7 @@
  */
 
 const path = require('path');
-const { setupImports } = require('./globals_utils');
+const { setupImports, saveTextFile, ensureDirectory } = require('./globals_utils');
 
 // Browser environment - use DataAccess
 let loadTradesIndex;
@@ -445,6 +445,7 @@ async function main() {
 
     // Generate weekly summaries
     console.log('Generating weekly summaries...');
+    await ensureDirectory('index.directory/summaries');
     const weeklyGroups = groupTradesByPeriod(trades, 'week');
     for (const [weekKey, weekTrades] of Object.entries(weeklyGroups)) {
         const stats = calculatePeriodStats(weekTrades);
@@ -455,7 +456,7 @@ async function main() {
 
         const markdown = generateSummaryMarkdown(weekKey, stats, 'week', existingReview);
 
-        fsSync.writeFileSync(filename, markdown, 'utf-8');
+        await saveTextFile(filename, markdown);
 
         if (existingReview && Object.values(existingReview).some(v => v)) {
             console.log(`  Updated ${filename} (preserved user review)`);
@@ -492,7 +493,7 @@ async function main() {
 
         const markdown = generateSummaryMarkdown(monthKey, stats, 'month', existingReview);
 
-        fsSync.writeFileSync(filename, markdown, 'utf-8');
+        await saveTextFile(filename, markdown);
 
         if (existingReview && Object.values(existingReview).some(v => v)) {
             console.log(`  Updated ${filename} (with weekly insights)`);
@@ -528,7 +529,7 @@ async function main() {
 
         const markdown = generateSummaryMarkdown(yearKey, stats, 'year', existingReview);
 
-        fsSync.writeFileSync(filename, markdown, 'utf-8');
+        await saveTextFile(filename, markdown);
 
         if (existingReview && Object.values(existingReview).some(v => v)) {
             console.log(`  Updated ${filename} (with monthly insights)`);

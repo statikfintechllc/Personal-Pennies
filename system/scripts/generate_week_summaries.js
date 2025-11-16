@@ -375,7 +375,7 @@ function processWeekFolder(weekFolder) {
     // Write to file
     const masterFile = path.join(weekFolder, 'master.trade.md');
     try {
-        fsSync.writeFileSync(masterFile, markdownContent, 'utf-8');
+        await saveTextFile(masterFile, markdownContent);
         console.log(`  ✓ Generated master.trade.md with ${trades.length} trades`);
         return true;
     } catch (error) {

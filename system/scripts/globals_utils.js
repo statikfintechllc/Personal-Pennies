@@ -12,9 +12,9 @@ const path = require('path');
 
 // File system abstraction - use VFS in browser, fs in Node.js
 let fs;
-if (typeof window !== 'undefined' && window.PersonalPenniesSystem?.VFS) {
+if (typeof window !== 'undefined' && window.PersonalPenniesVFS) {
   // Browser: use VFS
-  const VFS = window.PersonalPenniesSystem.VFS;
+  const VFS = window.PersonalPenniesVFS;
   fs = {
     async writeFile(filepath, content) {
       await VFS.writeFile(filepath, content);
@@ -182,6 +182,33 @@ function saveJsonFileSync(filepath, data, indent = 2) {
         
         const jsonString = JSON.stringify(data, null, indent);
         fsSync.writeFileSync(filepath, jsonString, 'utf-8');
+        return true;
+    } catch (error) {
+        console.log(`Error saving to ${filepath}: ${error.message}`);
+        return false;
+    }
+}
+
+/**
+ * Save text content to a file (async, VFS-aware)
+ * 
+ * @param {string} filepath - Path to save text file
+ * @param {string} content - Text content to save
+ * @param {string} encoding - Character encoding (default: 'utf-8')
+ * @returns {Promise<boolean>} True if successful, False otherwise
+ * 
+ * @example
+ * await saveTextFile("output.md", "# Hello World");
+ */
+async function saveTextFile(filepath, content, encoding = 'utf-8') {
+    try {
+        // Ensure directory exists
+        const directory = path.dirname(filepath);
+        if (directory) {
+            await ensureDirectory(directory);
+        }
+        
+        await fs.writeFile(filepath, content, encoding);
         return true;
     } catch (error) {
         console.log(`Error saving to ${filepath}: ${error.message}`);
@@ -404,6 +431,7 @@ module.exports = {
     loadJsonFileSync,
     saveJsonFile,
     saveJsonFileSync,
+    saveTextFile,
     parseDate,
     formatCurrency,
     safeDivide,
@@ -414,4 +442,4 @@ module.exports = {
 };
 
 // ES Module exports for browser compatibility
-export { setupImports,ensureDirectory,ensureDirectorySync,loadJsonFile,loadJsonFileSync,saveJsonFile,saveJsonFileSync,parseDate,formatCurrency,safeDivide,getWeekFolder,calculateTimeInTrade,validateRequiredFields,roundDecimals };
+export { setupImports,ensureDirectory,ensureDirectorySync,loadJsonFile,loadJsonFileSync,saveJsonFile,saveJsonFileSync,saveTextFile,parseDate,formatCurrency,safeDivide,getWeekFolder,calculateTimeInTrade,validateRequiredFields,roundDecimals };
