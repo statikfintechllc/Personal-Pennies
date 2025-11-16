@@ -119,3 +119,6 @@ if (require.main === module) {
 }
 
 module.exports = { main, scanBooksDirectory, extractBookTitle };
+
+// ES Module exports for browser compatibility
+export { main as generateBooksIndex, main as generate, scanBooksDirectory, extractBookTitle };

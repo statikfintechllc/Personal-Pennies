@@ -316,3 +316,6 @@ module.exports = {
     extractExcerpt,
     findThumbnail
 };
+
+// ES Module exports for browser compatibility
+export { main as generateNotesIndex, main as generate, scanNotesDirectory, extractExcerpt, findThumbnail };
