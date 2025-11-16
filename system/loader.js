@@ -159,8 +159,88 @@ async function initializeVFS() {
     // Setup VFS file watcher to trigger pipeline (matches GitHub Actions on: push: paths:)
     setupVFSWatcher();
     
+    // Check if pipeline needs to run on page load to regenerate analytics/charts
+    await checkAndRunPipelineOnLoad();
+    
   } catch (error) {
     console.error('[VFS] Failed to initialize Virtual Filesystem:', error);
+  }
+}
+
+/**
+ * Check if pipeline should run on page load to regenerate analytics/charts
+ * This ensures users always have up-to-date analytics when they refresh the page
+ */
+async function checkAndRunPipelineOnLoad() {
+  try {
+    console.log('[Workflow] Checking if pipeline needs to run on page load...');
+    
+    // Check if we have trades in VFS
+    const tradesIndexExists = await window.PersonalPenniesSystem.VFS.fileExists('index.directory/trades-index.json');
+    
+    if (!tradesIndexExists) {
+      console.log('[Workflow] No trades index found, skipping pipeline on load');
+      return;
+    }
+    
+    // Check if we have trade files in VFS
+    const tradeFiles = await window.PersonalPenniesSystem.VFS.listFiles('index.directory/SFTi.Tradez/', { recursive: true });
+    const hasTrades = tradeFiles && tradeFiles.length > 0;
+    
+    if (!hasTrades) {
+      console.log('[Workflow] No trade files found, skipping pipeline on load');
+      return;
+    }
+    
+    // Check if analytics exist
+    const analyticsExists = await window.PersonalPenniesSystem.VFS.fileExists('index.directory/assets/charts/analytics-data.json');
+    
+    if (!analyticsExists) {
+      console.log('[Workflow] Analytics missing, triggering pipeline to regenerate...');
+      await triggerPipeline('page-load-analytics-missing');
+      return;
+    }
+    
+    // Check timestamps to see if analytics are stale
+    const tradesIndexData = await window.PersonalPenniesSystem.VFS.stat('index.directory/trades-index.json');
+    const analyticsData = await window.PersonalPenniesSystem.VFS.stat('index.directory/assets/charts/analytics-data.json');
+    
+    const tradesModified = new Date(tradesIndexData.lastModified);
+    const analyticsModified = new Date(analyticsData.lastModified);
+    
+    // If trades were modified after analytics, regenerate
+    if (tradesModified > analyticsModified) {
+      console.log('[Workflow] Analytics are stale (trades modified after analytics), triggering pipeline...');
+      await triggerPipeline('page-load-stale-analytics');
+      return;
+    }
+    
+    console.log('[Workflow] Analytics are up-to-date, no pipeline run needed on page load');
+    
+  } catch (error) {
+    console.error('[Workflow] Error checking pipeline on load:', error);
+  }
+}
+
+/**
+ * Trigger the pipeline with a specific reason
+ */
+async function triggerPipeline(reason) {
+  console.log(`[Workflow] Triggering pipeline (reason: ${reason})...`);
+  
+  try {
+    const results = await window.PersonalPenniesSystem.Pipeline.runTradePipeline();
+    console.log('[Workflow] Pipeline completed successfully on page load');
+    
+    // Emit pipeline completed event
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('pipeline:completed', { ...results, reason });
+    }
+  } catch (error) {
+    console.error('[Workflow] Pipeline failed on page load:', error);
+    if (window.SFTiEventBus) {
+      window.SFTiEventBus.emit('pipeline:failed', { error: error.message, reason });
+    }
   }
 }
 
