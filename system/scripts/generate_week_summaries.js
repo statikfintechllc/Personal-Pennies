@@ -438,3 +438,17 @@ module.exports = {
     generateMasterMarkdown,
     processWeekFolder
 };
+
+// ES Module exports for browser compatibility
+export {
+    main as generateWeekSummaries,
+    getRepoRoot,
+    parseTradeFile,
+    collectWeekTrades,
+    calculateWeekStats,
+    generateMasterMarkdown,
+    processWeekFolder,
+};
+
+// ES Module exports for browser compatibility
+export { main as generateWeekSummaries, main as generate, generateMasterMarkdown, processWeekFolder, parseTradeMarkdown };

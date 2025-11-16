@@ -50,3 +50,6 @@ if (require.main === module) {
 }
 
 module.exports = { main };
+
+// ES Module exports for browser compatibility
+export { main as updateHomepage, main as update };

@@ -487,3 +487,6 @@ module.exports = {
     createTradeMarkdown,
     updateTradesIndex
 };
+
+// ES Module exports for browser compatibility
+export { main as importCSV, detectBroker, parseCSV, createTradeMarkdown, updateTradesIndex };

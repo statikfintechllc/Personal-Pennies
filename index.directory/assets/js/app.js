@@ -76,12 +76,6 @@ class TradingJournal {
   setupEventListeners() {
     if (!this.eventBus) return;
     
-    // Listen for account config loaded (initial load)
-    this.eventBus.on('account:config-loaded', () => {
-      console.log('[TradingJournal] Account config loaded, refreshing stats');
-      this.refreshStats();
-    });
-    
     // Listen for account balance changes
     this.eventBus.on('account:balance-updated', () => {
       console.log('[TradingJournal] Account balance updated, refreshing stats');
@@ -117,80 +111,36 @@ class TradingJournal {
       console.log('[TradingJournal] Analytics updated, refreshing display');
       this.refreshStats();
     });
-    
-    // Listen for pipeline completion - reload data from IndexedDB
-    this.eventBus.on('pipeline:completed', async (results) => {
-      console.log('[TradingJournal] Pipeline completed, reloading stats from IndexedDB');
-      await this.refreshStats();
-    });
   }
   
   /**
-   * Refresh stats - Load from VFS
+   * Refresh stats without reloading trades
    */
   async refreshStats() {
     try {
-      // Wait for DataAccess to be available
-      if (!window.PersonalPenniesDataAccess) {
-        console.warn('[TradingJournal] DataAccess not available yet, waiting...');
-        // Wait up to 2 seconds for DataAccess
-        let retries = 0;
-        while (!window.PersonalPenniesDataAccess && retries < 20) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          retries++;
+      // Load latest trades data
+      const response = await fetch(`${this.basePath}/index.directory/trades-index.json`);
+      if (!response.ok) return;
+      
+      const data = await response.json();
+      
+      // Load analytics
+      let analyticsData = null;
+      try {
+        const analyticsResponse = await fetch(`${this.basePath}/index.directory/assets/charts/analytics-data.json`);
+        if (analyticsResponse.ok) {
+          analyticsData = await analyticsResponse.json();
         }
-        if (!window.PersonalPenniesDataAccess) {
-          console.error('[TradingJournal] DataAccess failed to initialize');
-          return;
-        }
+      } catch (err) {
+        console.warn('Could not load analytics data:', err);
       }
       
-      // Load trades from VFS
-      const tradesIndex = await window.PersonalPenniesDataAccess.loadTradesIndex();
-      const trades = tradesIndex.trades || [];
-      const stats = this.calculateTradesStatistics(trades);
-      
-      // Load analytics from VFS
-      const analyticsData = await window.PersonalPenniesDataAccess.loadAnalytics();
-      
-      // Update stats (portfolio value calculated directly from VFS)
-      await this.updateStats(stats, analyticsData);
-      console.log('[TradingJournal] Stats refreshed from VFS');
+      // Update stats
+      this.updateStats(data.statistics || {}, analyticsData);
       
     } catch (error) {
-      console.error('[TradingJournal] Error refreshing stats from VFS:', error);
+      console.warn('Could not refresh stats:', error);
     }
-  }
-  
-  /**
-   * Calculate statistics from trades array
-   */
-  calculateTradesStatistics(trades) {
-    if (!trades || trades.length === 0) {
-      return {
-        total_trades: 0,
-        total_pnl: 0,
-        avg_pnl: 0,
-        win_rate: 0,
-        wins: 0,
-        losses: 0
-      };
-    }
-    
-    // Handle both pnl and pnl_usd field names for backwards compatibility
-    const totalPnL = trades.reduce((sum, trade) => sum + (trade.pnl || trade.pnl_usd || 0), 0);
-    const wins = trades.filter(trade => (trade.pnl || trade.pnl_usd || 0) > 0).length;
-    const losses = trades.filter(trade => (trade.pnl || trade.pnl_usd || 0) < 0).length;
-    const winRate = trades.length > 0 ? ((wins / trades.length) * 100).toFixed(2) : 0;
-    
-    return {
-      total_trades: trades.length,
-      total_pnl: totalPnL,
-      avg_pnl: totalPnL / trades.length,
-      win_rate: winRate,
-      wins,
-      losses
-    };
   }
   
   /**
@@ -394,23 +344,13 @@ class TradingJournal {
    * @param {Object} stats - Statistics object from trades index
    * @param {Object} analytics - Analytics data with percentage returns
    */
-  async updateStats(stats, analytics = null) {
+  updateStats(stats, analytics = null) {
     if (!stats || Object.keys(stats).length === 0) return;
     
-    // Calculate portfolio value directly from VFS (no accountManager dependency)
+    // Calculate portfolio value if accountManager is available
     let portfolioValue = 0;
-    if (window.PersonalPenniesDataAccess) {
-      try {
-        const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
-        if (config) {
-          const startingBalance = config.starting_balance || 0;
-          const totalDeposits = (config.deposits || []).reduce((sum, d) => sum + d.amount, 0);
-          const totalWithdrawals = (config.withdrawals || []).reduce((sum, w) => sum + w.amount, 0);
-          portfolioValue = startingBalance + totalDeposits - totalWithdrawals + (stats.total_pnl || 0);
-        }
-      } catch (error) {
-        console.error('[TradingJournal] Error calculating portfolio value:', error);
-      }
+    if (window.accountManager && window.accountManager.initialized) {
+      portfolioValue = window.accountManager.calculatePortfolioValue(stats.total_pnl || 0);
     }
     
     // Get total return percentage from analytics
@@ -779,14 +719,7 @@ class TradingJournal {
       );
       
       // Show success message
-      if (window.showToast) {
-        window.showToast(`Trade #${tradeNum} submitted successfully! Regenerating analytics...`, 'success', 3000);
-      } else {
-        alert(`Trade #${tradeNum} submitted successfully!\nFile: ${tradePath}`);
-      }
-      
-      // Trigger client-side regeneration of all analytics, charts, and indexes
-      await this.regenerateAllData();
+      alert(`Trade #${tradeNum} submitted successfully!\nFile: ${tradePath}`);
       
       // Reset form
       event.target.reset();
@@ -795,11 +728,7 @@ class TradingJournal {
       
     } catch (error) {
       console.error('Submission error:', error);
-      if (window.showToast) {
-        window.showToast(`Failed to submit trade: ${error.message}`, 'error', 5000);
-      } else {
-        alert(`Failed to submit trade: ${error.message}`);
-      }
+      alert(`Failed to submit trade: ${error.message}`);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
@@ -966,119 +895,6 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
         image.base64,
         `auto: add screenshot for ${dateFormatted}.${tradeNum}`
       );
-    }
-  }
-  
-  /**
-   * Update portfolio value asynchronously
-   * @param {number} totalPnL - Total P&L from trades
-   */
-  async updatePortfolioValue(totalPnL) {
-    try {
-      let portfolioValue = 0;
-      
-      // Calculate from VFS directly (no waiting for accountManager)
-      if (window.PersonalPenniesDataAccess) {
-        const config = await window.PersonalPenniesDataAccess.loadAccountConfig();
-        if (config) {
-          const startingBalance = config.starting_balance || 0;
-          const totalDeposits = (config.deposits || []).reduce((sum, d) => sum + d.amount, 0);
-          const totalWithdrawals = (config.withdrawals || []).reduce((sum, w) => sum + w.amount, 0);
-          portfolioValue = startingBalance + totalDeposits - totalWithdrawals + totalPnL;
-        }
-      }
-      
-      // Update DOM
-      const element = document.getElementById('stat-portfolio-value');
-      if (element) {
-        element.textContent = `$${portfolioValue.toFixed(2)}`;
-        element.classList.remove('positive', 'negative');
-        element.classList.add(portfolioValue >= 0 ? 'positive' : 'negative');
-      }
-    } catch (error) {
-      console.error('[TradingJournal] Error updating portfolio value:', error);
-    }
-  }
-  
-  /**
-   * Regenerate all data after trade add/edit/delete
-   * Triggers client-side generation of analytics, charts, indexes, and pages
-   */
-  async regenerateAllData() {
-    try {
-      console.log('[Regeneration] Starting client-side data regeneration...');
-      
-      // Check if system modules are loaded
-      if (!window.PersonalPenniesSystem) {
-        console.warn('[Regeneration] System modules not loaded yet, waiting...');
-        // Wait up to 5 seconds for system to load
-        let retries = 0;
-        while (!window.PersonalPenniesSystem && retries < 50) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          retries++;
-        }
-        if (!window.PersonalPenniesSystem) {
-          console.error('[Regeneration] System modules failed to load');
-          return;
-        }
-      }
-      
-      const { ParseTrades, GenerateAnalytics, GenerateCharts, GenerateSummaries, 
-              GenerateTradePages, GenerateWeekSummaries, GenerateIndex, 
-              UpdateHomepage } = window.PersonalPenniesSystem;
-      
-      // Step 1: Parse all trades from markdown files
-      console.log('[Regeneration] Step 1/7: Parsing trades...');
-      const tradesData = await ParseTrades.parseTrades();
-      
-      // Step 2: Generate analytics
-      console.log('[Regeneration] Step 2/7: Generating analytics...');
-      await GenerateAnalytics.generate(tradesData);
-      
-      // Step 3: Generate charts
-      console.log('[Regeneration] Step 3/7: Generating charts...');
-      await GenerateCharts.generate(tradesData);
-      
-      // Step 4: Generate summaries
-      console.log('[Regeneration] Step 4/7: Generating summaries...');
-      await GenerateSummaries.generate(tradesData);
-      
-      // Step 5: Generate trade pages
-      console.log('[Regeneration] Step 5/7: Generating trade pages...');
-      await GenerateTradePages.generate(tradesData);
-      
-      // Step 6: Generate week summaries
-      console.log('[Regeneration] Step 6/7: Generating week summaries...');
-      await GenerateWeekSummaries.generate(tradesData);
-      
-      // Step 7: Generate index and update homepage
-      console.log('[Regeneration] Step 7/7: Updating indexes and homepage...');
-      await GenerateIndex.generate(tradesData);
-      await UpdateHomepage.update();
-      
-      console.log('[Regeneration] ✓ All data regenerated successfully');
-      
-      // Emit event for any listeners
-      if (this.eventBus) {
-        this.eventBus.emit('data:regenerated', { timestamp: new Date().toISOString() });
-      }
-      
-      // Show success toast
-      if (window.showToast) {
-        window.showToast('Analytics updated! Refreshing page...', 'success', 2000);
-      }
-      
-      // Reload page after 1 second to show fresh data
-      // This ensures HTML pages load the newly generated JSON data
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
-    } catch (error) {
-      console.error('[Regeneration] Error during data regeneration:', error);
-      if (window.showToast) {
-        window.showToast(`Failed to regenerate analytics: ${error.message}`, 'error', 5000);
-      }
     }
   }
 }

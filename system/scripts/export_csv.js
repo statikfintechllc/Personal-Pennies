@@ -216,3 +216,6 @@ if (require.main === module) {
 }
 
 module.exports = { main, exportToCsv };
+
+// ES Module exports for browser compatibility
+export { main as exportCSV, exportToCsv };

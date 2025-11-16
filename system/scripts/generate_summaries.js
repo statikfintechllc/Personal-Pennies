@@ -14,11 +14,18 @@
  * This is a comprehensive JavaScript translation of generate_summaries.py with full feature parity.
  */
 
-const fs = require('fs').promises;
-const fsSync = require('fs');
 const path = require('path');
 const { setupImports } = require('./globals_utils');
-const { loadTradesIndexSync, calculatePeriodStats } = require('./utils');
+
+// Browser environment - use DataAccess
+let loadTradesIndex;
+if (typeof window !== 'undefined' && window.PersonalPenniesDataAccess) {
+  loadTradesIndex = window.PersonalPenniesDataAccess.loadTradesIndex;
+} else {
+  // Node.js environment - use sync version
+  const utils = require('./utils');
+  loadTradesIndex = utils.loadTradesIndexSync;
+}
 
 // Setup imports (compatibility with Python version)
 setupImports(__filename);
@@ -416,11 +423,11 @@ function aggregateMonthlyInsights(year) {
  * 
  * Python equivalent: main()
  */
-function main() {
+async function main() {
     console.log('Generating summaries...');
 
-    // Load trades index
-    const indexData = loadTradesIndexSync();
+    // Load trades index (async in browser, sync in Node.js)
+    const indexData = await loadTradesIndex();
     if (!indexData) {
         return;
     }
@@ -545,4 +552,15 @@ module.exports = {
     generateSummaryMarkdown,
     aggregateWeeklyInsights,
     aggregateMonthlyInsights
+};
+
+// ES Module exports for browser compatibility
+export {
+    main as generateSummaries,
+    main as generate,
+    loadExistingSummary,
+    groupTradesByPeriod,
+    generateSummaryMarkdown,
+    aggregateWeeklyInsights,
+    aggregateMonthlyInsights,
 };

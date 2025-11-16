@@ -171,7 +171,7 @@ class AccountManager {
       
       // Emit event for reactive updates
       if (this.eventBus) {
-        this.eventBus.emit('account:config-updated', this.config);
+        this.eventBus.emit('account:updated', this.config);
       }
       
       // Show success notification only for starting balance updates
