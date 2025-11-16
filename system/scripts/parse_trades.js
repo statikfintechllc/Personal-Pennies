@@ -484,3 +484,6 @@ module.exports = {
     calculateStatistics,
     findMarkdownFiles
 };
+
+// ES Module exports for browser compatibility
+export { main as parseTrades, main as generate, parseFrontmatter, parseTradeFile, calculateStatistics, findMarkdownFiles };
