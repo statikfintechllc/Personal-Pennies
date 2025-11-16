@@ -49,7 +49,7 @@ class TradingJournal {
   /**
    * Initialize the application
    */
-  initializeApp() {
+  async initializeApp() {
     // Set up navigation
     this.setupNavigation();
     
@@ -68,6 +68,10 @@ class TradingJournal {
     
     // Set up auth UI
     this.setupAuthUI();
+    
+    // Run full regeneration on every page load to ensure fresh data
+    console.log('[TradingJournal] Running initial data regeneration...');
+    await this.regenerateAllData();
   }
   
   /**
@@ -1084,6 +1088,7 @@ ${this.uploadedImages.length > 0 ? this.uploadedImages.map(img =>
 }
 
 // Initialize app when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   window.tradingJournal = new TradingJournal();
+  // Note: initializeApp() now calls regenerateAllData() automatically
 });
