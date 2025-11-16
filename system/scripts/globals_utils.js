@@ -8,9 +8,27 @@
  * Python typing module (Dict, Any, Optional, Tuple) is replaced with JSDoc comments.
  */
 
-const fs = require('fs').promises;
-const fsSync = require('fs');
 const path = require('path');
+
+// File system abstraction - use VFS in browser, fs in Node.js
+let fs;
+if (typeof window !== 'undefined' && window.PersonalPenniesSystem?.VFS) {
+  // Browser: use VFS
+  const VFS = window.PersonalPenniesSystem.VFS;
+  fs = {
+    async writeFile(filepath, content) {
+      await VFS.writeFile(filepath, content);
+    },
+    async mkdir(dirpath, options) {
+      // VFS creates directories implicitly
+    }
+  };
+} else {
+  // Node.js: use fs
+  fs = require('fs').promises;
+}
+
+const fsSync = require('fs');
 
 /**
  * Add the scripts directory to module paths for imports.
