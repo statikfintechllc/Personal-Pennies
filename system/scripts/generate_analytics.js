@@ -695,32 +695,15 @@ async function main() {
     }
 
     // Save analytics data
-    ensureDirectorySync('index.directory/assets/charts');
+    await ensureDirectory('index.directory/assets/charts');
     const outputFile = 'index.directory/assets/charts/analytics-data.json';
 
-    saveJsonFileSync(outputFile, analytics);
+    await saveJsonFile(outputFile, analytics);
 
     console.log(`Analytics written to ${outputFile}`);
     console.log(`Expectancy: $${analytics.expectancy}`);
     console.log(`Profit Factor: ${analytics.profit_factor}`);
     console.log(`Kelly Criterion: ${analytics.kelly_criterion}%`);
-}
-
-// Sync version of ensure/save for compatibility
-function ensureDirectorySync(dir) {
-    const fsSync = require('fs');
-    const path = require('path');
-    fsSync.mkdirSync(dir, { recursive: true });
-}
-
-function saveJsonFileSync(filepath, data) {
-    const fsSync = require('fs');
-    const path = require('path');
-    const dir = path.dirname(filepath);
-    if (dir) {
-        ensureDirectorySync(dir);
-    }
-    fsSync.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 // Run main if executed directly

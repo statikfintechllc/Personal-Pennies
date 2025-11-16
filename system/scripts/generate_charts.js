@@ -701,7 +701,7 @@ function parseTradeDateTime(trade) {
  * @param {Array} trades - List of trade dictionaries
  * @param {Object} accountConfig - Account configuration
  */
-function generatePortfolioValueCharts(trades, accountConfig) {
+async function generatePortfolioValueCharts(trades, accountConfig) {
     const startingBalance = accountConfig.starting_balance || 0;
     const deposits = accountConfig.deposits || [];
     const withdrawals = accountConfig.withdrawals || [];
@@ -766,7 +766,7 @@ function generatePortfolioValueCharts(trades, accountConfig) {
         }
         
         const outputPath = `index.directory/assets/charts/portfolio-value-${timeframe}.json`;
-        fsSync.writeFileSync(outputPath, JSON.stringify(chartData, null, 2), 'utf-8');
+        await saveJsonFile(outputPath, chartData);
         console.log(`  ✓ Portfolio value (${timeframe}) with ${getDefaultInterval(timeframe)} interval saved`);
     }
 }
@@ -779,7 +779,7 @@ function generatePortfolioValueCharts(trades, accountConfig) {
  * @param {Array} trades - List of trade dictionaries
  * @param {Object} accountConfig - Account configuration
  */
-function generateTotalReturnCharts(trades, accountConfig) {
+async function generateTotalReturnCharts(trades, accountConfig) {
     const startingBalance = accountConfig.starting_balance || 0;
     const deposits = accountConfig.deposits || [];
     const withdrawals = accountConfig.withdrawals || [];
@@ -852,7 +852,7 @@ function generateTotalReturnCharts(trades, accountConfig) {
         }
         
         const outputPath = `index.directory/assets/charts/total-return-${timeframe}.json`;
-        fsSync.writeFileSync(outputPath, JSON.stringify(chartData, null, 2), 'utf-8');
+        await saveJsonFile(outputPath, chartData);
         console.log(`  ✓ Total return (${timeframe}) with ${getDefaultInterval(timeframe)} interval saved`);
     }
 }
@@ -986,53 +986,40 @@ async function main() {
 
     // 1. Equity Curve
     const equityData = generateEquityCurveData(trades);
-    saveJsonFileSync('index.directory/assets/charts/equity-curve-data.json', equityData);
+    await saveJsonFile('index.directory/assets/charts/equity-curve-data.json', equityData);
     console.log('  ✓ Equity curve data saved');
 
     // 2. Win/Loss Ratio by Strategy
     const winLossRatioData = generateWinLossRatioByStrategyData(trades);
-    saveJsonFileSync('index.directory/assets/charts/win-loss-ratio-by-strategy-data.json', winLossRatioData);
+    await saveJsonFile('index.directory/assets/charts/win-loss-ratio-by-strategy-data.json', winLossRatioData);
     console.log('  ✓ Win/Loss ratio by strategy data saved');
 
     // 3. Performance by Day
     const dayData = generatePerformanceByDayData(trades);
-    saveJsonFileSync('index.directory/assets/charts/performance-by-day-data.json', dayData);
+    await saveJsonFile('index.directory/assets/charts/performance-by-day-data.json', dayData);
     console.log('  ✓ Performance by day data saved');
 
     // 4. Ticker Performance
     const tickerData = generateTickerPerformanceData(trades);
-    saveJsonFileSync('index.directory/assets/charts/ticker-performance-data.json', tickerData);
+    await saveJsonFile('index.directory/assets/charts/ticker-performance-data.json', tickerData);
     console.log('  ✓ Ticker performance data saved');
     
     // 5. Time of Day Performance
     const timeOfDayData = generateTimeOfDayPerformanceData(trades);
-    saveJsonFileSync('index.directory/assets/charts/time-of-day-performance-data.json', timeOfDayData);
+    await saveJsonFile('index.directory/assets/charts/time-of-day-performance-data.json', timeOfDayData);
     console.log('  ✓ Time of day performance data saved');
     
     // 6. Portfolio Value Charts (all timeframes)
     console.log('\nGenerating Portfolio Value charts...');
-    generatePortfolioValueCharts(trades, accountConfig);
+    await generatePortfolioValueCharts(trades, accountConfig);
     
     // 7. Total Return Charts (all timeframes)
     console.log('\nGenerating Total Return charts...');
-    generateTotalReturnCharts(trades, accountConfig);
+    await generateTotalReturnCharts(trades, accountConfig);
 
     // Generate static charts (PNG images) - not available in JavaScript
     console.log('\nStatic chart generation skipped (matplotlib not available in JavaScript)');
     console.log('Use Chart.js in the browser for interactive charts instead');
-}
-
-// Sync helper functions
-function ensureDirectorySync(dir) {
-    fsSync.mkdirSync(dir, { recursive: true });
-}
-
-function saveJsonFileSync(filepath, data) {
-    const dir = path.dirname(filepath);
-    if (dir) {
-        ensureDirectorySync(dir);
-    }
-    fsSync.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 // Run main if executed directly
