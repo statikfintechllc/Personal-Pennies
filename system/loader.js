@@ -147,6 +147,11 @@ async function initializeVFS() {
     console.log('[VFS] Virtual Filesystem ready');
     console.log('[VFS] Files:', stats.totalFiles, '| Size:', stats.totalSizeMB, 'MB');
     
+    // ALWAYS sync repository data on page load to catch external changes
+    // This ensures VFS reflects the latest repository state (trades, config, notes, books)
+    console.log('[VFS] Syncing with repository to detect external changes...');
+    await syncRepositoryDataToVFS();
+    
     // Install VFS fetch adapter to intercept all fetch calls
     window.PersonalPenniesSystem.VFSAdapter.installGlobalVFSFetch();
     console.log('[VFS] Fetch adapter installed - fetch() now reads from IndexedDB first');
@@ -168,8 +173,154 @@ async function initializeVFS() {
 }
 
 /**
+ * Sync repository data directories to VFS
+ * This fetches trade files, config, notes, and books from the repository
+ * to ensure VFS has the latest data even if files were changed externally
+ */
+async function syncRepositoryDataToVFS() {
+  try {
+    const basePath = window.location.origin + window.location.pathname.split('/').slice(0, -1).join('/');
+    
+    // Critical data paths to sync
+    const dataPaths = [
+      'index.directory/trades-index.json',
+      'index.directory/account-config.json',
+      'index.directory/notes-index.json',
+      'index.directory/books-index.json'
+    ];
+    
+    // Sync critical data files
+    for (const path of dataPaths) {
+      try {
+        const response = await window._originalFetch(`${basePath}/${path}`);
+        if (response.ok) {
+          const content = await response.text();
+          await window.PersonalPenniesVFS.writeFile(path, content);
+          console.log(`[VFS-Sync] Updated ${path}`);
+        }
+      } catch (err) {
+        // File might not exist, that's ok
+        console.log(`[VFS-Sync] Skipped ${path} (not found or error)`);
+      }
+    }
+    
+    // Sync trade files from repository
+    await syncTradeFiles(basePath);
+    
+    // Sync notes files from repository
+    await syncNotesFiles(basePath);
+    
+    // Sync books files from repository  
+    await syncBooksFiles(basePath);
+    
+    console.log('[VFS-Sync] Repository sync complete');
+    
+  } catch (error) {
+    console.error('[VFS-Sync] Error syncing repository data:', error);
+  }
+}
+
+/**
+ * Sync trade markdown files from repository
+ */
+async function syncTradeFiles(basePath) {
+  try {
+    // Fetch the trades index to know what files exist
+    const response = await window._originalFetch(`${basePath}/index.directory/trades-index.json`);
+    if (!response.ok) return;
+    
+    const tradesIndex = await response.json();
+    const trades = tradesIndex.trades || [];
+    
+    // Sync each trade file
+    for (const trade of trades) {
+      if (trade.file_path) {
+        try {
+          const tradeResponse = await window._originalFetch(`${basePath}/${trade.file_path}`);
+          if (tradeResponse.ok) {
+            const content = await tradeResponse.text();
+            await window.PersonalPenniesVFS.writeFile(trade.file_path, content);
+          }
+        } catch (err) {
+          // Ignore individual file errors
+        }
+      }
+    }
+    
+    console.log(`[VFS-Sync] Synced ${trades.length} trade files`);
+  } catch (error) {
+    console.error('[VFS-Sync] Error syncing trade files:', error);
+  }
+}
+
+/**
+ * Sync notes markdown files from repository
+ */
+async function syncNotesFiles(basePath) {
+  try {
+    const response = await window._originalFetch(`${basePath}/index.directory/notes-index.json`);
+    if (!response.ok) return;
+    
+    const notesIndex = await response.json();
+    const notes = notesIndex.notes || [];
+    
+    for (const note of notes) {
+      if (note.path) {
+        try {
+          const noteResponse = await window._originalFetch(`${basePath}/${note.path}`);
+          if (noteResponse.ok) {
+            const content = await noteResponse.text();
+            await window.PersonalPenniesVFS.writeFile(note.path, content);
+          }
+        } catch (err) {
+          // Ignore individual file errors
+        }
+      }
+    }
+    
+    console.log(`[VFS-Sync] Synced ${notes.length} note files`);
+  } catch (error) {
+    console.error('[VFS-Sync] Error syncing note files:', error);
+  }
+}
+
+/**
+ * Sync book markdown files from repository
+ */
+async function syncBooksFiles(basePath) {
+  try {
+    const response = await window._originalFetch(`${basePath}/index.directory/books-index.json`);
+    if (!response.ok) return;
+    
+    const booksIndex = await response.json();
+    const books = booksIndex.books || [];
+    
+    for (const book of books) {
+      if (book.path) {
+        try {
+          const bookResponse = await window._originalFetch(`${basePath}/${book.path}`);
+          if (bookResponse.ok) {
+            const content = await bookResponse.text();
+            await window.PersonalPenniesVFS.writeFile(book.path, content);
+          }
+        } catch (err) {
+          // Ignore individual file errors
+        }
+      }
+    }
+    
+    console.log(`[VFS-Sync] Synced ${books.length} book files`);
+  } catch (error) {
+    console.error('[VFS-Sync] Error syncing book files:', error);
+  }
+}
+
+/**
  * Check if pipeline should run on page load to regenerate analytics/charts
  * This ensures users always have up-to-date analytics when they refresh the page
+ * 
+ * After syncing repository data, we ALWAYS run the pipeline to ensure
+ * analytics, charts, and summaries reflect the current trade data
  */
 async function checkAndRunPipelineOnLoad() {
   try {
@@ -183,39 +334,20 @@ async function checkAndRunPipelineOnLoad() {
       return;
     }
     
-    // Check if we have trade files in VFS
-    const tradeFiles = await window.PersonalPenniesSystem.VFS.listFiles('index.directory/SFTi.Tradez/', { recursive: true });
-    const hasTrades = tradeFiles && tradeFiles.length > 0;
+    // Load trades index to check if we have any trades
+    const tradesIndexContent = await window.PersonalPenniesSystem.VFS.readFile('index.directory/trades-index.json');
+    const tradesIndex = JSON.parse(tradesIndexContent);
+    const hasTrades = tradesIndex.trades && tradesIndex.trades.length > 0;
     
     if (!hasTrades) {
-      console.log('[Workflow] No trade files found, skipping pipeline on load');
+      console.log('[Workflow] No trades found, skipping pipeline on load');
       return;
     }
     
-    // Check if analytics exist
-    const analyticsExists = await window.PersonalPenniesSystem.VFS.fileExists('index.directory/assets/charts/analytics-data.json');
-    
-    if (!analyticsExists) {
-      console.log('[Workflow] Analytics missing, triggering pipeline to regenerate...');
-      await triggerPipeline('page-load-analytics-missing');
-      return;
-    }
-    
-    // Check timestamps to see if analytics are stale
-    const tradesIndexData = await window.PersonalPenniesSystem.VFS.stat('index.directory/trades-index.json');
-    const analyticsData = await window.PersonalPenniesSystem.VFS.stat('index.directory/assets/charts/analytics-data.json');
-    
-    const tradesModified = new Date(tradesIndexData.lastModified);
-    const analyticsModified = new Date(analyticsData.lastModified);
-    
-    // If trades were modified after analytics, regenerate
-    if (tradesModified > analyticsModified) {
-      console.log('[Workflow] Analytics are stale (trades modified after analytics), triggering pipeline...');
-      await triggerPipeline('page-load-stale-analytics');
-      return;
-    }
-    
-    console.log('[Workflow] Analytics are up-to-date, no pipeline run needed on page load');
+    // After repository sync, ALWAYS run pipeline to regenerate analytics
+    // This ensures analytics reflect the latest trade data from repository
+    console.log('[Workflow] Repository data synced, triggering pipeline to regenerate analytics...');
+    await triggerPipeline('page-load-after-repo-sync');
     
   } catch (error) {
     console.error('[Workflow] Error checking pipeline on load:', error);
