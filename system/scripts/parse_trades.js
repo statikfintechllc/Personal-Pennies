@@ -22,9 +22,9 @@ const { saveJsonFile } = require('./globals_utils');
 
 // File system abstraction - use VFS in browser, fs in Node.js
 let fs;
-if (typeof window !== 'undefined' && window.PersonalPenniesSystem?.VFS) {
+if (typeof window !== 'undefined' && window.PersonalPenniesVFS) {
   // Browser: use VFS
-  const VFS = window.PersonalPenniesSystem.VFS;
+  const VFS = window.PersonalPenniesVFS;
   fs = {
     async readFile(filepath, encoding) {
       return await VFS.readFile(filepath);
