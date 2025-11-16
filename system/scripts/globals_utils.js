@@ -190,6 +190,33 @@ function saveJsonFileSync(filepath, data, indent = 2) {
 }
 
 /**
+ * Save text content to a file (async, VFS-aware)
+ * 
+ * @param {string} filepath - Path to save text file
+ * @param {string} content - Text content to save
+ * @param {string} encoding - Character encoding (default: 'utf-8')
+ * @returns {Promise<boolean>} True if successful, False otherwise
+ * 
+ * @example
+ * await saveTextFile("output.md", "# Hello World");
+ */
+async function saveTextFile(filepath, content, encoding = 'utf-8') {
+    try {
+        // Ensure directory exists
+        const directory = path.dirname(filepath);
+        if (directory) {
+            await ensureDirectory(directory);
+        }
+        
+        await fs.writeFile(filepath, content, encoding);
+        return true;
+    } catch (error) {
+        console.log(`Error saving to ${filepath}: ${error.message}`);
+        return false;
+    }
+}
+
+/**
  * Parse a date string into a Date object with error handling.
  * Supports ISO format dates (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS).
  * 
@@ -404,6 +431,7 @@ module.exports = {
     loadJsonFileSync,
     saveJsonFile,
     saveJsonFileSync,
+    saveTextFile,
     parseDate,
     formatCurrency,
     safeDivide,
@@ -414,4 +442,4 @@ module.exports = {
 };
 
 // ES Module exports for browser compatibility
-export { setupImports,ensureDirectory,ensureDirectorySync,loadJsonFile,loadJsonFileSync,saveJsonFile,saveJsonFileSync,parseDate,formatCurrency,safeDivide,getWeekFolder,calculateTimeInTrade,validateRequiredFields,roundDecimals };
+export { setupImports,ensureDirectory,ensureDirectorySync,loadJsonFile,loadJsonFileSync,saveJsonFile,saveJsonFileSync,saveTextFile,parseDate,formatCurrency,safeDivide,getWeekFolder,calculateTimeInTrade,validateRequiredFields,roundDecimals };

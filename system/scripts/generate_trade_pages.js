@@ -380,7 +380,7 @@ function main() {
         const filename = `trade-${String(tradeNumber).padStart(3, '0')}-${ticker}.html`;
         const filepath = path.join(outputDir, filename);
 
-        fsSync.writeFileSync(filepath, htmlContent, 'utf-8');
+        await saveTextFile(filepath, htmlContent);
 
         console.log(`Generated: ${filepath}`);
     }
