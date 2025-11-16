@@ -223,23 +223,24 @@
 
       // Calculate week key
       const entryDate = new Date(formData.entry_date);
-      const weekKey = window.SFTiUtils.getYearWeekNumber(entryDate);
+      const weekKey = window.PersonalPenniesUtils.getYearWeekNumber(entryDate);
       console.log('[AddTrade] Week key:', weekKey);
 
-      // Save trade using DataAccess
-      const tradeKey = await window.PersonalPenniesDataAccess.saveTrade(weekKey, formData);
+      // Save trade to IndexedDB
+      const { saveTrade } = window.PersonalPenniesSystem.DB;
+      const tradeKey = await saveTrade(weekKey, formData);
       console.log('[AddTrade] Trade saved:', tradeKey);
 
-      // Emit event to trigger pipeline (app.js will handle regeneration)
+      // Emit event to trigger pipeline
       if (window.SFTiEventBus) {
-        window.SFTiEventBus.emit('trades:updated', { key: tradeKey, data: formData });
+        window.SFTiEventBus.emit('trade:added', { key: tradeKey, data: formData });
       }
 
       // Show success message with trade number
       if (window.showToast) {
-        window.showToast(`Trade #${formData.trade_number} added successfully! Generating analytics...`, 'success');
+        window.showToast(`Trade #${formData.trade_number} added successfully! Processing pipeline...`, 'success');
       } else {
-        alert('Trade added successfully! Generating analytics...');
+        alert('Trade added successfully! Processing pipeline...');
       }
 
       // Reset form
